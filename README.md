@@ -1,13 +1,14 @@
 # padloc: prokaryotic antiviral defence locator
 
-<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> <a href="https://github.com/leightonpayne/padlocDB/" alt="Contributors"><img src="https://img.shields.io/badge/download-padlocDB-blue" /></a> # shields don't work until repo is public
+<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> <a href="https://github.com/leightonpayne/padlocDB/" alt="Contributors"><img src="https://img.shields.io/badge/download-padlocDB-blue" /></a> (shields don't work until repo is public)
 
+padloc is a tool for indentifying antiviral defence systems in prokaryotic genomes. Defence system proteins are searched using a curated database of profile Hidden Markov Models. Defence systems are identified with custom models defining typical defence system loci.
 
-- [Citation](#citation)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Overview](#overview)
-- [Dependencies](#dependencies)
+[Citation](#citation)
+[Installation](#installation)
+[Usage](#usage)
+[Overview](#overview)
+[Dependencies](#dependencies)
 
 ## Citation <a name="citation"> </a>
 
