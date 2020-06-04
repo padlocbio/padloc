@@ -45,7 +45,7 @@ If the PATH variable was set correctly, this should output:
         ___       ___                           ___       ___   
        /  /\     /  /\     _____               /  /\     /  /\  
       /  /::\   /  /::\   /  /::\   ___  __   /  /::\   /  /:/_
-     /  /:/:/  /  /:/::\ /  /:/\:\ /  /\/ /\ /  /:/\:\ /  /:/ /\\
+     /  /:/:/  /  /:/::\ /  /:/\:\ /  /\/ /\ /  /:/\:\ /  /:/ /\
      \  \::/   \  \::/\/ \  \:\/:/ \  \:\/:/ \  \:\/:/ \  \:\/:/
       \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
        \__\/     \__\/     \__\/     \__\/     \__\/     \__\/          
@@ -89,8 +89,8 @@ Optional:
 │       └── *.yml               <- Models describing defence system architecture.
 ├── src
 │   ├── check_packages.R        <- Checks that required R packages are installed.
-│   └── padloc.R                <- Handles the majority of 
-├── README.md										<- This document.
+│   └── padloc.R                <- Handles system identification.
+├── README.md                   <- This document.
 └── padloc                      <- The main script run from the command line.
 ```
 
