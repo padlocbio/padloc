@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# padloc :: A tool for identifying phage defence systems in prokaryotic genomes
+# padloc :: Locate antiviral defence systems in prokaryotic genomes
 # https://github.com/leightonpayne/padloc
 # Copyright (c) 2020 Leighton Payne
 
@@ -66,7 +66,7 @@ cat << EOF
       \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
        \__\/     \__\/     \__\/     \__\/     \__\/     \__\/          
 
-padloc :: A tool for identifying phage defence systems in prokaryotic genomes
+padloc :: Locate antiviral defence systems in prokaryotic genomes
 
 Usage: 
     padloc [options] --fasta <f> --featbl <f> --out <d>
@@ -208,9 +208,11 @@ hmmsearch_wrapper() {
     # Set output
     local output="${DOMTBL_PATH}"
     # Print command
-    debug "hmmsearch --cpu ${CPU} --acc --noali --domtblout ${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
+    debug "hmmsearch --cpu ${CPU} --acc --noali --domtblout \
+${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
     # Run hmmer, redirect stdout to /dev/null
-    if hmmsearch --cpu "${CPU}" --acc --noali --domtblout "${output}" "${HMM_DATABASE}" "${FASTA_FILE}" > /dev/null; then
+    if hmmsearch --cpu "${CPU}" --acc --noali --domtblout "${output}" \
+      "${HMM_DATABASE}" "${FASTA_FILE}" > /dev/null; then
       debug "Finished @ $(date) ... SUCCESSFUL\n"
     else
       debug "Finished @ $(date) ... FAILED\n"
@@ -222,9 +224,11 @@ hmmsearch_wrapper() {
     # Set output
     local output="${DOMTBL_PATH}.tmp"
     # Print command
-    debug "hmmsearch --cpu ${CPU} --acc --noali --domtblout ${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
+    debug "hmmsearch --cpu ${CPU} --acc --noali --domtblout 
+${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
     # Run hmmer, redirect stdout to /dev/null
-    if hmmsearch --cpu "${CPU}" --acc --noali --domtblout "${output}" "${HMM_DATABASE}" "${FASTA_FILE}" > /dev/null; then
+    if hmmsearch --cpu "${CPU}" --acc --noali --domtblout "${output}" \
+      "${HMM_DATABASE}" "${FASTA_FILE}" > /dev/null; then
       # If command runs successfully
       debug "Finished @ $(date) ... SUCCESSFUL\n"
       # Append to existing file
@@ -243,14 +247,19 @@ hmmsearch_wrapper() {
 # Main program
 main() { 
 
-  printf "\n"
-
-  # Check options
-  check_opt
-
   # Locate source directory
   SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
   debug "\$SRC_DIR: ${SRC_DIR}\n"
+
+  printf "\n"
+
+  # Check that data is unpacked
+  [[ "${SRC_DIR}/data.tar.gz" && ! -d "${SRC_DIR}/data" ]] \
+  && info "data.tar.gz is not unpacked yet, unpacking...\n\n" \
+  && tar -xvzf "${SRC_DIR}/data.tar.gz"
+
+  # Check options
+  check_opt
 
   HMM_DATABASE="${SRC_DIR}/data/hmm/padlocDB.hmm"
   YAML_DIR="${SRC_DIR}/data/sys"
@@ -258,29 +267,29 @@ main() {
   SYS_META="${SRC_DIR}/data/sys_meta.xlsx"
 
   # Check that required R packages are installed
-  Rscript "${SRC_DIR}/src/check_packages.R"
+  Rscript "${SRC_DIR}/bin/check_packages.R"
   # Stop if there were missing packages
   [[ $? -ne 0 ]] && exit 1
   debug "Required R packages are installed\n"
 
-  ### Cleanup ###
+  # Cleanup
 
   [[ "${CLEANUP}" -eq 1 && -d "${OUT_DIR}/domtblout" ]] \
   && rm -dr "${OUT_DIR}/domtblout"
 
-  ### Run HMMER ###
+  # Run HMMER
 
-  info "Scaning ${FASTA_NAME} for defence system proteins\n"
+  info "Scanning ${FASTA_NAME} for defence system proteins\n"
 
   mkdir -p "${OUT_DIR}/domtblout"
 
   hmmsearch_wrapper "${FASTA_FILE}"
 
-  ### Run padloc.R ###
+  # Run padloc.R
   
   info "Searching ${FASTA_NAME} for defence systems\n"
 
-  Rscript "${SRC_DIR}/src/padloc.R" -d "${DOMTBL_PATH}" -f "${FEATBL_FILE}" \
+  Rscript "${SRC_DIR}/bin/padloc.R" -d "${DOMTBL_PATH}" -f "${FEATBL_FILE}" \
   -a "${HMM_META}" -s "${SYS_META}" -y "${YAML_DIR}" -o "${OUT_DIR}" \
   -b "${USE_DEBUG}" -q "${QUIET}"
 

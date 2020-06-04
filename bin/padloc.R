@@ -8,11 +8,9 @@
 #       \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
 #        \__\/     \__\/     \__\/     \__\/     \__\/     \__\/                 
 # 
-# PADLOC: A tool for identifying phage defence systems in prokaryotic genomes
+# padloc: Locate antiviral defence systems in prokaryotic genomes
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# LOAD PACKAGES 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# LOAD PACKAGES ---------------------------------------------------------------
 
 library(yaml)
 library(plyr)
@@ -25,12 +23,9 @@ library(parallel)
 library(getopt)
 library(readxl)
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# FUNCTIONS
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# SCRIPT UTILITIES ------------------------------------------------------------
 
-# debug_msg()
-# usage: debug_msg(message)
+# debug_msg(message)
 # print message when using debug
 debug_msg <- function(msg) {
   if ( DEBUG_COUNTER > 0 ) {
@@ -39,8 +34,7 @@ debug_msg <- function(msg) {
   }
 }
 
-# warning_msg()
-# usage: warning_msg(message)
+# warning_msg(message)
 # print warning message
 warning_msg <- function(msg) {
   if ( QUIET < 1 ) {
@@ -49,8 +43,7 @@ warning_msg <- function(msg) {
   }
 }
 
-# die()
-# usage: die(message)
+# die(message)
 # print error message and quit
 die <- function(msg) {
   write(paste0("\n(", format(Sys.time(), "%X"), 
@@ -58,9 +51,7 @@ die <- function(msg) {
   stop("Fatal error encountered, stopping padloc ...\n\n", call. = FALSE)
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# ARGUMENT PARSING
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# ARGUMENT PARSING ------------------------------------------------------------
 
 # set spec
 spec = matrix(c(
@@ -96,9 +87,7 @@ QUIET         <- opt$quiet
 # DEBUG_COUNTER <- 1
 # QUIET         <- 0
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# CHECK ARGUMENTS
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# CHECK ARGUMENTS -------------------------------------------------------------
 
 # list required parameters
 required_parameters <- 
@@ -153,12 +142,10 @@ for ( i in 1:length(required_parameters) ) {
 YAML_DIR   <- unlist(unname(required_parameters["yaml directory"]))
 OUTPUT_DIR <- unlist(unname(required_parameters["output directory"]))
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# FUNCTIONS 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# FUNCTIONS -------------------------------------------------------------------
 
-# read_aliastbl()
-# usage: read_aliastbl(path to alias file)
+# read_aliastbl(path to alias file)
+# read in aliastbl file (i.e. hmm_meta.xlsx)
 read_aliastbl <- function(aliastbl_path) {
   
   # read in the HMM alias table
@@ -218,9 +205,8 @@ read_aliastbl <- function(aliastbl_path) {
   
 }
 
-# read_systbl()
-# usage: read_systbl(path to systems summary file)
-# used to get the names of systems for searching
+# read_systbl(path to systems summary file)
+# read in the systbl file (i.e. sys_meta.xlsx) and get the names of systems
 read_systbl <- function(systbl_path) {
   
   # read in the systems summary
@@ -229,7 +215,7 @@ read_systbl <- function(systbl_path) {
     skip = 1,
     col_names = c(
       "system", "type", "yaml.name", "search", "within", 
-      "neighbours", "notes")) 
+      "around", "notes")) 
      
   
   # grab the names of systems that are marked TRUE for searching
@@ -240,8 +226,7 @@ read_systbl <- function(systbl_path) {
   
 }
 
-# read_domtbl()
-# usage: read_domtbl(path to domain table file)
+# read_domtbl(path to domain table file)
 # used for parsing domain table into a dataframe
 read_domtbl <- function(domtbl_path) {
   
@@ -308,8 +293,7 @@ read_domtbl <- function(domtbl_path) {
   
 }
 
-# read_featbl() 
-# usage: read_featbl(path to feature table file)
+# read_featbl(path to feature table file)
 # used for parsing feature table into a dataframe
 read_featbl <- function(featbl_path) {
 
@@ -347,8 +331,7 @@ read_featbl <- function(featbl_path) {
   
 }
 
-# merge_tbls() 
-# usage: merge_tbls(domtbl, featbl, aliastbl)
+# merge_tbls(domtbl, featbl, aliastbl)
 # used for merging the domtbl, featbl, and aliastbl
 merge_tbls <- function(domtbl, featbl, aliastbl) {
   
@@ -392,8 +375,7 @@ merge_tbls <- function(domtbl, featbl, aliastbl) {
   
 }
 
-# search_system()
-# usage: search_system(name of system, merged domtbl/featbl dataframe)
+# search_system(name of system, merged domtbl/featbl dataframe)
 # used for identifying complete defence systems in the domain table data
 search_system <- function(system_type, merged_tbls) {
   
@@ -557,7 +539,7 @@ search_system <- function(system_type, merged_tbls) {
   candidates_checked <- candidates_check %>% 
     filter(candidate == TRUE)
   
-  ### return genes within/neighbouring the defence system ###
+  ### return genes within/around the defence system ###
 
   # check that a system was actually found
   if ( nrow(candidates_checked) != 0 ) {
@@ -591,35 +573,35 @@ search_system <- function(system_type, merged_tbls) {
 
     }
 
-    # check whether we want genes neighbouring the cluster
-    neighbour_check <-
+    # check whether we want genes around the cluster
+    around_check <-
       system_definitions %>%
       filter(yaml.name == system_type) %>%
-      select(neighbours)
+      select(around)
 
-    ifelse(is.na(neighbour_check) == TRUE,
-           neighbour_check <- FALSE,
-           neighbour_check <- as.numeric(neighbour_check))
+    ifelse(is.na(around_check) == TRUE,
+           around_check <- FALSE,
+           around_check <- as.numeric(around_check))
 
-    if ( neighbour_check > 0 ) {
+    if ( around_check > 0 ) {
 
-      neighbouring_limits <- candidates_checked %>%
+      around_limits <- candidates_checked %>%
         group_by(cluster) %>%
         do(data.frame(lower = min(.$relative.position),
                       upper = max(.$relative.position))) %>%
         ungroup()
 
-      genes_neighbouring <- apply(
-        X = neighbouring_limits,
+      genes_around <- apply(
+        X = around_limits,
         MARGIN = 1,
         FUN = pull_features,
         featbl = featbl,
-        range = as.numeric(neighbour_check))
+        range = as.numeric(around_check))
       
-      genes_neighbouring <- ldply(genes_neighbouring, rbind, .id = NULL) %>%
+      genes_around <- ldply(genes_around, rbind, .id = NULL) %>%
         dplyr::mutate(system = system_type)
       
-      genes_neighbouring_out <<- genes_neighbouring_out %>% rbind(genes_neighbouring)
+      genes_around_out <<- genes_around_out %>% rbind(genes_around)
 
     }
 
@@ -635,8 +617,7 @@ search_system <- function(system_type, merged_tbls) {
     
 }
 
-# pull_features()
-# usage: pull_features(dataframe of relative positions, feature table, )
+# pull_features(dataframe of relative positions, feature table, range)
 # used for pulling out the information of genes, specified by relative position
 pull_features <- function(df, featbl, range) {
 
@@ -650,8 +631,7 @@ pull_features <- function(df, featbl, range) {
   
 }
 
-# generate_gff() 
-# usage: generate_gff(padloc output dataframe)
+# generate_gff(padloc output dataframe)
 # used to generate an annotation file for the padloc output table
 generate_gff <- function(padloc_out) {
   
@@ -698,8 +678,8 @@ featbl <- read_featbl(FEATBL_PATH)
 debug_msg("Merging domain, alias, and feature tables")
 merged <- merge_tbls(domtbl, featbl, aliastbl)
 
-# set the genes_within_out and genes_neighbouring_out dataframe
-genes_within_out <- genes_neighbouring_out <- data.frame(
+# set the genes_within_out and genes_around_out dataframe
+genes_within_out <- genes_around_out <- data.frame(
     "assembly" = character(), "genomic_accession" = character(),
     "target_name" = character(), "start" = character(), "end" = character(), 
     "strand" = character(), "locus_tag" = character(), 
@@ -731,15 +711,15 @@ if ( nrow(padloc_out) > 0 ) {
 if ( nrow(genes_within_out) > 0 ) {
   
   genes_within_out %>% 
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_genes_within.csv"))
+    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_within.csv"))
   
 }
 
-# output table of genes neighbouring defence systems
-if ( nrow(genes_neighbouring_out) > 0 ) {
+# output table of genes around defence systems
+if ( nrow(genes_around_out) > 0 ) {
   
-  genes_neighbouring_out %>% 
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_genes_neighbouring.csv"))
+  genes_around_out %>% 
+    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_around.csv"))
   
 }
 
