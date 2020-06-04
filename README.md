@@ -1,4 +1,4 @@
-# padloc :: prokaryotic antiviral defence locator
+<center> <h1> padloc :: prokaryotic antiviral defence locator </h1> </center>
 
 [**Installation**](#installation)
 
