@@ -1,0 +1,197 @@
+# padloc :: Prokaryotic Antiviral Defence Locator
+
+[**Installation**](#installation)
+
+[**Usage**](#usage)
+
+[**Overview**](#overview)
+
+[**Dependencies**](#dependencies)
+
+[**Issues**](#issues)
+
+## Installation <a name="installation"> </a>
+
+`padloc` can be installed directly by cloning or downloading this github repository.
+
+1. Clone repo:
+
+```bash
+git clone https://github.com/leightonpayne/padloc
+```
+
+2. Add the padloc directory to the PATH variable of your profile of choice (.bash_profile, .bashrc, etc.):
+
+```bash
+export PATH=$PATH:/path/to/cloned/repo/padloc
+```
+
+3. Test the command to make sure your system knows the location of padloc.sh
+
+```bash
+which padloc
+```
+
+If the PATH variable was set correctly, this should output:
+
+```
+/path/to/cloned/repo/padloc/padloc
+```
+
+## Usage <a name="usage"> </a>
+
+```
+
+        ___       ___                           ___       ___   
+       /  /\     /  /\     _____               /  /\     /  /\  
+      /  /::\   /  /::\   /  /::\   ___  __   /  /::\   /  /:/_
+     /  /:/:/  /  /:/::\ /  /:/\:\ /  /\/ /\ /  /:/\:\ /  /:/ /\\
+     \  \::/   \  \::/\/ \  \:\/:/ \  \:\/:/ \  \:\/:/ \  \:\/:/
+      \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
+       \__\/     \__\/     \__\/     \__\/     \__\/     \__\/          
+
+padloc :: A tool for identifying phage defence systems in prokaryotic genomes
+
+Usage: 
+    padloc [options] --fasta <f> --featbl <f> --out <d>
+
+Required:
+    --fasta <f>     
+        Path to the input fasta file (*.faa) 
+    --featbl <f>    
+        Path to the input feature table file (*_feature_table.txt) 
+    --out <d>       
+        Path to the output directory <d>
+
+Optional:
+    --cpu <n>       
+        Set number of cpus to <n>, the default is 1
+    --raw-out       
+        Include a summarised raw output file for each genome searched
+    --append        
+        Append the hmmer output to exisitng results in out_dir/domtblout/
+    --cleanup
+        Remove domtblout/ from the output directory if left over from 
+        previous runs
+    -h, --help      
+        Display this help message
+```
+
+## Overview <a name="overview"> </a>
+
+```
+├── data
+│   ├── hmm_meta.xlsx           <- Contains metadata for the HMMs.
+│   ├── sys_meta.xlsx           <- Contains metadata for the models.
+│   ├── hmm
+│   │   └── padlocDB.hmm        <- Hidden Markov Models of defence system proteins.
+│   └── sys
+│       └── *.yml               <- Models describing defence system architecture.
+├── src
+│   ├── check_packages.R        <- Checks that required R packages are installed.
+│   └── padloc.R                <- Handles the majority of 
+├── README.md										<- This document.
+└── padloc                      <- The main script run from the command line.
+```
+
+`padloc` ships with an empty  `data/` directory. These files need to be download from padlocDB where they are maintained and updated separately:
+
+```bash
+git clone https://github.com/leightonpayne/padlocDB
+```
+
+Move or copy files into `data/`:
+
+```bash
+mv path/to/padlocDB/* path/to/padloc/data/
+```
+
+
+
+
+
+## Dependencies <a name="dependencies"> </a>
+
+### R
+
+> *R Core Team (2018). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/.*
+
+Install the R software environment from your preferred [CRAN mirror](https://cran.r-project.org/mirrors.html).
+
+#### R Packages
+
+The following R packages also need to be installed.
+
+##### Tidyverse
+
+- **dplyr**
+
+  *Wickham, H., et al. (2019). dplyr: A Grammar of Data Manipulation. R package version 0.8.1. https://CRAN.R-project.org/package=dplyr*
+
+- **plyr**
+
+  *Wickham, H. (2019). plyr: Tools for Splitting, Applying and Combining Data. R package version 1.8.5. https://CRAN.R-project.org/package=plyr*
+
+- **readr**
+
+  *Wickham, H., et al. (2018). readr: Read Rectangular Text Data. R package version 1.3.1. https://CRAN.R-project.org/package=readr*
+
+- **readxl**
+
+  *Wickham H., et al. (2019). readxl: Read Excel Files. R package version 1.3.0. https://CRAN.R-project.org/package=readxl*
+
+- **rlang**
+
+  *Henry, L., et al. (2019). rlang: Functions for Base Types and Core R and 'Tidyverse' Features. R package version 0.4.0. https://CRAN.R-project.org/package=rlang*
+
+- **stringr**
+
+  *Wickham, H. (2019). stringr: Simple, Consistent Wrappers for Common String Operations. R package version 1.4.0. https://CRAN.R-project.org/package=stringr*
+
+- **tidyr**
+
+  *Wickham, H., et al. (2019). tidyr: Easily Tidy Data with 'spread()' and 'gather()' Functions. R package version 0.8.3. https://CRAN.R-project.org/package=tidyr*
+
+##### Other
+
+- **yaml**
+
+  *Stephens, J., et al. (2018). yaml: Methods to Convert R Data to YAML and Back. R package version 2.2.0. https://CRAN.R-project.org/package=yaml*
+
+- **getopt**
+
+  *Davis, T., et al. (2019). getopt: C-Like 'getopt' Behavior. R package version 1.20.3. https://CRAN.R-project.org/package=getopt*
+
+### HMMER
+
+> *Finn, R.D., Clements, J., and Eddy, S.R. (2011). HMMER web server: interactive sequence similarity searching. Nucleic Acids Res 39, W29–W37.*
+
+HMMER can be installed using a precompiled package via [Homebrew](https://brew.sh/):
+
+```bash
+brew install hmmer
+```
+
+Alternatively, it can be compiled from the source code available at http://eddylab.org/sof
+
+Refer to the [HMMER User's Guide](http://eddylab.org/software/hmmer/Userguide.pdf) for more information.
+
+## Issues <a name="issues"> </a>
+
+- In the YAML files, each of `core_genes`, `other_genes`, and `prohibited_genes` need values attributed to them i.e. they cannot be left blank. For now, if you don't want to specify genes for any of these categories, use `tmp` as a placeholder.
+
+  For example:
+
+  ```yaml
+  core_genes:
+  - GeneA
+  - GeneB
+  
+  other_genes:
+  - tmp
+  	
+  prohibited_genes:
+  - tmp
+  ```
+  
+
