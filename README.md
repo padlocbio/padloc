@@ -12,7 +12,7 @@
 
 ## Installation <a name="installation"> </a>
 
-[padloc](https://github.com/leightonpayne/padloc) can be installed directly by cloning or downloading this github repository.
+padloc can be installed directly by cloning or downloading this github repository.
 
 1. Clone repo:
 
@@ -94,7 +94,7 @@ Optional:
 └── padloc                      <- The main script run from the command line.
 ```
 
-**N.B.** [padloc](https://github.com/leightonpayne/padloc) ships with an empty  `data/` directory. These files need to be download from [padlocDB](https://github.com/leightonpayne/padlocDB) where they are maintained and updated separately:
+**N.B.** padloc ships with an empty  `data/` directory. These files need to be download from [padlocDB](https://github.com/leightonpayne/padlocDB) where they are maintained and updated separately:
 
 1. Clone repo:
 
