@@ -1,4 +1,4 @@
-# padloc :: Prokaryotic Antiviral Defence Locator
+# padloc :: prokaryotic antiviral defence locator
 
 [**Installation**](#installation)
 
@@ -12,7 +12,7 @@
 
 ## Installation <a name="installation"> </a>
 
-`padloc` can be installed directly by cloning or downloading this github repository.
+[padloc](https://github.com/leightonpayne/padloc) can be installed directly by cloning or downloading this github repository.
 
 1. Clone repo:
 
@@ -94,7 +94,7 @@ Optional:
 └── padloc                      <- The main script run from the command line.
 ```
 
-`padloc` ships with an empty  `data/` directory. These files need to be download from padlocDB where they are maintained and updated separately:
+**N.B.** [padloc](https://github.com/leightonpayne/padloc) ships with an empty  `data/` directory. These files need to be download from [padlocDB](https://github.com/leightonpayne/padlocDB) where they are maintained and updated separately:
 
 ```bash
 git clone https://github.com/leightonpayne/padlocDB
@@ -105,10 +105,6 @@ Move or copy files into `data/`:
 ```bash
 mv path/to/padlocDB/* path/to/padloc/data/
 ```
-
-
-
-
 
 ## Dependencies <a name="dependencies"> </a>
 
@@ -175,23 +171,3 @@ brew install hmmer
 Alternatively, it can be compiled from the source code available at http://eddylab.org/sof
 
 Refer to the [HMMER User's Guide](http://eddylab.org/software/hmmer/Userguide.pdf) for more information.
-
-## Issues <a name="issues"> </a>
-
-- In the YAML files, each of `core_genes`, `other_genes`, and `prohibited_genes` need values attributed to them i.e. they cannot be left blank. For now, if you don't want to specify genes for any of these categories, use `tmp` as a placeholder.
-
-  For example:
-
-  ```yaml
-  core_genes:
-  - GeneA
-  - GeneB
-  
-  other_genes:
-  - tmp
-  	
-  prohibited_genes:
-  - tmp
-  ```
-  
-
