@@ -1,6 +1,6 @@
 # padloc: prokaryotic antiviral defence locator
 
-<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> (shields don't work until repo is public)
+<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> **((( shields don't work until repo is public )))**
 
 padloc is a tool for indentifying antiviral defence systems in prokaryotic genomes. Defence genes are identified using a curated database of profile Hidden Markov Models, grouped into putative operons and screened against models that depict the typical genetic layout of many different defence systems.
 
@@ -63,6 +63,8 @@ padloc
 tar -xvzf data.tar.gz && rm data.tar.gz
 ```
 
+The HMMs and system models of `data.tar.gz` are maintained separately as [padlocDB](https://github.com/leightonpayne/padlocDB). padloc will always contain the latest stable release of padlocDB.
+
 ## Usage <a name="usage"> </a>
 
 ```
@@ -106,7 +108,7 @@ output
 ├── *_pdlcout.csv           <- padloc output file.
 ├── *_around.csv            <- information for genes around the identified defence systems.
 ├── *_within.csv            <- information for genes within the identified defence systems.
-└── *.gff                   <- GFF anotation file for identified defence systems.
+└── *.gff                   <- GFF annotation file for identified defence systems.
 ```
 
 If the same output directory is used when processing multiple genomes, `*.domtblout` files will accumulate in the `domtblout/` directory. If the `*.domtblout` file already exists for a particular genome, `hmmsearch` will not be run again for that genome unless `--append` is specified. In which case, the output of `hmmsearch` will be appended to the existing `*.domtblout` file. When processing multiple genomes in batches, this allows for the pipeline to be resumed if it is interrupted.
