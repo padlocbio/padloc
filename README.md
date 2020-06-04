@@ -4,15 +4,11 @@
 
 padloc is a tool for indentifying antiviral defence systems in prokaryotic genomes. Defence genes are identified using a curated database of profile Hidden Markov Models, grouped into putative operons and screened against models that depict the typical genetic layout of many different defence systems.
 
-[Citation](#citation)
-
-[Installation](#installation)
-
-[Overview](#overview)
-
-[Usage](#usage)
-
-[Dependencies](#dependencies)
+- [Citation](#citation)
+- [Installation](#installation)
+- [Overview](#overview)
+- [Usage](#usage)
+- [Dependencies](#dependencies)
 
 ## Citation <a name="citation"> </a>
 
