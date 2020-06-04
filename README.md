@@ -116,49 +116,31 @@ git clone https://github.com/leightonpayne/padlocDB
 
 Install the R software environment from your preferred [CRAN mirror](https://cran.r-project.org/mirrors.html).
 
-#### R Packages
+### R Packages
 
 The following R packages also need to be installed.
 
-##### Tidyverse
+#### Tidyverse
 
-- **dplyr**
+- **dplyr**; *Wickham, H., et al. (2019). dplyr: A Grammar of Data Manipulation. R package version 0.8.1. https://CRAN.R-project.org/package=dplyr*
 
-  *Wickham, H., et al. (2019). dplyr: A Grammar of Data Manipulation. R package version 0.8.1. https://CRAN.R-project.org/package=dplyr*
+- **plyr**; *Wickham, H. (2019). plyr: Tools for Splitting, Applying and Combining Data. R package version 1.8.5. https://CRAN.R-project.org/package=plyr*
 
-- **plyr**
+- **readr**; *Wickham, H., et al. (2018). readr: Read Rectangular Text Data. R package version 1.3.1. https://CRAN.R-project.org/package=readr*
 
-  *Wickham, H. (2019). plyr: Tools for Splitting, Applying and Combining Data. R package version 1.8.5. https://CRAN.R-project.org/package=plyr*
+- **readxl**; *Wickham H., et al. (2019). readxl: Read Excel Files. R package version 1.3.0. https://CRAN.R-project.org/package=readxl*
 
-- **readr**
+- **rlang**; *Henry, L., et al. (2019). rlang: Functions for Base Types and Core R and 'Tidyverse' Features. R package version 0.4.0. https://CRAN.R-project.org/package=rlang*
 
-  *Wickham, H., et al. (2018). readr: Read Rectangular Text Data. R package version 1.3.1. https://CRAN.R-project.org/package=readr*
+- **stringr**; *Wickham, H. (2019). stringr: Simple, Consistent Wrappers for Common String Operations. R package version 1.4.0. https://CRAN.R-project.org/package=stringr*
 
-- **readxl**
+- **tidyr**; *Wickham, H., et al. (2019). tidyr: Easily Tidy Data with 'spread()' and 'gather()' Functions. R package version 0.8.3. https://CRAN.R-project.org/package=tidyr*
 
-  *Wickham H., et al. (2019). readxl: Read Excel Files. R package version 1.3.0. https://CRAN.R-project.org/package=readxl*
+#### Other
 
-- **rlang**
+- **yaml**; *Stephens, J., et al. (2018). yaml: Methods to Convert R Data to YAML and Back. R package version 2.2.0. https://CRAN.R-project.org/package=yaml*
 
-  *Henry, L., et al. (2019). rlang: Functions for Base Types and Core R and 'Tidyverse' Features. R package version 0.4.0. https://CRAN.R-project.org/package=rlang*
-
-- **stringr**
-
-  *Wickham, H. (2019). stringr: Simple, Consistent Wrappers for Common String Operations. R package version 1.4.0. https://CRAN.R-project.org/package=stringr*
-
-- **tidyr**
-
-  *Wickham, H., et al. (2019). tidyr: Easily Tidy Data with 'spread()' and 'gather()' Functions. R package version 0.8.3. https://CRAN.R-project.org/package=tidyr*
-
-##### Other
-
-- **yaml**
-
-  *Stephens, J., et al. (2018). yaml: Methods to Convert R Data to YAML and Back. R package version 2.2.0. https://CRAN.R-project.org/package=yaml*
-
-- **getopt**
-
-  *Davis, T., et al. (2019). getopt: C-Like 'getopt' Behavior. R package version 1.20.3. https://CRAN.R-project.org/package=getopt*
+- **getopt**; *Davis, T., et al. (2019). getopt: C-Like 'getopt' Behavior. R package version 1.20.3. https://CRAN.R-project.org/package=getopt*
 
 ### HMMER
 
