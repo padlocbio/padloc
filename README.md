@@ -1,14 +1,19 @@
-<center> <h1> padloc :: prokaryotic antiviral defence locator </h1> </center>
+# padloc
 
-[**Installation**](#installation)
+###### prokaryotic antiviral defence locator
 
-[**Usage**](#usage)
+<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> <a href="https://github.com/leightonpayne/padlocDB/" alt="Contributors"><img src="https://img.shields.io/badge/download-padlocDB-blue" /></a> # shields don't work until repo is public
 
-[**Overview**](#overview)
 
-[**Dependencies**](#dependencies)
+- [Citation](#citation)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Overview](#overview)
+- [Dependencies](#dependencies)
 
-[**Issues**](#issues)
+## Citation
+
+tbd
 
 ## Installation <a name="installation"> </a>
 
@@ -41,15 +46,6 @@ If the PATH variable was set correctly, this should output:
 ## Usage <a name="usage"> </a>
 
 ```
-
-        ___       ___                           ___       ___   
-       /  /\     /  /\     _____               /  /\     /  /\  
-      /  /::\   /  /::\   /  /::\   ___  __   /  /::\   /  /:/_
-     /  /:/:/  /  /:/::\ /  /:/\:\ /  /\/ /\ /  /:/\:\ /  /:/ /\
-     \  \::/   \  \::/\/ \  \:\/:/ \  \:\/:/ \  \:\/:/ \  \:\/:/
-      \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
-       \__\/     \__\/     \__\/     \__\/     \__\/     \__\/          
-
 padloc :: A tool for identifying phage defence systems in prokaryotic genomes
 
 Usage: 
