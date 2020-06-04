@@ -1,6 +1,8 @@
-# padloc
+padloc
 
-##### prokaryotic antiviral defence locator
+======
+
+prokaryotic antiviral defence locator
 
 <a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> <a href="https://github.com/leightonpayne/padlocDB/" alt="Contributors"><img src="https://img.shields.io/badge/download-padlocDB-blue" /></a> # shields don't work until repo is public
 
