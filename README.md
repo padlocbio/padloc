@@ -1,6 +1,6 @@
 # padloc: prokaryotic antiviral defence locator
 
-<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="Contributors"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Contributors"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> **((( shields don't work until repo is public )))**
+<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="License"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> <a href="https://github.com/leightonpayne/padlocDB/releases" alt="Release"><img src="https://img.shields.io/github/v/release/leightonpayne/padlocDB" /></a> 
 
 padloc is a tool for indentifying antiviral defence systems in prokaryotic genomes. Defence genes are identified using a curated database of profile Hidden Markov Models, grouped into putative operons and screened against models that depict the typical genetic layout of many different defence systems.
 
@@ -24,7 +24,7 @@ padloc can be installed by cloning or downloading this github repository.
 git clone https://github.com/leightonpayne/padloc
 ```
 
-2. Add the padloc directory to the PATH in your profile of choice (.profile, .bashrc, .zshrc, etc.):
+2. Add the padloc directory to the $PATH in your profile of choice (.profile, .bashrc, .zshrc, etc.):
 
 ```bash
 export PATH=$PATH:/path/to/cloned/repo/padloc

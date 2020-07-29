@@ -371,7 +371,11 @@ merge_tbls <- function(domtbl, featbl, aliastbl) {
     dplyr::mutate(
       hmm.coverage = (hmm.coord.to - hmm.coord.from) / hmm.length,
       target.coverage = (alignment.coord.to - alignment.coord.from) / 
-        target.length, combined.coverage = hmm.coverage + target.coverage)
+        target.length, combined.coverage = hmm.coverage + target.coverage) %>%
+    dplyr::mutate(
+      hmm.coverage = round(hmm.coverage, 3),
+      target.coverage = round(target.coverage, 3)
+    )
   
 }
 
@@ -449,8 +453,9 @@ search_system <- function(system_type, merged_tbls) {
   collapsed_domains <- genes_classified %>%
     group_by(assembly, locus.tag) %>% 
     dplyr::mutate(all.domains = paste0(
-      hmm.name, ", ", domain.number, ", ", domain.iE.value, ", ", 
-      target.coverage, ", ", hmm.coverage, collapse = " | ")) %>%
+      hmm.accession, ",", hmm.name, ", ", domain.number, ", ", 
+      domain.iE.value, ", ", target.coverage, ", ", hmm.coverage, 
+      collapse = " | ")) %>%
     ungroup()
   
   # filter for top scoring domain per hmm
@@ -459,11 +464,14 @@ search_system <- function(system_type, merged_tbls) {
     top_n(-1, domain.iE.value) %>% 
     ungroup()
   
-  # add column listing all hits for a particular target
+  # add column listing the best domain of the top 5 hits for a particular target
   collapsed_hits <- top_domain %>%
-    group_by(assembly, target.name) %>% 
-    dplyr::mutate(all.hits = paste0(
-      hmm.name, ", ", hmm.accession, ", ", full.seq.E.value, 
+    group_by(assembly, locus.tag) %>%
+    dplyr::arrange(domain.iE.value, .by_group = TRUE) %>%  
+    top_n(-5, domain.iE.value) %>%
+    dplyr::mutate(best.hits = paste0(
+      hmm.accession, ", ", hmm.name, ", ", domain.iE.value, ", ", 
+      target.coverage, ", ", hmm.coverage, 
       collapse = " | ")) %>%
     ungroup()
   
@@ -610,10 +618,10 @@ search_system <- function(system_type, merged_tbls) {
   # select relevant columns for final output
   results <- candidates_checked %>%
     dplyr::mutate(system = system_type) %>%
-    select(assembly, genomic.accession, system, target.name, hmm.name, protein.name, 
-           full.seq.E.value, domain.iE.value, target.coverage, hmm.coverage, 
-           locus.tag, start, end, strand, target.description, relative.position, 
-           all.domains, all.hits)
+    select(assembly, genomic.accession, system, target.name, hmm.accession, 
+           hmm.name, protein.name, full.seq.E.value, domain.iE.value, 
+           target.coverage, hmm.coverage, locus.tag, start, end, strand, 
+           target.description, relative.position, all.domains, best.hits)
     
 }
 
@@ -644,9 +652,9 @@ gff <- padloc_out %>%
     score = as.numeric(domain.iE.value),
     phase = ".",
     attributes = paste0(
-      "Name=", protein.name, ";HMM=", hmm.name,
-      ";Target.coverage=", target.coverage, 
-      ";HMM.coverage=", hmm.coverage)) %>%
+      "Name=", protein.name, ";HMM.accession=", hmm.accession,
+      ";HMM.name=", hmm.name, ";Target.coverage=", target.coverage, 
+      ";HMM.coverage=", hmm.coverage, ";Alt=", best.hits)) %>%
   select(seqid, source, type, start, end, score, strand, phase, attributes)
 
 }
