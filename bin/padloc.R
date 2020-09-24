@@ -23,6 +23,9 @@ library(parallel)
 library(getopt)
 library(readxl)
 
+# stop summarise() from throwing a warning
+options(dplyr.summarise.inform = FALSE)
+
 # SCRIPT UTILITIES ------------------------------------------------------------
 
 # debug_msg(message)
@@ -78,12 +81,12 @@ DEBUG_COUNTER <- opt$debug
 QUIET         <- opt$quiet
 
 ### DEBUG ###
-# DOMTBL_PATH   <- "~/tools/padloc/tests/domtblout/GCA_000830595.1_ASM83059v1.domtblout"
-# FEATBL_PATH   <- "~/tools/padloc/tests/GCA_000830595.1_ASM83059v1_feature_table.txt"
-# ALIAS_PATH    <- "~/tools/padloc/HMM_META.xlsx"
-# SUMMARY_PATH  <- "~/tools/padloc/SYS_META.xlsx"
-# YAML_DIR      <- "~/tools/padloc/SYS"
-# OUTPUT_DIR    <- "~/tools/padloc/tests/"
+# DOMTBL_PATH   <- "~/tools/padloc/test/domtblout/GCF_000368485.1_Acin_guil_NIPH_991_V1.domtblout"
+# FEATBL_PATH   <- "~/tools/padloc/test/GCF_000368485.1_Acin_guil_NIPH_991_V1_feature_table.txt"
+# ALIAS_PATH    <- "~/tools/padloc/data/hmm_meta.xlsx"
+# SUMMARY_PATH  <- "~/tools/padloc/data/sys_meta.xlsx"
+# YAML_DIR      <- "~/tools/padloc/data/sys"
+# OUTPUT_DIR    <- "~/tools/padloc/debug/"
 # DEBUG_COUNTER <- 1
 # QUIET         <- 0
 
@@ -407,6 +410,8 @@ search_system <- function(system_type, merged_tbls) {
   gene_types <- list(core_genes = core_genes, other_genes = other_genes, 
                      prohibited_genes = prohibited_genes)
   
+  additional_genes <- c()
+  
   for ( i in 1:length(gene_types) ) {
     
     gene_type_name <- names(gene_types[i])
@@ -417,13 +422,13 @@ search_system <- function(system_type, merged_tbls) {
       
       # assign protein names based on system.definition.shortcut
       if ( gene %in% aliastbl$system.definition.shortcut ) {
+        
         additional_genes <- 
-          unlist(aliastbl %>% filter(system.definition.shortcut == gene) %>% 
-                   select(protein.name), use.names = FALSE)
-        do.call("<-", list(eval(parse(text = "gene_type_name")), 
-                           unique(c(gene_type_values, additional_genes))))
+          additional_genes %>% append(unlist(aliastbl %>% filter(system.definition.shortcut == gene) %>% select(protein.name), use.names = FALSE))
+      
       }
     }
+    do.call("<-", list(eval(parse(text = "gene_type_name")), unique(c(gene_type_values, additional_genes))))
   }
   
   # remove any genes from 'other' that are also listed as 'core' or 'prohibited'
@@ -530,9 +535,9 @@ search_system <- function(system_type, merged_tbls) {
       unq.prohibited = is.prohibited * unq.counts) %>%
     group_by(cluster) %>%
     dplyr::mutate(
-      unq.core = max(unq.core),
-      unq.accessory = max(unq.accessory),
-      unq.prohibited = max(unq.prohibited)) %>%
+      unq.core = suppressWarnings(max(unq.core)),
+      unq.accessory = suppressWarnings(max(unq.accessory)),
+      unq.prohibited = suppressWarnings(max(unq.prohibited))) %>%
     dplyr::mutate(unq.total = unq.core + unq.accessory) %>%
     ungroup()
   
