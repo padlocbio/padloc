@@ -158,7 +158,7 @@ read_aliastbl <- function(aliastbl_path) {
     col_names = c(
       "hmm.acc", "hmm.name", "hmm.description", 
       "protein.name", "system.definition.shortcut", "author",
-      "originator", "number.seq", "length.hmm", 
+      "number.seq", "length.hmm", 
       "e.value.threshold", "hmm.coverage.threshold", 
       "target.coverage.threshold", "system", "literature.ref",
       "database.ref", "comments")
@@ -213,13 +213,15 @@ read_aliastbl <- function(aliastbl_path) {
 read_systbl <- function(systbl_path) {
   
   # read in the systems summary
-  system_definitions <<- read_xlsx(
-    SUMMARY_PATH,
-    skip = 1,
-    col_names = c(
-      "system", "type", "yaml.name", "search", "within", 
-      "around", "notes")) 
-     
+  system_definitions <<- read_xlsx(SUMMARY_PATH, col_names = TRUE) %>%
+    rename(
+      system = SY, 
+      type = TY, 
+      yaml.name = YN,
+      search = SR, 
+      within = WI, 
+      around = AR, 
+      notes = CC) 
   
   # grab the names of systems that are marked TRUE for searching
   system_names <- system_definitions %>% 
