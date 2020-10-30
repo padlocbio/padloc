@@ -8,244 +8,239 @@
 #       \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
 #        \__\/     \__\/     \__\/     \__\/     \__\/     \__\/                 
 # 
-# padloc: Locate antiviral defence systems in prokaryotic genomes
+# PADLOC: Locate antiviral defence systems in prokaryotic genomes
 
-# LOAD PACKAGES ---------------------------------------------------------------
+# LOAD PACKAGES ----------------------------------------------------------------
 
-library(yaml)
-library(plyr)
-suppressMessages(library(dplyr))
-library(tidyr)
-library(stringr)
-library(rlang)
-library(readr)
-library(parallel)
+suppressMessages(library(tidyverse))
 library(getopt)
-library(readxl)
-
-# stop summarise() from throwing a warning
+library(yaml)
 options(dplyr.summarise.inform = FALSE)
 
-# SCRIPT UTILITIES ------------------------------------------------------------
+# SCRIPT UTILITIES -------------------------------------------------------------
+
+msg <- function(msg) {
+  if ( QUIET < 1 ) {
+    write(paste0("(", format(Sys.time(), "%X"), ") >> ", msg), stdout())
+  }
+}
 
 # debug_msg(message)
-# print message when using debug
+# Print message when using debug.
 debug_msg <- function(msg) {
   if ( DEBUG_COUNTER > 0 ) {
-    write(paste0("(", format(Sys.time(), "%X"), 
-                 ") DEBUG  >>  ", msg), stdout())
+    write(paste0("(", format(Sys.time(), "%X"), ") DEBUG >> ", msg), stdout())
   }
 }
 
 # warning_msg(message)
-# print warning message
+# Print warning message.
 warning_msg <- function(msg) {
   if ( QUIET < 1 ) {
-    write(paste0("(", format(Sys.time(), "%X"), 
-                 ") WARNING  >>  ", msg), stdout())
+    write(paste0("(", format(Sys.time(), "%X"), ") WARNING >> ", msg), stdout())
   }
 }
 
 # die(message)
-# print error message and quit
+# Print error message and quit.
 die <- function(msg) {
-  write(paste0("\n(", format(Sys.time(), "%X"), 
-               ") ERROR  >>  ", msg, "\n"), stdout())
-  stop("Fatal error encountered, stopping padloc ...\n\n", call. = FALSE)
+  write(paste0("\n(", format(Sys.time(), "%X"), ") ERROR >> ", msg, "\n"), stdout())
+  stop("Fatal error encountered, stopping PADLOC ...\n\n", call. = FALSE)
 }
 
-# ARGUMENT PARSING ------------------------------------------------------------
+# ARGUMENT PARSING -------------------------------------------------------------
 
 # set spec
 spec = matrix(c(
-  'domtbl_path' , 'd', 1, "character", "path to domain table",
-  'featbl_path' , 'f', 1, "character", "path to feature table",
-  'alias_path'  , 'a', 1, "character", "path to hmm alias table",
-  'summary_path', 's', 1, "character", "path to system summary table",
-  'yaml_dir'    , 'y', 1, "character", "path to yaml directory",
-  'output_dir'  , 'o', 1, "character", "path to output directory",
-  'debug'       , 'b', 1, "integer"  , "print debug messages",
-  'quiet'       , 'q', 1, "integer"  , "suppress warnings"
+  'domtbl_path'  , 'd', 1, "character", "path to domain table",
+  'gff_file_path', 'f', 1, "character", "path to feature table",
+  'hmm_meta_path', 'h', 1, "character", "path to hmm_meta table",
+  'sys_meta_path', 's', 1, "character", "path to system summary table",
+  'yaml_dir'     , 'y', 1, "character", "path to yaml directory",
+  'output_dir'   , 'o', 1, "character", "path to output directory",
+  'debug'        , 'b', 1, "integer"  , "print debug messages",
+  'quiet'        , 'q', 1, "integer"  , "suppress warnings",
+  'prodigal'     , 'p', 1, "integer"  , "prodigal was run"
 ), byrow = TRUE, ncol = 5)
 
 # process options
 opt = getopt::getopt(spec)
 
 DOMTBL_PATH   <- opt$domtbl_path
-FEATBL_PATH   <- opt$featbl_path
-ALIAS_PATH    <- opt$alias_path
-SUMMARY_PATH  <- opt$summary_path
+GFF_PATH      <- opt$gff_file_path
+HMM_META_PATH <- opt$hmm_meta_path
+SYS_META_PATH <- opt$sys_meta_path
 YAML_DIR      <- opt$yaml_dir
-OUTPUT_DIR    <- opt$output_dir
+OUTPUT_DIR    <- str_remove(opt$output_dir, "\\/$")
 DEBUG_COUNTER <- opt$debug
 QUIET         <- opt$quiet
+PRODIGAL      <- opt$prodigal
 
 ### DEBUG ###
-# DOMTBL_PATH   <- "~/tools/padloc/test/domtblout/GCF_000368485.1_Acin_guil_NIPH_991_V1.domtblout"
-# FEATBL_PATH   <- "~/tools/padloc/test/GCF_000368485.1_Acin_guil_NIPH_991_V1_feature_table.txt"
-# ALIAS_PATH    <- "~/tools/padloc/data/hmm_meta.xlsx"
-# SUMMARY_PATH  <- "~/tools/padloc/data/sys_meta.xlsx"
-# YAML_DIR      <- "~/tools/padloc/data/sys"
-# OUTPUT_DIR    <- "~/tools/padloc/debug/"
+# DOMTBL_PATH   <- "~/tools/padloc/test/output/domtblout/GCF_003182315.1_faa.domtblout"
+# GFF_PATH      <- "~/tools/padloc/test/input/GCF_003182315.1_faa.gff"
+# HMM_META_PATH <- "~/tools/padloc/data/hmm_meta.txt"
+# SYS_META_PATH <- "~/tools/padloc/data/sys_meta.txt"
+# YAML_DIR      <- "~/tools/padloc/data/sys/"
+# OUTPUT_DIR    <- "~/tools/padloc/debug"
 # DEBUG_COUNTER <- 1
 # QUIET         <- 0
+# PRODIGAL      <- 0
 
-# CHECK ARGUMENTS -------------------------------------------------------------
+# FUNCTIONS --------------------------------------------------------------------
 
-# list required parameters
-required_parameters <- 
-  list("domain table" = DOMTBL_PATH, "feature table" = FEATBL_PATH, 
-       "alias table" = ALIAS_PATH, "system summary" = SUMMARY_PATH, 
-       "yaml directory" = YAML_DIR, "output directory" = OUTPUT_DIR)
-
-# list required files
-required_files <- 
-  c("domain table", "feature table", "alias table", "system summary")
-
-# list required directories
-required_directories <- 
-  c("yaml directory", "output directory")
-
-# check parameters
-for ( i in 1:length(required_parameters) ) {
+# read_hmm_meta(path to hmm_meta)
+# Read in hmm_meta file.
+read_hmm_meta <- function(file) {
   
-  parameter_name <- names(required_parameters[i])
-  parameter_value <- required_parameters[i]
+  cols <- cols(
+    hmm.acc = col_character(),
+    hmm.name = col_character(),
+    hmm.description = col_character(),
+    protein.name = col_character(),
+    system.definition.shortcut = col_character(),
+    author = col_character(),
+    number.seq = col_double(),
+    length.hmm = col_double(),
+    e.value.threshold = col_double(),
+    hmm.coverage.threshold = col_double(),
+    target.coverage.threshold = col_double(),
+    system = col_character(),
+    literature.ref = col_character(),
+    database.ref = col_character(),
+    comments = col_character()
+  )
   
-  # check that required parameters were assigned values
-  if (is.null(parameter_value)) {
-    die(paste0(parameter_name, " is a required parameter"))
-  } else {
-    debug_msg(paste0(parameter_name, ": ", parameter_value))
-  }
-  
-  # check that files exist
-  if ( parameter_name %in% required_files ) {
-    if ( file.exists(as.character(parameter_value)) == FALSE ) {
-      die(paste0(parameter_name, " file does not exist"))
-    }
-  }
-  
-  # check that directories exist and append "/" to path if needed
-  if ( parameter_name %in% required_directories ) {
-
-    if ( ! str_ends(parameter_value, "/") ) {
-      required_parameters[i] <- paste0(eval(parse(text = "parameter_value")), "/")
-    }
-    
-    if ( dir.exists(as.character(parameter_value)) == FALSE ) {
-      die(paste0(parameter_name, " directory does not exist"))
-    }
-      
-  }
-  
-}
-
-# update directory paths to append "/"
-YAML_DIR   <- unlist(unname(required_parameters["yaml directory"]))
-OUTPUT_DIR <- unlist(unname(required_parameters["output directory"]))
-
-# FUNCTIONS -------------------------------------------------------------------
-
-# read_aliastbl(path to alias file)
-# read in aliastbl file (i.e. hmm_meta.xlsx)
-read_aliastbl <- function(aliastbl_path) {
-  
-  # read in the HMM alias table
-  hmm_aliases <- read_xlsx(
-    aliastbl_path, 
+  # read in hmm_meta
+  raw <- read_tsv(
+    file,
     skip = 1,
-    col_names = c(
-      "hmm.acc", "hmm.name", "hmm.description", 
-      "protein.name", "system.definition.shortcut", "author",
-      "number.seq", "length.hmm", 
-      "e.value.threshold", "hmm.coverage.threshold", 
-      "target.coverage.threshold", "system", "literature.ref",
-      "database.ref", "comments")
-    ) 
+    col_names = names(cols$cols),
+    col_types = cols
+   )
   
-  # allow ambiguous protein name assignments
-  hmm_aliases <- hmm_aliases %>% 
-    separate_rows(protein.name, sep = "\\|") %>%
-    separate_rows(system.definition.shortcut, sep = "\\|")
+  fail <- raw %>%
+    filter(is.na(hmm.acc) | is.na(hmm.name) | is.na(protein.name))
   
-  # check for empty HMM parameters
-  empty_params <- hmm_aliases %>%
-    filter(is.na(hmm.name) == FALSE) %>%
-    filter(is.na(e.value.threshold) | 
-             is.na(hmm.coverage.threshold) | 
-             is.na(target.coverage.threshold) == TRUE) %>%
-    select(hmm.name, e.value.threshold, hmm.coverage.threshold, 
-           target.coverage.threshold) %>%
-    mutate_at(c("e.value.threshold", 
-                "hmm.coverage.threshold", 
-                "target.coverage.threshold"), 
-              ~replace(., is.na(.), "MISSING"))
-  
-  if ( nrow(empty_params) != 0 ) {
-    
-    # warn of empty parameters
-    warning_msg("HMMs missing required parameters\n")
-    
-    if ( QUIET < 1 ) {
-      print.data.frame(empty_params, row.names = FALSE)
-    }
-    
-    warning_msg("\nFilling missing parameters with default values")
-    warning_msg("e.value.threshold = 1.00E-05")
-    warning_msg("hmm.coverage.threshold = 0.5")
-    warning_msg("target.coverage.threshold = 0.5")
-    
-    # fill with defaults
-    hmm_aliases <- hmm_aliases %>%
-      mutate_at("e.value.threshold", ~replace(., is.na(.), 1.00E-05)) %>%
-      mutate_at("hmm.coverage.threshold", ~replace(., is.na(.), 0.5)) %>%
-      mutate_at("target.coverage.threshold", ~replace(., is.na(.), 0.5))
-    
+  if(nrow(fail) > 0) {
+    warning_msg("hmm_meta.tsv - Missing values (<NA>) in required columns - AC (hmm.accession), ID (hmm.name), PN (protein.name) - see below")
+    print.data.frame(fail)
+    die("hmm_meta.tsv - Failed to read")
   }
   
-  return(hmm_aliases)
+  warn <- raw %>%
+    filter(is.na(e.value.threshold) | is.na(hmm.coverage.threshold) | is.na(target.coverage.threshold))
+  
+  if(nrow(warn) > 0 & QUIET == 0) {
+    warning_msg("hmm_meta.tsv - Missing values (<NA>) in required columns - ET (e.value.threshold), HC (hmm.coverage.threshold), TC (target.coverage.threshold) - see below")
+    message()
+    print.data.frame(warn)
+    message()
+    warning_msg("hmm_meta.tsv - Filling with defaults (1E-05, 0.3, 0.3)")
+  }
+  
+  out <- raw %>%
+    # allow ambiguous protein name assignments
+    separate_rows(protein.name, sep = "\\|") %>%
+    separate_rows(system.definition.shortcut, sep = "\\|") %>%
+    # Fill empty fields with defaults
+    mutate(
+      e.value.threshold = ifelse(is.na(e.value.threshold), 1.00E-05, e.value.threshold),
+      hmm.coverage.threshold = ifelse(is.na(hmm.coverage.threshold), 0.3, hmm.coverage.threshold),
+      target.coverage.threshold = ifelse(is.na(target.coverage.threshold), 0.3, target.coverage.threshold),
+    )
   
 }
 
-# read_systbl(path to systems summary file)
-# read in the systbl file (i.e. sys_meta.xlsx) and get the names of systems
-read_systbl <- function(systbl_path) {
+# read_sys_meta(path to sys_meta)
+# Read in the sys_meta file.
+read_sys_meta <- function(file) {
   
-  # read in the systems summary
-  system_definitions <<- read_xlsx(SUMMARY_PATH, col_names = TRUE) %>%
-    rename(
-      system = SY, 
-      type = TY, 
-      yaml.name = YN,
-      search = SR, 
-      within = WI, 
-      around = AR, 
-      notes = CC) 
+  cols <- cols(
+    system = col_character(),
+    type = col_character(),
+    yaml.name = col_character(),
+    search = col_logical(),
+    notes = col_character()
+  )
   
-  # grab the names of systems that are marked TRUE for searching
-  system_names <- system_definitions %>% 
-    filter(search == "T") %>% 
-    select(yaml.name) %>% 
-    as.matrix()
+  # read in sys_meta
+  out <- read_tsv(
+    file, 
+    skip = 1,
+    col_names = names(cols$cols),
+    col_types = cols
+  )
+
+}
+
+# read_gff(path to gff file)
+# Read in a GFF file.
+read_gff <- function(gff_path) {
+  
+  cols <- cols(
+    seqid = col_character(),
+    source = col_character(),
+    type = col_character(),
+    start = col_double(),
+    end = col_double(),
+    score = col_character(),
+    strand = col_character(),
+    phase = col_character(),
+    attributes = col_character()
+  )
+  
+  out <- read_tsv(
+    gff_path,
+    col_names = names(cols$cols),
+    col_types = cols,
+    comment = "#"
+  )
   
 }
 
-# read_domtbl(path to domain table file)
-# used for parsing domain table into a dataframe
+# separate_attributes(gff)
+# Separate the attributes column of a GFF file.
+separate_attributes <- function(gff) {
+  
+  out <- gff %>%
+    separate_rows(attributes, sep = ";") %>%
+    filter(attributes != "") %>%
+    separate(attributes, into = c("key", "value"), sep = "=") %>% 
+    spread(key = key, value = value, fill = NA)
+  
+}
+
+# gather_attributes(gff)
+# Consolidate the attributes column of a GFF file.
+gather_attributes <- function(gff) {
+  
+  # WARNING: Attributes are not necessarily gathered back into original order
+  
+  fields <- c("seqid", "source", "type", "start", "end", "score", "strand", "phase")
+  attributes <- names(gff) %>% setdiff(fields)
+  
+  out <- gff_separated %>% 
+    pivot_longer(cols = attributes, names_to = "attribute", values_to = "value") %>%
+    filter(is.na(value) == FALSE) %>%
+    mutate(attribute.value = paste(attribute, value, sep = "=")) %>%
+    group_by(seqid, start, end) %>%
+    mutate(element = paste(seqid, start, end, sep = ";")) %>%
+    mutate(attributes = paste(attribute.value, collapse = ";")) %>%
+    distinct(element, .keep_all = TRUE) %>%
+    select(all_of(fields), attributes)
+  
+}
+
+# read_domtbl(path to domtbl)
+# Read in domtbl.
 read_domtbl <- function(domtbl_path) {
-  
-  # generate the assembly name from the domtbl path
-  assembly_name <<- domtbl_path %>% 
-    sub('.*\\/', '', .) %>% 
-    sub('.domtblout', '', .)
 
   # adapted from: 
   # Zebulun Arendsee (2017). rhmmer: Utilities Parsing 'HMMER' Results. 
   # R package version 0.1.0. https://CRAN.R-project.org/package=rhmmer
-
-  # specify column types
-  col_types <- readr::cols(
+  
+  cols <- cols(
     target.name = col_character(), 
     target.accession = col_character(),
     target.length = col_integer(), 
@@ -270,122 +265,60 @@ read_domtbl <- function(domtbl_path) {
     accuracy = col_double(),
     target.description = col_character())
   
-  readr::read_lines(domtbl_path) %>%
-    # substitute the whitespace between the 'acc' and 'desctription' 
+  out <- read_lines(domtbl_path) %>%
+    # substitute the whitespace between the 'acc' and 'description' 
     # columns with '\t'
-    sub(pattern = sprintf(
-      "(%s) *(.*)", paste0(rep('\\S+', 22), collapse = " +")), 
-      replacement = '\\1\t\\2') %>%
+    sub(pattern = sprintf("(%s) *(.*)", paste0(rep('\\S+', 22), collapse = " +")), replacement = '\\1\t\\2') %>%
     # collapse everything to a single line
     paste0(collapse = "\n") %>%
     # re-parse the table as tsv
-    readr::read_tsv(
-      col_names = c('temp', 'target.description'), comment = '#', na = '-') %>%
+    read_tsv(col_names = c('temp', 'target.description'), comment = '#', na = '-') %>%
     # separate the temp column into actual columns
-    tidyr::separate(
-      .data$temp, head(names(col_types$cols), -1), sep = ' +') %>%
+    separate(.data$temp, head(names(cols$cols), -1), sep = ' +') %>%
     # apply colum types
-    readr::type_convert(col_types = col_types)
-    
-    # TODO: COULD JUST SELECT FOR RELEVANT COLUMNS
-    # select(
-    #   target_name, 
-    #   hmm_name, 
-    #   full_seq_E_value, 
-    #   domain_iE_value, 
-    #   target_description
-    # )
+    type_convert(col_types = cols)
   
 }
 
-# read_featbl(path to feature table file)
-# used for parsing feature table into a dataframe
-read_featbl <- function(featbl_path) {
-
-  read.table(
-    file = featbl_path, 
-    as.is = TRUE, 
-    sep = '\t', 
-    quote = "\"",
-    col.names = c(
-      "feature", "class", "assembly", "assembly.unit", "seq.type",
-      "chromosome", "genomic.accession", "start", "end", "strand", 
-      "target.name", "non-redundant.refseq", "related.accession", 
-      "name", "symbol", "GeneID", "locus.tag", 
-      "feature.interval.length", "product.length", 
-      "attributes")) %>%
-    # filter for proteins
-    filter(target.name != "") %>%
-    # arrange by contig and position in contig
-    arrange(genomic.accession, start) %>%
-    # TODO: COULD PROCESS STRANDS SEPARATELY?
-    # dplyr::group_by(strand) %>%
-    # add a column for the relative position of the gene in the genome
-    dplyr::mutate(relative.position = row_number()) %>%
-    # select relevant columns
-    select(
-      assembly,
-      genomic.accession,
-      target.name, 
-      start, 
-      end, 
-      strand, 
-      locus.tag, 
-      relative.position
-    )
+# merge_tbls(domtbl, GFF, hmm_meta)
+# Merge the domtbl, GFF, and hmm_meta
+merge_tbls <- function(domtbl, gff, hmm_meta) {
   
-}
-
-# merge_tbls(domtbl, featbl, aliastbl)
-# used for merging the domtbl, featbl, and aliastbl
-merge_tbls <- function(domtbl, featbl, aliastbl) {
-  
-  # merge the domain table with the feature table and alias table, and arrange 
-  # hits by genomic location
+  # Join domtbl with GFF, then with hmm_meta
   merged <- domtbl %>% 
-    left_join(featbl, by = "target.name") %>%
-    left_join(aliastbl, by = "hmm.name") %>%
+    left_join(gff, by = "target.name") %>%
+    left_join(hmm_meta, by = "hmm.name") %>%
     arrange(relative.position)
   
-  # check for unknown HMMs
-  unknown_aliases <- merged %>%
-    filter(is.na(protein.name) == TRUE) %>% 
-    group_by(hmm.name) %>% 
-    dplyr::summarise(counts = n())
+  # Catch HMMs that are missing from hmm_meta
+  warn <- merged %>% 
+    filter(is.na(protein.name))
   
-  if ( nrow(unknown_aliases) != 0 ) {
-    
-    # warn of unknown HMMs
-    warning_msg(paste0(nrow(unknown_aliases), 
-                       " HMMs not listed in the aliases table"))
-    warning_msg("These HMMs will not be included in analysis")
-    warning_msg("Please add HMM metadata to hmm_aliases.xlsx\n")
-    
-    if ( QUIET < 1 ) {
-      print.data.frame(unknown_aliases, row.names = FALSE)
-      message()
-    }
-    
+  if(nrow(warn) > 0 & QUIET == 0) {
+    warning_msg("hmm_meta.tsv - Found HMMs that aren't listed in hmm_meta - see below")
+    message()
+    print.data.frame(warn)
+    message()
+    warning_msg("hmm_meta.tsv - These HMMs will not be included in analysis")
   }
   
-  # ignore anything not in the alias list
-  merged <- merged %>% filter(is.na(protein.name) != TRUE )  
-  
-  # calculate hit coverage
-  merged <- merged %>%
-    dplyr::mutate(
+  out <- merged %>% 
+    # Ignore anything not in the alias list
+    filter(!is.na(protein.name)) %>%
+    # Calculate hit coverage
+    mutate(
       hmm.coverage = (hmm.coord.to - hmm.coord.from) / hmm.length,
       target.coverage = (alignment.coord.to - alignment.coord.from) / 
         target.length, combined.coverage = hmm.coverage + target.coverage) %>%
-    dplyr::mutate(
+    mutate(
       hmm.coverage = round(hmm.coverage, 3),
       target.coverage = round(target.coverage, 3)
     )
   
 }
 
-# search_system(name of system, merged domtbl/featbl dataframe)
-# used for identifying complete defence systems in the domain table data
+# search_system(system name, merged tbls)
+# Main system identification logic.
 search_system <- function(system_type, merged_tbls) {
   
   # generate path to YAML file
@@ -393,24 +326,20 @@ search_system <- function(system_type, merged_tbls) {
   
   # check that the YAML file exists
   if( ! file.exists(yaml_path) ) {
-    
     warning_msg(paste0("YAML does not exist for system: ", system_type))
     return(NULL)
-    
   }
   
   # read in the yaml file
   system_param <- yaml::read_yaml(yaml_path)
-  
-  max_space        <- system_param$maximum_intergenic_space
+  max_space        <- system_param$maximum_separation
   min_core         <- system_param$minimum_core
   min_total        <- system_param$minimum_total
   core_genes       <- system_param$core_genes
   other_genes      <- system_param$other_genes
   prohibited_genes <- system_param$prohibited_genes
   
-  gene_types <- list(core_genes = core_genes, other_genes = other_genes, 
-                     prohibited_genes = prohibited_genes)
+  gene_types <- list(core_genes = core_genes, other_genes = other_genes, prohibited_genes = prohibited_genes)
   
   additional_genes <- c()
   
@@ -423,11 +352,10 @@ search_system <- function(system_type, merged_tbls) {
     for ( gene in genes ) {
       
       # assign protein names based on system.definition.shortcut
-      if ( gene %in% aliastbl$system.definition.shortcut ) {
+      if ( gene %in% hmm_meta$system.definition.shortcut ) {
         
-        additional_genes <- 
-          additional_genes %>% append(unlist(aliastbl %>% filter(system.definition.shortcut == gene) %>% select(protein.name), use.names = FALSE))
-      
+        additional_genes <- additional_genes %>% append(unlist(hmm_meta %>% filter(system.definition.shortcut == gene) %>% select(protein.name), use.names = FALSE))
+        
       }
     }
     do.call("<-", list(eval(parse(text = "gene_type_name")), unique(c(gene_type_values, additional_genes))))
@@ -458,7 +386,7 @@ search_system <- function(system_type, merged_tbls) {
   # add column listing all domains for a particular hmm hiting a particular 
   # target
   collapsed_domains <- genes_classified %>%
-    group_by(assembly, locus.tag) %>% 
+    group_by(seqid, start, end) %>% 
     dplyr::mutate(all.domains = paste0(
       hmm.accession, ",", hmm.name, ", ", domain.number, ", ", 
       domain.iE.value, ", ", target.coverage, ", ", hmm.coverage, 
@@ -467,13 +395,13 @@ search_system <- function(system_type, merged_tbls) {
   
   # filter for top scoring domain per hmm
   top_domain <- collapsed_domains %>%
-    group_by(assembly, locus.tag, hmm.name) %>% 
+    group_by(seqid, start, end, hmm.name) %>% 
     top_n(-1, domain.iE.value) %>% 
     ungroup()
   
   # add column listing the best domain of the top 5 hits for a particular target
   collapsed_hits <- top_domain %>%
-    group_by(assembly, locus.tag) %>%
+    group_by(seqid, start, end) %>%
     dplyr::arrange(domain.iE.value, .by_group = TRUE) %>%  
     top_n(-5, domain.iE.value) %>%
     dplyr::mutate(best.hits = paste0(
@@ -503,7 +431,7 @@ search_system <- function(system_type, merged_tbls) {
   # for each target, order each hit by type (core > accessory > prohibited)
   # then by e-value (low > high), then assign rank (1 is best)
   ranked_hits <- e_value_checked %>%
-    group_by(assembly, locus.tag) %>% 
+    group_by(seqid, start, end) %>% 
     dplyr::arrange(
       desc(is.core),
       desc(is.accessory),
@@ -521,7 +449,8 @@ search_system <- function(system_type, merged_tbls) {
   # add a column that groups hits into clusters
   clusters <- top_hits %>% 
     arrange(relative.position) %>%
-    dplyr::mutate(cluster = cumsum(c(1, abs(diff(relative.position)) > max_space)))
+    dplyr::mutate(cluster = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
+    ungroup()
   
   # count the number of unique hits in each cluster
   clusters_unique <- clusters %>%
@@ -554,190 +483,114 @@ search_system <- function(system_type, merged_tbls) {
   candidates_checked <- candidates_check %>% 
     filter(candidate == TRUE)
   
-  ### return genes within/around the defence system ###
-
-  # check that a system was actually found
-  if ( nrow(candidates_checked) != 0 ) {
-
-    # check whether we want genes within cluster
-    within_check <- system_definitions %>%
-      filter(yaml.name == system_type) %>%
-      select(within)
-
-    ifelse(is.na(within_check) == TRUE,
-           within_check <- FALSE,
-           within_check <- as.logical(within_check))
-
-    if ( within_check == TRUE ) {
-
-      # grab the limits of the system (for each instance of the system)
-      within_limits <- candidates_checked %>%
-        group_by(cluster) %>%
-        do(data.frame(lower = min(.$relative.position),
-                      upper = max(.$relative.position))) %>%
-        ungroup()
-
-      # pull out the genes from the feature table within those limits
-      genes_within <- apply(X = within_limits, MARGIN = 1, FUN = pull_features,
-                            featbl = featbl, range = 0)
-
-      genes_within <- ldply(genes_within, rbind, .id = NULL) %>%
-        dplyr::mutate(system = system_type)
-
-      genes_within_out <<- genes_within_out %>% rbind(genes_within)
-
-    }
-
-    # check whether we want genes around the cluster
-    around_check <-
-      system_definitions %>%
-      filter(yaml.name == system_type) %>%
-      select(around)
-
-    ifelse(is.na(around_check) == TRUE,
-           around_check <- FALSE,
-           around_check <- as.numeric(around_check))
-
-    if ( around_check > 0 ) {
-
-      around_limits <- candidates_checked %>%
-        group_by(cluster) %>%
-        do(data.frame(lower = min(.$relative.position),
-                      upper = max(.$relative.position))) %>%
-        ungroup()
-
-      genes_around <- apply(
-        X = around_limits,
-        MARGIN = 1,
-        FUN = pull_features,
-        featbl = featbl,
-        range = as.numeric(around_check))
-      
-      genes_around <- ldply(genes_around, rbind, .id = NULL) %>%
-        dplyr::mutate(system = system_type)
-      
-      genes_around_out <<- genes_around_out %>% rbind(genes_around)
-
-    }
-
-  }
-  
   # select relevant columns for final output
   results <- candidates_checked %>%
     dplyr::mutate(system = system_type) %>%
-    select(assembly, genomic.accession, system, target.name, hmm.accession, 
+    select(seqid, system, target.name, hmm.accession, 
            hmm.name, protein.name, full.seq.E.value, domain.iE.value, 
-           target.coverage, hmm.coverage, locus.tag, start, end, strand, 
+           target.coverage, hmm.coverage, start, end, strand, 
            target.description, relative.position, all.domains, best.hits)
-    
-}
-
-# pull_features(dataframe of relative positions, feature table, range)
-# used for pulling out the information of genes, specified by relative position
-pull_features <- function(df, featbl, range) {
-
-  # grab limits and modify by range
-  lower_limit <- df[2] - range
-  upper_limit <- df[3] + range
-
-  # filter for genes within limits
-  featbl <- featbl %>% 
-    filter(relative.position %in% lower_limit:upper_limit)
   
 }
 
-# generate_gff(padloc output dataframe)
-# used to generate an annotation file for the padloc output table
+# generate_gff(PADLOC output dataframe)
+# Generate a GFF file from the PADLOC output table
 generate_gff <- function(padloc_out) {
   
-# generate an annotation file for Geneious (.gff variant)
-gff <- padloc_out %>%
-  dplyr::mutate(
-    seqid = gsub("\\..*", "", genomic.accession),
-    source = "padloc",
-    type = system,
-    score = as.numeric(domain.iE.value),
-    phase = ".",
-    attributes = paste0(
-      "Name=", protein.name, ";HMM.accession=", hmm.accession,
-      ";HMM.name=", hmm.name, ";Target.coverage=", target.coverage, 
-      ";HMM.coverage=", hmm.coverage, ";Alt=", best.hits)) %>%
-  select(seqid, source, type, start, end, score, strand, phase, attributes)
-
+  # generate a .gff variant
+  gff <- padloc_out %>%
+    mutate(
+      source = "padloc",
+      type = system,
+      score = as.numeric(domain.iE.value),
+      phase = ".",
+      attributes = paste0(
+        "Name=", protein.name, ";HMM.accession=", hmm.accession,
+        ";HMM.name=", hmm.name, ";Target.coverage=", target.coverage, 
+        ";HMM.coverage=", hmm.coverage, ";Alt=", best.hits)) %>%
+    select(seqid, source, type, start, end, score, strand, phase, attributes)
+  
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# MAIN
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# MAIN -------------------------------------------------------------------------
 
+# Record start time.
 start_time <- Sys.time()
 debug_msg(paste0("Start time: ", start_time))
 
-# read in the hmm alias table
-debug_msg(paste0("Reading ", basename(ALIAS_PATH)))
-aliastbl <- read_aliastbl(ALIAS_PATH)
+# Read in hmm_meta.
+debug_msg(paste0("Reading ", basename(HMM_META_PATH)))
+hmm_meta <- read_hmm_meta(HMM_META_PATH)
 
-# read in the systems summary
-debug_msg(paste0("Reading ", basename(SUMMARY_PATH)))
-systbl <- read_systbl(SUMMARY_PATH) 
+# Read in sys_meta.
+debug_msg(paste0("Reading ", basename(SYS_META_PATH)))
+sys_meta <- read_sys_meta(SYS_META_PATH) 
+# Get names of systems that are marked TRUE for searching.
+system_names <- sys_meta %>% 
+  filter(search == TRUE) %>% 
+  select(yaml.name) %>% 
+  as.matrix()
 
-# read in domain table
+# Generate the assembly name from the domtbl path.
+assembly_name <- DOMTBL_PATH %>% 
+  sub('.*\\/', '', .) %>% 
+  sub('.domtblout', '', .)
+# Read in domtbl.
 debug_msg(paste0("Reading ", basename(DOMTBL_PATH)))
 domtbl <- read_domtbl(DOMTBL_PATH)
 
-# read in feature table
-debug_msg(paste0("Reading ", basename(FEATBL_PATH)))
-featbl <- read_featbl(FEATBL_PATH)
+# Read in GFF.
+debug_msg(paste0("Reading ", basename(GFF_PATH)))
+gff <- read_gff(GFF_PATH)
+# Process GFF
+gff <- gff %>%
+  filter(type == "CDS") %>%
+  separate_attributes()
+if ("pseudo" %in% names(gff)) { gff <- gff %>% filter(is.na(pseudo)) }
+gff <- gff %>%
+  arrange(seqid, start) %>%
+  mutate(relative.position = row_number()) %>%
+  group_by(ID) %>%
+  mutate(
+    target.name = ifelse(
+      # Fix prodigal-generated GFF
+      PRODIGAL == 1, 
+      paste0(seqid, str_remove(ID, "^[0-9]*")), 
+      # RefSeq & GenBank 'ID' fields have 'cds-' in front of the protein name 
+      # that needs to be removed, prokka GFFs are fine.
+      str_remove(ID, "cds-")
+    )
+  ) %>%
+  ungroup()
 
-# merge the domain, feature, and alias tables
+# Merge tables.
 debug_msg("Merging domain, alias, and feature tables")
-merged <- merge_tbls(domtbl, featbl, aliastbl)
+merged <- merge_tbls(domtbl, gff, hmm_meta)
 
-# set the genes_within_out and genes_around_out dataframe
-genes_within_out <- genes_around_out <- data.frame(
-    "assembly" = character(), "genomic_accession" = character(),
-    "target_name" = character(), "start" = character(), "end" = character(), 
-    "strand" = character(), "locus_tag" = character(), 
-    "relative_position" = character(), stringsAsFactors = FALSE)
-
-# search for systems
+# Search for systems.
 debug_msg("Searching for defence systems")
-systems <- lapply(X = systbl, FUN = search_system, merged_tbls = merged)
-# rename the dataframes generated above
-names(systems) <- systbl
-# merge into a single table
-padloc_out <- ldply(systems, rbind, .id = NULL)
-
-# TODO: POST-PROCESSING STEP WILL PROBABLY GO HERE? 
-
-# output table of defence systems and annotation file
+systems <- lapply(X = system_names, FUN = search_system, merged_tbls = merged)
+# Rename the data frames generated above.
+names(systems) <- system_names
+# Merge into a single table
+padloc_out <- bind_rows(systems)
+# Output table of defence systems and annotation file
 if ( nrow(padloc_out) > 0 ) {
   
+  msg(paste0("Writing output to '", OUTPUT_DIR, "/", assembly_name, "_pdlcout.csv'"))
+  
   padloc_out %>%
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, ".csv"))
-
+    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_pdlcout.csv"))
+  
   gff <- generate_gff(padloc_out)
   gff %>% write_delim(path = paste0(OUTPUT_DIR, "/", assembly_name, ".gff"),
                       delim = "\t", col_names = FALSE)
-    
+  
+} else {
+  msg(paste0("Nothing found for ", assembly_name))
 }
 
-# output table of genes within defence systems
-if ( nrow(genes_within_out) > 0 ) {
-  
-  genes_within_out %>% 
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_within.csv"))
-  
-}
-
-# output table of genes around defence systems
-if ( nrow(genes_around_out) > 0 ) {
-  
-  genes_around_out %>% 
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_around.csv"))
-  
-}
-
+# Record end time.
 end_time <- Sys.time()
 debug_msg(paste0("End time: ", end_time))
 run_time <- end_time - start_time

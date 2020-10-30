@@ -4,6 +4,10 @@
 # https://github.com/leightonpayne/padloc
 # Copyright (c) 2020 Leighton Payne
 
+VERSION="1.0.0"
+ME="${0}"
+SRC_DIR="$(dirname ${ME})"
+
 # BASH STRICT MODE ------------------------------------------------------------
 
 # Refer to: http://redsymbol.net/articles/unofficial-bash-strict-mode/
@@ -17,39 +21,20 @@ IFS=$'\n\t'       # Set wordsplitting to newline and tab.
 # Trap on errexit
 trap 'echo "$(date "+(%H:%M:%S)") ERROR  >>  errexit on line $LINENO" >&2' ERR
 
-# SCRIPT UTILITIES ------------------------------------------------------------
+# MESSAGING -------------------------------------------------------------------
 
-# die <message>
-# Print error message and exit.
-die() {
-  printf "\nERROR: \t %s\n" "$@" >&2 ; exit 1
-} 
+# die <message>; Print error message and exit.
+die() { printf "\nERROR: \t %s\n" "$@" >&2 ; exit 1; } 
 
-# debug <message>
-# Print message when using debug.
+# debug <message>; Print message when using debug.
 debug() {
   if [[ "${USE_DEBUG:-"0"}" -eq 1 ]] ; then 
     printf "$(date "+(%H:%M:%S)") DEBUG  >>  ${@}"
   fi
 }
 
-# info <message>
-# Print info message.
-info() {
-  printf "$(date "+(%H:%M:%S)") INFO   >>  ${@}"
-}
-
-# abspath <directory>
-# Get the absolute path to a directory.
-abspath() {
-    [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"
-}
-
-# horiz || horiz <character> <number>
-# Print a horizontal line the width of the terminal window or specified length.
-horiz() {
-    printf '%*s\n' "${2:-$(tput cols)}" '' | tr ' ' "${1:--}"
-}
+# info <message>; Print info message.
+info() { printf "$(date "+(%H:%M:%S)") >> ${@}"; }
 
 # HELP ------------------------------------------------------------------------
 
@@ -66,38 +51,62 @@ cat << EOF
       \  \:\    \  \:\    \  \::/   \  \::/   \  \::/   \  \::/  
        \__\/     \__\/     \__\/     \__\/     \__\/     \__\/          
 
-padloc :: Locate antiviral defence systems in prokaryotic genomes
+PADLOC :: Locate antiviral defence systems in prokaryotic genomes
 
-Usage: 
-    padloc [options] --fasta <f> --featbl <f> --out <d>
-
-Required:
-    --fasta <f>     
-        Path to the input fasta file (*.faa) 
-    --featbl <f>    
-        Path to the input feature table file (*_feature_table.txt) 
-    --out <d>       
-        Path to the output directory <d>
-
+Usage:
+    padloc [options] [--faa] <genome.faa> [--gff] <features.gff>
+    padloc [options] [--fna] <genome.fna>
+General:
+    --help        Print this help message
+    --version     Print version information
+    --citation    Print citation information
+    --debug       Run with debug messages
+Setup:
+    --setup       Set up a fresh padloc install
+    --bootstrap   Install dependencies (called by --setup)
+    --updatedb    Install latest database (called by --setup)
+Input:
+    --faa [f]     Amino acid FASTA file
+    --gff [f]     GFF file (only valid with [--faa])
+    --fna [f]     Nucleic acid FASTA file
+Output:
+    --outdir [d]  Output directory
 Optional:
-    --cpu <n>       
-        Set number of cpus to <n>, the default is 1
-    --raw-out       
-        Include a summarised raw output file for each genome searched
-    --append        
-        Append the hmmer output to exisitng results in out_dir/domtblout/
-    --cleanup
-        Remove domtblout/ from the output directory if left over from 
-        previous runs
-    -h, --help      
-        Display this help message
+    --data [d]    Data directory (default '${DEFAULT_DATA}')
+    --cpu [n]     Use [n] CPUs (default '1')
+    --raw-out     Include a summarised raw output file for each genome searched
+    --append      Append the hmmer output to exisitng results in domtblout/
+    --cleanup     Remove domtblout/ from the output directory if left over from previous runs
 EOF
 }
 
-# OPTIONS ---------------------------------------------------------------------
+# version; Print version information.
+version() { printf "padloc %s" "${VERSION}"; }
 
-# If no options given, print help.
-[[ "${#}" = 0 ]] && help && exit 0
+# citation; Print citation information.
+citation() { printf "Citation pending..."; }
+
+# UTILITITES ------------------------------------------------------------------
+
+setup() {
+  "${SRC_DIR}/bin/setup.sh"
+}
+
+bootstrap() {
+  "${SRC_DIR}/bin/bootstrap.sh"
+}
+
+updatedb() {
+  "${SRC_DIR}/bin/updatedb.sh"
+}
+
+# abspath <directory>
+# Get the absolute path to a directory.
+abspath() {
+    [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"
+}
+
+# OPTIONS ---------------------------------------------------------------------
 
 # Set defaults.
 USE_DEBUG=0
@@ -106,15 +115,21 @@ RAW_OUT=0
 APPEND_HMMER=0
 QUIET=0
 CLEANUP=0
-HMM_DATABASE=""
-FASTA_FILE=""
+USER_DATA=""
+DEFAULT_DATA="${SRC_DIR}/data"
+FAA_FILE=""
+FNA_FILE=""
 FASTA_NAME=""
-FEATBL_FILE=""
-OUT_DIR=""
+GFF_FILE=""
+OUT_DIR="."
 DOMTBL_PATH=""
 HMM_META=""
 SYS_META=""
 YAML_DIR=""
+PRODIGAL=0
+
+# If no options given, print help.
+[[ "${#}" = 0 ]] && help && exit 0
 
 # require_argument <option> <argument>
 # Die when <argument> is blank or another option.
@@ -132,14 +147,24 @@ while [[ "${#}" -gt 0 ]]; do
   parameter="${2:-}"
   case "${option}" in
     -h|--help) help; exit 0 ;;
+    -v|--version) version; exit 0 ;;
+    --citation) citation; exit 0 ;;
+    --setup) setup; exit 0 ;;
+    --bootstrap) bootstrap; exit 0 ;;
+    --updatedb) updatedb; exit 0 ;;
     -d|--debug) USE_DEBUG=1 ;;
     -q|--quiet) QUIET=1 ;;
-    --fasta) require_argument "${option}" "${parameter}"
-      FASTA_FILE=$(abspath "${parameter}") 
-      FASTA_NAME=$(basename ${FASTA_FILE%.faa}) ; shift ;;
-    --featbl) require_argument "${option}" "${parameter}"
-      FEATBL_FILE=$(abspath "${parameter}") ; shift ;;
-    -o|--out) require_argument "${option}" "${parameter}"
+    --faa) require_argument "${option}" "${parameter}"
+      FAA_FILE=$(abspath "${parameter}") 
+      FASTA_NAME=$(basename ${FAA_FILE%.faa}) ; shift ;;
+    --gff) require_argument "${option}" "${parameter}"
+      GFF_FILE=$(abspath "${parameter}") ; shift ;;
+    --fna) require_argument "${option}" "${parameter}"
+      FNA_FILE=$(abspath "${parameter}") 
+      FASTA_NAME=$(basename ${FNA_FILE%.fna}) ; shift ;;
+    --data) require_argument "${option}" "${parameter}"
+      USER_DATA=$(abspath "${parameter}") ; shift ;;
+    -o|--outdir) require_argument "${option}" "${parameter}"
       OUT_DIR=$(abspath "${parameter}") ; shift ;;
     -c|--cpu) require_argument "${option}" "${parameter}"
       CPU="${parameter}" ; shift ;;
@@ -152,34 +177,64 @@ while [[ "${#}" -gt 0 ]]; do
   shift
 done
 
-# CHECK OPTIONS ---------------------------------------------------------------
+# CORE FUNCTIONS --------------------------------------------------------------
 
 check_opt() {
 
-  # check that FASTA file exists and is FASTA
-  [[ -f "${FASTA_FILE}" && "${FASTA_FILE}" =~ .\.faa$ ]] || 
-  die "Valid FASTA file required (*.faa)"
+  # Check for valid input.
+  if [[ ! -z "${FAA_FILE}" ]]; then
+    [[ -f "${FAA_FILE}" ]] || die "'${FAA_FILE}' does not exist"
+    [[ -s "${FAA_FILE}" ]] || die "'${FAA_FILE}' is empty"
+    [[ -z "${FNA_FILE}" ]] || die "Only one of [--faa] or [--fna] should be provided, not both"
+    [[ ! -z "${GFF_FILE}" ]] || die "[--faa] requires [--gff]"
+  elif [[ ! -z "${FNA_FILE}" ]]; then
+    [[ -f "${FNA_FILE}" ]] || die "'${FNA_FILE}' does not exist"
+    [[ -s "${FNA_FILE}" ]] || die "'${FNA_FILE}' is empty"
+    [[ -z "${FAA_FILE}" ]] || die "Only one of [--faa] or [--fna] should be provided, not both"
+    [[ -z "${GFF_FILE}" ]] || die "[--gff] can't be used with [--fna]"
+  else
+    die "Valid FASTA file required [--fna|--faa]"
+  fi
 
-  # # check that feature table file exists and is feature table
-  # [[ -f "${FEATBL_FILE}" && "${FEATBL_FILE}" =~ .\._feature_table.txt$ ]] || 
-  # die "Valid feature table file required (*_feature_table.txt)"
-
-  # check that output directory exists
+  # Check that output directory exists.
   [[ -d "${OUT_DIR}" ]] || die "Valid output directory required"
 
-  # check whether --cpu is a valid non-zero integer
+  # Check whether --cpu is a valid non-zero integer.
   [[ "${CPU}" =~ ^-?[0-9]+$ && "${CPU}" -gt 0 ]] ||
   die "Number of cpus must be a non-zero integer"
 
-  # print parameters for debug
-  OPTIONS=(FASTA_FILE FEATBL_FILE OUT_DIR CPU RAW_OUT APPEND_HMMER)
+  # Check whether --data directory exists.
+  [[ ! -z "${USER_DATA}" ]] && [[ ! -d "${USER_DATA}" ]] && die "Valid data directory required"
+
+  # Print parameters for debug.
+  OPTIONS=(FAA_FILE FNA_FILE GFF_FILE OUT_DIR CPU RAW_OUT APPEND_HMMER)
   for i in "${OPTIONS[@]}"; do
     debug "\$${i}: ${!i}\n"
   done
 
 }
 
+prodigal_wrapper() {
+
+  mkdir -p "${OUT_DIR}/prodigal"
+
+  local accession=$(basename "${1%.fna}")
+  local timestamp=$(date '+%Y%m%d%H%M%S')
+  FAA_FILE="${OUT_DIR}/prodigal/${accession}.faa"
+  GFF_FILE="${OUT_DIR}/prodigal/${accession}.gff"
+  PRODIGAL=1
+
+  prodigal -i "${FNA_FILE}" -f gff -o "${GFF_FILE}" -a "${FAA_FILE}" -q
+  
+  # Convert to short headers
+  gsed 's/#.*//g' "${FAA_FILE}" > "${FAA_FILE}.tmp" \
+  && mv "${FAA_FILE}.tmp" "${FAA_FILE}"
+
+}
+
 hmmsearch_wrapper() {
+
+  mkdir -p "${OUT_DIR}/domtblout"
 
   local accession=$(basename "${1%.faa}")
   DOMTBL_PATH="${OUT_DIR}/domtblout/${accession}.domtblout"
@@ -209,10 +264,10 @@ hmmsearch_wrapper() {
     local output="${DOMTBL_PATH}"
     # Print command
     debug "hmmsearch --cpu ${CPU} --acc --noali --domtblout \
-${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
+${output} ${HMM_DATABASE} ${FAA_FILE}\n"
     # Run hmmer, redirect stdout to /dev/null
     if hmmsearch --cpu "${CPU}" --acc --noali --domtblout "${output}" \
-      "${HMM_DATABASE}" "${FASTA_FILE}" > /dev/null; then
+      "${HMM_DATABASE}" "${FAA_FILE}" > /dev/null; then
       debug "Finished @ $(date) ... SUCCESSFUL\n"
     else
       debug "Finished @ $(date) ... FAILED\n"
@@ -225,10 +280,10 @@ ${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
     local output="${DOMTBL_PATH}.tmp"
     # Print command
     debug "hmmsearch --cpu ${CPU} --acc --noali --domtblout 
-${output} ${HMM_DATABASE} ${FASTA_FILE}\n"
+${output} ${HMM_DATABASE} ${FAA_FILE}\n"
     # Run hmmer, redirect stdout to /dev/null
     if hmmsearch --cpu "${CPU}" --acc --noali --domtblout "${output}" \
-      "${HMM_DATABASE}" "${FASTA_FILE}" > /dev/null; then
+      "${HMM_DATABASE}" "${FAA_FILE}" > /dev/null; then
       # If command runs successfully
       debug "Finished @ $(date) ... SUCCESSFUL\n"
       # Append to existing file
@@ -251,20 +306,20 @@ main() {
   SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
   debug "\$SRC_DIR: ${SRC_DIR}\n"
 
-  printf "\n"
-
-  # Check that data is unpacked
-  [[ "${SRC_DIR}/data.tar.gz" && ! -d "${SRC_DIR}/data" ]] \
-  && info "data.tar.gz is not unpacked yet, unpacking...\n\n" \
-  && tar -xvzf "${SRC_DIR}/data.tar.gz"
-
   # Check options
   check_opt
 
-  HMM_DATABASE="${SRC_DIR}/data/hmm/padlocDB.hmm"
-  YAML_DIR="${SRC_DIR}/data/sys"
-  HMM_META="${SRC_DIR}/data/hmm_meta.xlsx"
-  SYS_META="${SRC_DIR}/data/sys_meta.xlsx"
+  if [[ -z "${USER_DATA}" ]]; then
+    HMM_DATABASE="${DEFAULT_DATA}/hmm/padlocDB.hmm"
+    YAML_DIR="${DEFAULT_DATA}/sys/"
+    HMM_META="${DEFAULT_DATA}/hmm_meta.txt"
+    SYS_META="${DEFAULT_DATA}/sys_meta.txt"
+  else
+    HMM_DATABASE="${USER_DATA}/hmm/padlocDB.hmm"
+    YAML_DIR="${USER_DATA}/sys/"
+    HMM_META="${USER_DATA}/hmm_meta.txt"
+    SYS_META="${USER_DATA}/sys_meta.txt"
+  fi
 
   # Check that required R packages are installed
   Rscript "${SRC_DIR}/bin/check_packages.R"
@@ -273,25 +328,31 @@ main() {
   debug "Required R packages are installed\n"
 
   # Cleanup
-
   [[ "${CLEANUP}" -eq 1 && -d "${OUT_DIR}/domtblout" ]] \
   && rm -dr "${OUT_DIR}/domtblout"
 
+  # Run Prodigal if input is fna
+  if [[ ! -z "${FNA_FILE}" ]]; then
+    info "Predicting protein-coding genes with prodigal\n"
+    prodigal_wrapper "${FNA_FILE}"
+  fi
+
   # Run HMMER
-
   info "Scanning ${FASTA_NAME} for defence system proteins\n"
-
-  mkdir -p "${OUT_DIR}/domtblout"
-
-  hmmsearch_wrapper "${FASTA_FILE}"
+  hmmsearch_wrapper "${FAA_FILE}"
 
   # Run padloc.R
-  
   info "Searching ${FASTA_NAME} for defence systems\n"
-
-  Rscript "${SRC_DIR}/bin/padloc.R" -d "${DOMTBL_PATH}" -f "${FEATBL_FILE}" \
-  -a "${HMM_META}" -s "${SYS_META}" -y "${YAML_DIR}" -o "${OUT_DIR}" \
-  -b "${USE_DEBUG}" -q "${QUIET}"
+  Rscript "${SRC_DIR}/bin/padloc-update.R" \
+  -d "${DOMTBL_PATH}" \
+  -f "${GFF_FILE}" \
+  -h "${HMM_META}" \
+  -s "${SYS_META}" \
+  -y "${YAML_DIR}" \
+  -o "${OUT_DIR}" \
+  -b "${USE_DEBUG}" \
+  -q "${QUIET}" \
+  -p "${PRODIGAL}"
 
 }
 
