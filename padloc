@@ -343,7 +343,7 @@ main() {
 
   # Run padloc.R
   info "Searching ${FASTA_NAME} for defence systems\n"
-  Rscript "${SRC_DIR}/bin/padloc-update.R" \
+  Rscript "${SRC_DIR}/bin/padloc.R" \
   -d "${DOMTBL_PATH}" \
   -f "${GFF_FILE}" \
   -h "${HMM_META}" \
