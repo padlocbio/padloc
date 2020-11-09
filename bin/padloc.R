@@ -573,13 +573,13 @@ padloc_out <- bind_rows(systems)
 # Output table of defence systems and annotation file
 if ( nrow(padloc_out) > 0 ) {
   
-  msg(paste0("Writing output to '", OUTPUT_DIR, "/", assembly_name, "_pdlcout.csv'"))
+  msg(paste0("Writing output to '", OUTPUT_DIR, "/", assembly_name, "_padloc.csv'"))
   
   padloc_out %>%
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_pdlcout.csv"))
+    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.csv"))
   
   gff <- generate_gff(padloc_out)
-  gff %>% write_delim(path = paste0(OUTPUT_DIR, "/", assembly_name, ".gff"),
+  gff %>% write_delim(path = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.gff"),
                       delim = "\t", col_names = FALSE)
   
 } else {
