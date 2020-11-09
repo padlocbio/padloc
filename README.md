@@ -29,22 +29,22 @@ The setup script installs software dependencies via [Homebrew](https://brew.sh/)
 
 ```bash
 # BASIC: Search an amino acid fasta file with accompanying GFF annotations
-$ padloc --faa genome.faa --gff features.faa
+padloc --faa genome.faa --gff features.faa
 ```
 
 ```bash
 # BASIC: Search a nucleic acid fasta file, identifying CDS with prodigal
-$ padloc --fna genome.fna
+padloc --fna genome.fna
 ```
 
 ```bash
 # INTERMEDIATE: Use multiple cpus and save output to a different directory
-$ padloc --faa genome.faa --gff features.faa --outdir path_to_output --cpu 4
+padloc --faa genome.faa --gff features.faa --outdir path_to_output --cpu 4
 ```
 
 ```bash
 # ADVANCED: Use your own HMMs and system models
-$ padloc --faa genome.faa --gff genome.gff --data path_to_data
+padloc --faa genome.faa --gff genome.gff --data path_to_data
 ```
 
 ## Options
