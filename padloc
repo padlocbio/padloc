@@ -261,11 +261,11 @@ hmmsearch_wrapper() {
 # padloc_wrapper; Wrapper for running padloc.R
 padloc_wrapper() {
 
-  OUT_PATH="${OUT_DIR}/${FASTA_NAME}_pdlcout.csv"
+  OUT_PATH="${OUT_DIR}/${FASTA_NAME}_padloc.csv"
 
   # If not appending and domtblout already exists, skip - unless forcing.
   if [[ "${FORCE}" -eq 0 && -f "${OUT_PATH}" ]] ; then
-    info "${FASTA_NAME}_pdlcout.csv already exists; use --force to overwrite\n"
+    info "${FASTA_NAME}_padloc.csv already exists; use --force to overwrite\n"
   else
     # Print command.
     debug "Rscript ${SRC_DIR}/bin/padloc.R -d ${DOMTBL_PATH} -f ${GFF_FILE} -h ${HMM_META} -s ${SYS_META} -y ${YAML_DIR} -o ${OUT_DIR} -b ${USE_DEBUG} -q ${QUIET} -p ${PRODIGAL}"
