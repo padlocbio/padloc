@@ -341,24 +341,20 @@ search_system <- function(system_type, merged_tbls) {
   
   gene_types <- list(core_genes = core_genes, other_genes = other_genes, prohibited_genes = prohibited_genes)
   
-  additional_genes <- c()
-  
   for ( i in 1:length(gene_types) ) {
     
-    gene_type_name <- names(gene_types[i])
-    gene_type_values <- gene_types[i]
-    genes <- unlist(gene_type_values)
+    name <- names(gene_types[i])
+    values <- gene_types[i]
+    genes <- unlist(values)
     
     for ( gene in genes ) {
-      
-      # assign protein names based on system.definition.shortcut
+      # if one of the genes is a system.defintion.shortcut in the hmm.alias table
       if ( gene %in% hmm_meta$system.definition.shortcut ) {
-        
-        additional_genes <- additional_genes %>% append(unlist(hmm_meta %>% filter(system.definition.shortcut == gene) %>% select(protein.name), use.names = FALSE))
-        
+        # add the corresponding genes from the hmm.alias table to other_genes
+        additional_genes <- unlist((hmm_meta %>% filter(system.definition.shortcut == gene) %>% select(protein.name)), use.names = FALSE)
+        do.call("<-", list(eval(parse(text = "name")), unique(c(values, additional_genes))))
       }
     }
-    do.call("<-", list(eval(parse(text = "gene_type_name")), unique(c(gene_type_values, additional_genes))))
   }
   
   # remove any genes from 'other' that are also listed as 'core' or 'prohibited'
