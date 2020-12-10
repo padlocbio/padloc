@@ -227,7 +227,7 @@ prodigal_wrapper() {
     if prodigal -i "${FNA_FILE}" -f gff -o "${GFF_FILE}" -a "${FAA_FILE}" -q; then
       debug "Finished @ $(date) ... SUCCESSFUL\n"
       # Convert to short headers.
-      gsed 's/#.*//g' "${FAA_FILE}" > "${FAA_FILE}.tmp" && mv "${FAA_FILE}.tmp" "${FAA_FILE}"
+      sed -i 's/#.*//g' ${FAA_FILE}
     else
       debug "Finished @ $(date) ... FAILED\n"
       die "prodigal failed\n"
