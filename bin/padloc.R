@@ -574,7 +574,7 @@ padloc_out <- bind_rows(systems)
 # Formatting.
 padloc_out <- padloc_out %>% mutate(full.seq.E.value=signif(full.seq.E.value,3),
                                     domain.iE.value=signif(domain.iE.value,3),
-                                    target.description=replace_na(target.description,target.name))%>%
+                                    target.description=ifelse(is.na(target.description)==T,target.name,target.description))%>%
                               mutate(target.description=str_remove(target.description,"MULTISPECIES: "))
 
 # Output table of defence systems and annotation file
