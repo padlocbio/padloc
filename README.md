@@ -16,14 +16,14 @@ PADLOC can be installed by cloning or downloading this github repository and run
 
 ```bash
 # Clone repo to $HOME
-git clone https://github.com/leightonpayne/padloc $HOME/padloc
+git clone https://github.com/padlocbio/padloc $HOME/padloc
 # Add to $PATH
 export PATH="$HOME/padloc:$PATH"
 # Run setup
 padloc --setup
 ```
 
-The setup script installs software dependencies via [Homebrew](https://brew.sh/) and R packages from [CRAN](https://cran.r-project.org/) if they are not already installed. It also downloads and compiles the default database used by PADLOC from [PADLOC-DB](https://github.com/leightonpayne/padloc-db).
+The setup script installs software dependencies via [Homebrew](https://brew.sh/) and R packages from [CRAN](https://cran.r-project.org/) if they are not already installed. It also downloads and compiles the default database used by PADLOC from [PADLOC-DB](https://github.com/padlocbio/padloc-db).
 
 ## Examples
 
