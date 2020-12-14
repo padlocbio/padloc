@@ -575,7 +575,15 @@ padloc_out <- bind_rows(systems)
 padloc_out <- padloc_out %>% mutate(full.seq.E.value=signif(full.seq.E.value,3),
                                     domain.iE.value=signif(domain.iE.value,3),
                                     target.description=ifelse(is.na(target.description)==T,target.name,target.description))%>%
-                              mutate(target.description=str_remove(target.description,"MULTISPECIES: "))
+                             mutate(target.description=str_remove(target.description,"MULTISPECIES: "))
+
+# Remove "other" systems that overlap canonical systems
+padloc_out <- padloc_out %>% mutate(system.class = gsub("_.*", "", system),
+                                    is.other = ifelse(grepl("other", system) == T, 1, 0)) %>%
+                            group_by(seqid, target.name, system.class) %>%
+                            mutate(remove = ifelse(is.other == 1 & min(is.other) == 0), 1, 0) %>%
+                            filter(remove == 0) %>%
+                            select(-system.class, -is.other, -remove)
 
 # Output table of defence systems and annotation file
 if ( nrow(padloc_out) > 0 ) {
