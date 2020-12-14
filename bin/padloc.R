@@ -581,7 +581,7 @@ padloc_out <- padloc_out %>% mutate(full.seq.E.value=signif(full.seq.E.value,3),
 padloc_out <- padloc_out %>% mutate(system.class = gsub("_.*", "", system),
                                     is.other = ifelse(grepl("other", system) == T, 1, 0)) %>%
                             group_by(seqid, target.name, system.class) %>%
-                            mutate(remove = ifelse(is.other == 1 & min(is.other) == 0), 1, 0) %>%
+                            mutate(remove = ifelse(is.other == 1 & min(is.other) == 0, 1, 0)) %>%
                             filter(remove == 0) %>%
                             select(-system.class, -is.other, -remove)
 
