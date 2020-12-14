@@ -572,9 +572,9 @@ names(systems) <- system_names
 padloc_out <- bind_rows(systems)
 
 # Formatting.
-padloc_out <- mutate(full.seq.E.value=signif(full.seq.E.value,3),
-                     domain.iE.value=signif(domain.iE.value,3),
-                     target.description=str_remove(target.description,"MULTISPECIES: "))
+padloc_out <- padloc_out %>% mutate(full.seq.E.value=signif(full.seq.E.value,3),
+                                    domain.iE.value=signif(domain.iE.value,3),
+                                    target.description=str_remove(target.description,"MULTISPECIES: "))
 
 # Output table of defence systems and annotation file
 if ( nrow(padloc_out) > 0 ) {
