@@ -585,6 +585,7 @@ formatted <- formatted %>% mutate(system.class = gsub("_.*", "", system),
                             group_by(seqid, target.name, system.class) %>%
                             mutate(remove = ifelse(is.other == 1 & min(is.other) == 0, 1, 0)) %>%
                             filter(remove == 0) %>%
+                            ungroup() %>%
                             select(-system.class, -is.other, -remove)
 
 return(formatted)}
