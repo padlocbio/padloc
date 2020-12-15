@@ -14,7 +14,8 @@ info "Installing database\n"
 
 [[ -d data ]] && rm -dr data
 
-git submodule update --init --recursive > /dev/null 2>&1
+#git submodule update --init --recursive > /dev/null 2>&1
+git submodule update --remote --merge > /dev/null 2>&1
 
 info "Compiling database\n"
 
