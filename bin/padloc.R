@@ -576,20 +576,21 @@ padloc_out <- bind_rows(systems)
 
 # Formatting.
 format_output<-function(to_format){
-# Formatting.
-formatted <- to_format %>% mutate(full.seq.E.value=signif(full.seq.E.value,3),
+  # Formatting.
+  formatted <- to_format %>% mutate(full.seq.E.value=signif(full.seq.E.value,3),
                                     domain.iE.value=signif(domain.iE.value,3),
                                     target.description=ifelse(is.na(target.description)==T,target.name,target.description))%>%
                              mutate(target.description=str_remove(target.description,"MULTISPECIES: "))
 
-# Remove "other" systems that overlap canonical systems
-formatted <- formatted %>% mutate(system.class = gsub("_.*", "", system),
+  # Remove "other" systems that overlap canonical systems
+  formatted <- formatted %>% mutate(system.class = gsub("_.*", "", system),
                                     is.other = ifelse(grepl("_other", system) == T, 1, 0)) %>%
-                            group_by(seqid, target.name, system.class) %>%
-                            mutate(remove = ifelse(is.other == 1 & min(is.other) == 0, 1, 0)) %>%
-                            filter(remove == 0) %>%
-                            ungroup() %>%
-                            select(-system.class, -is.other, -remove)
+                              group_by(seqid, target.name, system.class) %>%
+                              mutate(remove = ifelse(is.other == 1 & min(is.other) == 0, 1, 0)) %>%
+                              filter(remove == 0) %>%
+                              ungroup() %>%
+                              select(-system.class, -is.other, -remove) %>%
+                              arrange(seqid, relative.position)
 
 return(formatted)}
 
