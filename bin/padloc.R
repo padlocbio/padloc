@@ -288,7 +288,7 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
   merged <- domtbl %>% 
     left_join(gff, by = "target.name") %>%
     left_join(hmm_meta, by = "hmm.name") %>%
-    arrange(relative.position)
+    arrange(seqid,relative.position)
   
   # Catch HMMs that are missing from hmm_meta
   warn <- merged %>% 
@@ -444,13 +444,14 @@ search_system <- function(system_type, merged_tbls) {
   
   # add a column that groups hits into clusters
   clusters <- top_hits %>% 
-    arrange(relative.position) %>%
+    arrange(seqid,relative.position) %>%
+    group_by(seqid) %>%
     dplyr::mutate(cluster = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
     ungroup()
   
   # count the number of unique hits in each cluster
   clusters_unique <- clusters %>%
-    group_by(cluster, is.core, is.accessory, is.prohibited) %>%
+    group_by(seqid, cluster, is.core, is.accessory, is.prohibited) %>%
     dplyr::mutate(unq.counts = length(unique(protein.name))) %>%
     ungroup()
   
@@ -460,7 +461,7 @@ search_system <- function(system_type, merged_tbls) {
       unq.core = is.core * unq.counts,
       unq.accessory = is.accessory * unq.counts,
       unq.prohibited = is.prohibited * unq.counts) %>%
-    group_by(cluster) %>%
+    group_by(seqid, cluster) %>%
     dplyr::mutate(
       unq.core = suppressWarnings(max(unq.core)),
       unq.accessory = suppressWarnings(max(unq.accessory)),
@@ -485,7 +486,7 @@ search_system <- function(system_type, merged_tbls) {
     select(seqid, system, target.name, hmm.accession, 
            hmm.name, protein.name, full.seq.E.value, domain.iE.value, 
            target.coverage, hmm.coverage, start, end, strand, 
-           target.description, relative.position, all.domains, best.hits)
+           target.description, relative.position, contig.end, all.domains, best.hits)
   
 }
 
@@ -545,7 +546,9 @@ gff <- gff %>%
 if ("pseudo" %in% names(gff)) { gff <- gff %>% filter(is.na(pseudo)) }
 gff <- gff %>%
   arrange(seqid, start) %>%
+  group_by(seqid) %>%
   mutate(relative.position = row_number()) %>%
+  mutate(contig.end = max(relative.position)) %>%
   group_by(ID) %>%
   mutate(
     target.name = ifelse(
