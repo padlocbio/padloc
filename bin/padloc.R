@@ -339,23 +339,18 @@ search_system <- function(system_type, merged_tbls) {
   other_genes      <- system_param$other_genes
   prohibited_genes <- system_param$prohibited_genes
   
-  gene_types <- list(core_genes = core_genes, other_genes = other_genes, prohibited_genes = prohibited_genes)
+  expand_secondary_gene_assignments<-function(primary_gene_list){
   
-  for ( i in 1:length(gene_types) ) {
-    
-    name <- names(gene_types[i])
-    values <- gene_types[i]
-    genes <- unlist(values)
-    
-    for ( gene in genes ) {
-      # if one of the genes is a system.defintion.shortcut in the hmm.alias table
-      if ( gene %in% hmm_meta$system.definition.shortcut ) {
-        # add the corresponding genes from the hmm.alias table to other_genes
-        additional_genes <- unlist((hmm_meta %>% filter(system.definition.shortcut == gene) %>% select(protein.name)), use.names = FALSE)
-        do.call("<-", list(eval(parse(text = "name")), unique(c(values, additional_genes))))
-      }
-    }
+    additional_genes<-hmm_meta %>% filter(system.definition.shortcut %in% primary_gene_list) %>% 
+                                    select(protein.name) %>%
+                                    distinct()
+                    
+    return(c(primary_gene_list,unlist(additional_genes,use.names = F)))
   }
+  
+  core_genes<-expand_secondary_gene_assignments(core_genes)
+  other_genes<-expand_secondary_gene_assignments(other_genes)
+  prohibited_genes<-expand_secondary_gene_assignments(prohibited_genes)
   
   # remove any genes from 'other' that are also listed as 'core' or 'prohibited'
   other_genes <- unlist(other_genes %>% setdiff(c(core_genes, prohibited_genes)))
