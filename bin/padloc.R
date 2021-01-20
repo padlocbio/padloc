@@ -538,7 +538,8 @@ gff <- read_gff(GFF_PATH)
 gff <- gff %>%
   filter(type == "CDS") %>%
   separate_attributes()
-if ("pseudo" %in% names(gff)) { gff <- gff %>% filter(is.na(pseudo)) }
+#if ("pseudo" %in% names(gff)) { gff <- gff %>% filter(is.na(pseudo)) }
+if ("pseudo" %in% names(gff)) { gff <- gff %>% mutate(ID = ifelse(is.na(pseudo),ID,Name)) }
 gff <- gff %>%
   arrange(seqid, start) %>%
   group_by(seqid) %>%
