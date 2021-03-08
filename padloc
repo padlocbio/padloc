@@ -228,6 +228,8 @@ prodigal_wrapper() {
       debug "Finished @ $(date) ... SUCCESSFUL\n"
       # Convert to short headers.
       sed -i.bak 's/#.*//g' "${FAA_FILE}" && rm "${FAA_FILE}.bak"
+      # Fix error in Prodigal formatting
+	    sed -i.bak sed '/^"/d' "${GFF_FILE}" && rm "${GFF_FILE}.bak"
     else
       debug "Finished @ $(date) ... FAILED\n"
       die "prodigal failed\n"
