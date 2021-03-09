@@ -336,7 +336,7 @@ search_system <- function(system_type, merged_tbls) {
   min_core         <- system_param$minimum_core
   min_total        <- system_param$minimum_total
   core_genes       <- system_param$core_genes
-  other_genes      <- system_param$other_genes
+  optional_genes   <- system_param$optional_genes
   prohibited_genes <- system_param$prohibited_genes
   
   expand_secondary_gene_assignments<-function(primary_gene_list){
@@ -349,11 +349,11 @@ search_system <- function(system_type, merged_tbls) {
   }
   
   core_genes<-expand_secondary_gene_assignments(core_genes)
-  other_genes<-expand_secondary_gene_assignments(other_genes)
+  optional_genes<-expand_secondary_gene_assignments(optional_genes)
   prohibited_genes<-expand_secondary_gene_assignments(prohibited_genes)
   
   # remove any genes from 'other' that are also listed as 'core' or 'prohibited'
-  other_genes <- unlist(other_genes %>% setdiff(c(core_genes, prohibited_genes)))
+  optional_genes <- unlist(optional_genes %>% setdiff(c(core_genes, prohibited_genes)))
   # remove any genes from 'prohibited' that are also listed as 'core'
   prohibited_genes <- unlist(prohibited_genes %>% setdiff(core_genes))
   core_genes <- unlist(core_genes)
@@ -361,7 +361,7 @@ search_system <- function(system_type, merged_tbls) {
   # filter for relevant genes
   relevance_check <- merged_tbls %>%
     dplyr::mutate(relevant = ifelse(
-      protein.name %in% c(core_genes, other_genes, prohibited_genes), 
+      protein.name %in% c(core_genes, optional_genes, prohibited_genes), 
       TRUE, FALSE))
   
   relevance_checked <- relevance_check %>%
@@ -371,7 +371,7 @@ search_system <- function(system_type, merged_tbls) {
   genes_classified <- relevance_checked %>% 
     dplyr::mutate(
       is.core = ifelse(protein.name %in% core_genes, TRUE, FALSE),
-      is.accessory = ifelse(protein.name %in% other_genes, TRUE, FALSE),
+      is.accessory = ifelse(protein.name %in% optional_genes, TRUE, FALSE),
       is.prohibited = ifelse(protein.name %in% prohibited_genes, TRUE, FALSE))
   
   # add column listing all domains for a particular hmm hiting a particular 
