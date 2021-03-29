@@ -1,4 +1,4 @@
-<a href="https://github.com/padlocbio/padloc/LICENSE" alt="License"><img src="https://img.shields.io/github/license/padlocbio/padloc" /></a> <a href="https://github.com/padlocbio/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/padlocbio/padloc?label=last%20update" /></a> <a href="https://github.com/padlocbio/padlocDB/releases" alt="Release"><img src="https://img.shields.io/github/v/release/padlocbio/padlocDB" /></a> 
+<a href="https://github.com/padlocbio/padloc/LICENSE" alt="License"><img src="https://img.shields.io/github/license/padlocbio/padloc" /></a> <a href="https://github.com/padlocbio/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/padlocbio/padloc?label=last%20update" /></a> <a href="https://github.com/padlocbio/padloc/releases" alt="Release"><img src="https://img.shields.io/github/v/release/padlocbio/padloc" /></a> 
 
 # PADLOC: Prokaryotic Antiviral Defence LOCator
 
