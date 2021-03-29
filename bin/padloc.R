@@ -558,9 +558,23 @@ gff <- gff %>%
   ) %>%
   ungroup()
 
+# Check that all proteins listed in the .faa are also in the .gff
+
 # Merge tables.
 debug_msg("Merging domain, alias, and feature tables")
 merged <- merge_tbls(domtbl, gff, hmm_meta)
+
+# Warn and exit if there are proteins not found in the .GFF
+unknown_protein_count <- length(merged %>%
+                                filter(is.na(start)) %>%
+                                select(target.name) %>%
+                                distinct()
+                               )
+
+if (unknown_protein_count > 0) {
+  warning_msg(paste0(unknown_protein_count, " protein sequence IDs are missing from GFF file. Terminating."))
+  die(paste0(unknown_protein_count, " protein sequence IDs are missing from GFF file"))
+}
 
 # Search for systems.
 debug_msg("Searching for defence systems")

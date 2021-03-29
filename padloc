@@ -65,7 +65,7 @@ Setup:
     --bootstrap   Install dependencies (called by --setup)
     --updatedb    Install latest database (called by --setup)
 Input:
-    --faa [f]     Amino acid FASTA file
+    --faa [f]     Amino acid FASTA file (only valid with [--gff])
     --gff [f]     GFF file (only valid with [--faa])
     --fna [f]     Nucleic acid FASTA file
 Output:
@@ -74,6 +74,7 @@ Optional:
     --data [d]    Data directory (default '${DATA}')
     --cpu [n]     Use [n] CPUs (default '1')
     --raw-out     Include a summarised raw output file for each genome searched
+	--pro-mode	  Skip the R package checks
 EOF
 }
 
@@ -109,6 +110,7 @@ abspath() {
 
 # Set defaults.
 USE_DEBUG=0
+PRO_MODE=0
 CPU=1
 RAW_OUT=0
 QUIET=0
@@ -294,11 +296,13 @@ main() {
   # Check options
   check_opt
 
-  # Check that required R packages are installed
-  Rscript "${SRC_DIR}/bin/check_packages.R"
-  # Stop if there were missing packages
-  [[ $? -ne 0 ]] && exit 1
-  debug "Required R packages are installed\n"
+  if [[ "${PRO_MODE:-"0"}" -eq 0 ]] ; then 
+    # Check that required R packages are installed
+    Rscript "${SRC_DIR}/bin/check_packages.R"
+    # Stop if there were missing packages
+    [[ $? -ne 0 ]] && exit 1
+    debug "Required R packages are installed\n"
+  fi
 
   # Run Prodigal if input is fna
   if [[ ! -z "${FNA_FILE}" ]]; then
