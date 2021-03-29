@@ -565,7 +565,7 @@ debug_msg("Merging domain, alias, and feature tables")
 merged <- merge_tbls(domtbl, gff, hmm_meta)
 
 # Warn and exit if there are proteins not found in the .GFF
-unknown_protein_count <- length(merged %>%
+unknown_protein_count <- nrow(merged %>%
                                 filter(is.na(start)) %>%
                                 select(target.name) %>%
                                 distinct()
