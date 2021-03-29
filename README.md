@@ -4,7 +4,7 @@
 
 ## About
 
-PADLOC is a software tool for identifying antiviral defence systems in prokaryotic genomes. PADLOC screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture. PADLOC can be installed and used via the command line or via our [web app](https://padlocbio.com).
+PADLOC is a software tool for identifying antiviral defence systems in prokaryotic genomes. PADLOC screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture. PADLOC can be installed and used via the command line or via our [web app](https://padloc.otago.ac.nz).
 
 ## Citation
 
