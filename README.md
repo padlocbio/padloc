@@ -1,4 +1,4 @@
-<a href="https://github.com/leightonpayne/padloc/LICENSE" alt="License"><img src="https://img.shields.io/github/license/leightonpayne/padloc" /></a> <a href="https://github.com/leightonpayne/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/leightonpayne/padloc?label=last%20update" /></a> <a href="https://github.com/leightonpayne/padlocDB/releases" alt="Release"><img src="https://img.shields.io/github/v/release/leightonpayne/padlocDB" /></a> 
+<a href="https://github.com/padlocbio/padloc/LICENSE" alt="License"><img src="https://img.shields.io/github/license/padlocbio/padloc" /></a> <a href="https://github.com/padlocbio/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/padlocbio/padloc?label=last%20update" /></a> <a href="https://github.com/padlocbio/padlocDB/releases" alt="Release"><img src="https://img.shields.io/github/v/release/padlocbio/padlocDB" /></a> 
 
 # PADLOC: Prokaryotic Antiviral Defence LOCator
 
@@ -8,7 +8,7 @@ PADLOC is a software tool for identifying antiviral defence systems in prokaryot
 
 ## Citation
 
-...
+Manuscript in preparation
 
 ## Installation
 
