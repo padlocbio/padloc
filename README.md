@@ -47,6 +47,19 @@ padloc --faa genome.faa --gff features.faa --outdir path_to_output --cpu 4
 padloc --faa genome.faa --gff genome.gff --data path_to_data
 ```
 
+## Test
+
+```bash
+# Run PADLOC on test data
+padloc --faa test/GCF_001688665.2.faa --gff test/GCF_001688665.2.gff --outdir test --force --cpu 2
+padloc --fna test/GCF_004358345.1.fna --outdir test --force --cpu 2
+# Compare checksums (use `md5sum` for Linux or `md5` for macos)
+md5sum test/GCF_001688665.2_padloc.csv # f3b293d5be21224d9ab226c5f22252f2
+md5sum test/GCF_004358345.1_padloc.csv # 98b60aa785ba47bf3ae8d352fabf81e1
+```
+
+If checksums don't match, try reinstalling PADLOC. If reinstallation doesn't fix problems, submit an issue (see [Sample bug report](/../../issues/6)).
+
 ## Options
 
 ```
@@ -133,7 +146,7 @@ The HMMs and defence system models used by PADLOC are available from the reposit
 
 ## Issues
 
-Bugs and feature requests can be submitted to the [Issues tab](https://github.com/leightonpayne/padloc/issues).
+Bugs and feature requests can be submitted to the [Issues tab](https://github.com/leightonpayne/padloc/issues) (see [Sample bug report](/../../issues/6)).
 
 ## Dependencies
 
