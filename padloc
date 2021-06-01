@@ -167,6 +167,7 @@ while [[ "${#}" -gt 0 ]]; do
     -c|--cpu) require_argument "${option}" "${parameter}"
       CPU="${parameter}" ; shift ;;
     --force) FORCE=1;;
+    --pro-mode) PRO_MODE=1;;
     -r|--raw-out) RAW_OUT=1 ;;
     --endopts) break ;;
     *) die "Unexpected option: [${option}]" ;;
