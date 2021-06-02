@@ -547,14 +547,14 @@ gff <- gff %>%
   mutate(contig.end = max(relative.position)) %>%
   group_by(ID) %>%
   mutate(
-    target.name = ifelse(
-      # Fix prodigal-generated GFF
-      PRODIGAL == 1, 
-      paste0(seqid, str_remove(ID, "^[0-9]*")), 
-      # RefSeq & GenBank 'ID' fields have 'cds-' in front of the protein name 
-      # that needs to be removed, prokka GFFs are fine.
-      str_remove(ID, "cds-")
-    )
+    target.name = case_when(
+                            # Fix prodigal-generated GFF
+                            PRODIGAL == 1 ~  paste0(seqid, str_remove(ID, "^[0-9]*")),
+                            # RefSeq & GenBank 'ID' fields have 'cds-' in front of the protein name 
+                            # that needs to be removed, prokka GFFs are fine.
+                            grepl("cds-",ID) ~ str_remove(ID, "cds-"),
+                            # old genbank files don't always have the same ID format
+                            T ~ protein_id)
   ) %>%
   ungroup()
 
