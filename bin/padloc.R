@@ -553,6 +553,8 @@ gff <- gff %>%
                             # RefSeq & GenBank 'ID' fields have 'cds-' in front of the protein name 
                             # that needs to be removed, prokka GFFs are fine.
                             grepl("cds-",ID) ~ str_remove(ID, "cds-"),
+                            # ensure pseudogenes are updated
+                            grepl("pseudo_sub",ID) ~ ID,
                             # old genbank files don't always have the same ID format
                             T ~ protein_id)
   ) %>%
