@@ -540,6 +540,8 @@ gff <- gff %>%
   separate_attributes()
 #if ("pseudo" %in% names(gff)) { gff <- gff %>% filter(is.na(pseudo)) }
 if ("pseudo" %in% names(gff)) { gff <- gff %>% mutate(ID = ifelse(is.na(pseudo),ID,Name)) }
+if (!"protein_id" %in% names(gff)){gff <- gff %>% mutate(protein_id=ID)}
+
 gff <- gff %>%
   arrange(seqid, start) %>%
   group_by(seqid) %>%
