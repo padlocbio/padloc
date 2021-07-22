@@ -74,7 +74,7 @@ Optional:
     --data [d]    Data directory (default '${DATA}')
     --cpu [n]     Use [n] CPUs (default '1')
     --raw-out     Include a summarised raw output file for each genome searched
-	--pro-mode	  Skip the R package checks
+    --pro-mode    Skip the R package checks
 EOF
 }
 
