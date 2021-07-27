@@ -18,7 +18,7 @@ info "Installing dependencies\n"
 
 if ! check_command brew; then
 	info "Installing Homebrew\n"
-	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	info "Homebrew installed (%s)\n" $(brew -v | cut -d ' ' -f 2 | head -n 1)
 else
 	info "Homebrew already installed (%s)\n" $(brew -v | cut -d ' ' -f 2 | head -n 1)
