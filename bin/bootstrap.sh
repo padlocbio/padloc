@@ -19,6 +19,12 @@ info "Installing dependencies\n"
 if ! check_command brew; then
 	info "Installing Homebrew\n"
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
+		test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+		test -r ~/.bash_profile && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.bash_profile
+		echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile
+	fi
 	info "Homebrew installed (%s)\n" $(brew -v | cut -d ' ' -f 2 | head -n 1)
 else
 	info "Homebrew already installed (%s)\n" $(brew -v | cut -d ' ' -f 2 | head -n 1)
