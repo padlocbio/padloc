@@ -12,6 +12,8 @@ Manuscript in preparation
 
 ## Installation
 
+Please note: THE AUTOMATED INSTALL SCRIPT DOESN'T RUN SMOOTHLY ON ALL OPERATING SYSTEMS. We're planning to release PADLOC on Conda shortly, in the interum you can manually install the prerequisites (below).
+
 PADLOC can be installed by cloning or downloading this github repository and running the setup script.
 
 ```bash

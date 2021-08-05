@@ -73,9 +73,16 @@ Input:
 Output:
     --outdir [d]      Output directory
 Optional:
+<<<<<<< HEAD
     --data [d]        Data directory (default '${DATA}')
     --cpu [n]         Use [n] CPUs (default '1')
     --raw-out         Include a summarised raw output file
+=======
+    --data [d]    Data directory (default '${DATA}')
+    --cpu [n]     Use [n] CPUs (default '1')
+    --raw-out     Include a summarised raw output file for each genome searched
+    --pro-mode    Skip the R package checks
+>>>>>>> 0134a0748fe709ae84d861d477973455cf4e0520
 EOF
 }
 
@@ -201,6 +208,7 @@ while [[ "${#}" -gt 0 ]]; do
     -c|--cpu) require_argument "${option}" "${parameter}"
       CPU="${parameter}" ; shift ;;
     --force) FORCE=1;;
+    --pro-mode) PRO_MODE=1;;
     -r|--raw-out) RAW_OUT=1 ;;
     --endopts) break ;;
     *) die "Unexpected option: [${option}]" ;;

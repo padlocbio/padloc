@@ -540,6 +540,8 @@ gff <- gff %>%
   separate_attributes()
 #if ("pseudo" %in% names(gff)) { gff <- gff %>% filter(is.na(pseudo)) }
 if ("pseudo" %in% names(gff)) { gff <- gff %>% mutate(ID = ifelse(is.na(pseudo),ID,Name)) }
+if (!"protein_id" %in% names(gff)){gff <- gff %>% mutate(protein_id=ID)}
+
 gff <- gff %>%
   arrange(seqid, start) %>%
   group_by(seqid) %>%
@@ -547,14 +549,16 @@ gff <- gff %>%
   mutate(contig.end = max(relative.position)) %>%
   group_by(ID) %>%
   mutate(
-    target.name = ifelse(
-      # Fix prodigal-generated GFF
-      PRODIGAL == 1, 
-      paste0(seqid, str_remove(ID, "^[0-9]*")), 
-      # RefSeq & GenBank 'ID' fields have 'cds-' in front of the protein name 
-      # that needs to be removed, prokka GFFs are fine.
-      str_remove(ID, "cds-")
-    )
+    target.name = case_when(
+                            # Fix prodigal-generated GFF
+                            PRODIGAL == 1 ~  paste0(seqid, str_remove(ID, "^[0-9]*")),
+                            # RefSeq & GenBank 'ID' fields have 'cds-' in front of the protein name 
+                            # that needs to be removed, prokka GFFs are fine.
+                            grepl("cds-",ID) ~ str_remove(ID, "cds-"),
+                            # ensure pseudogenes are updated
+                            grepl("pseudo_sub",ID) ~ ID,
+                            # old genbank files don't always have the same ID format
+                            T ~ protein_id)
   ) %>%
   ungroup()
 
