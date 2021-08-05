@@ -73,16 +73,9 @@ Input:
 Output:
     --outdir [d]      Output directory
 Optional:
-<<<<<<< HEAD
     --data [d]        Data directory (default '${DATA}')
     --cpu [n]         Use [n] CPUs (default '1')
     --raw-out         Include a summarised raw output file
-=======
-    --data [d]    Data directory (default '${DATA}')
-    --cpu [n]     Use [n] CPUs (default '1')
-    --raw-out     Include a summarised raw output file for each genome searched
-    --pro-mode    Skip the R package checks
->>>>>>> 0134a0748fe709ae84d861d477973455cf4e0520
 EOF
 }
 
@@ -337,14 +330,6 @@ main() {
 
   # Check options
   check_opt
-
-  if [[ "${PRO_MODE:-"0"}" -eq 0 ]] ; then 
-    # Check that required R packages are installed
-    Rscript "${SRC_DIR}/bin/check_packages.R"
-    # Stop if there were missing packages
-    [[ $? -ne 0 ]] && exit 1
-    debug "Required R packages are installed\n"
-  fi
 
   # Run Prodigal if input is fna
   if [[ ! -z "${FNA_FILE}" ]]; then
