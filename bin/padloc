@@ -110,12 +110,11 @@ db_install() {
     printf "\nFor example:\n  $ padloc --db-install ${LATEST_VER}\n"
     exit 1
   else 
+    [[ -d ${DATA} ]] && rm -drf ${DATA} && mkdir ${DATA}
     echo "Downloading database version ${version}..."
-    curl -sL "${DBREPO}/archive/refs/tags/${version}.tar.gz" --output data.tar.gz
+    curl -sL "${DBREPO}/archive/refs/tags/${version}.tar.gz" --output ${DATA}/data.tar.gz
     echo "Unpacking database..."
-    [[ -d data ]] && rm -dr data
-    mkdir data
-    tar -xzf data.tar.gz --directory data --strip-components 1 && rm data.tar.gz
+    tar -xzf ${DATA}/data.tar.gz --directory ${DATA} --strip-components 1 && rm ${DATA}/data.tar.gz
   fi
 }
 
@@ -126,13 +125,13 @@ db_update() {
 
 db_compile() {
   echo "Compiling database..."
-  find data/hmm/ -name "*.hmm" -exec cat {} > padlocdb.hmm \;
-  find data/hmm/ -name "*.hmm" -delete
-  mv padlocdb.hmm data/hmm/ 
+  find ${DATA}/hmm/ -name "*.hmm" -exec cat {} > ${DATA}/padlocdb.hmm \;
+  find ${DATA}/hmm/ -name "*.hmm" -delete
+  mv ${DATA}/padlocdb.hmm ${DATA}/hmm/ 
 }
 
 db_version() {
-  if DBVER=$(grep "# PADLOC-DB release v" data/RELEASE.md); then 
+  if DBVER=$(grep "# PADLOC-DB release v" ${DATA}/RELEASE.md); then 
     printf "padloc-db %s\n" "${DBVER#'# PADLOC-DB release v'}"
   else 
     echo "ERROR: Database version information not found" && exit 1
@@ -147,7 +146,7 @@ PRO_MODE=0
 CPU=1
 RAW_OUT=0
 QUIET=0
-DATA="${SRC_DIR}/data"
+DATA="${SRC_DIR}/../data"
 HMM_DATABASE="${DATA}/hmm/padlocdb.hmm"
 YAML_DIR="${DATA}/sys/"
 HMM_META="${DATA}/hmm_meta.txt"
@@ -309,7 +308,7 @@ padloc_wrapper() {
     # Print command.
     debug "Rscript ${SRC_DIR}/bin/padloc.R -d ${DOMTBL_PATH} -f ${GFF_FILE} -h ${HMM_META} -s ${SYS_META} -y ${YAML_DIR} -o ${OUT_DIR} -b ${USE_DEBUG} -q ${QUIET} -p ${PRODIGAL}"
     # Run hmmer.
-    Rscript "${SRC_DIR}/bin/padloc.R" \
+    Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \
     -f "${GFF_FILE}" \
     -h "${HMM_META}" \
