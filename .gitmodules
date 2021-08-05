@@ -1,4 +1,0 @@
-[submodule "data"]
-	path = data
-	url = https://github.com/leightonpayne/padloc-db
-	ignore = dirty
