@@ -12,20 +12,29 @@ Manuscript in preparation
 
 ## Installation
 
-Please note: THE AUTOMATED INSTALL SCRIPT DOESN'T RUN SMOOTHLY ON ALL OPERATING SYSTEMS. We're planning to release PADLOC on Conda shortly, in the interum you can manually install the prerequisites (below).
+### Conda (recommended)
 
 PADLOC can be installed by cloning or downloading this github repository and running the setup script.
+
+```bash
+# Install PADLOC into a new conda environment
+conda create -n padloc -c conda-forge -c bioconda -c padlocbio padloc
+# Activate the environment
+conda activate padloc
+```
+
+### GitHub
+
+PADLOC can also be installed by cloning or downloading this GitHub repository and installing the dependencies manually.
 
 ```bash
 # Clone repo to $HOME
 git clone https://github.com/padlocbio/padloc $HOME/padloc
 # Add to $PATH
-export PATH="$HOME/padloc:$PATH"
-# Run setup
-padloc --setup
+export PATH="$HOME/padloc/bin:$PATH"
+# Download database
+padloc --db-update
 ```
-
-The setup script installs software dependencies via [Homebrew](https://brew.sh/) and R packages from [CRAN](https://cran.r-project.org/) if they are not already installed. It also downloads and compiles the default database used by PADLOC from [PADLOC-DB](https://github.com/padlocbio/padloc-db).
 
 ## Examples
 
@@ -52,7 +61,7 @@ padloc --faa genome.faa --gff genome.gff --data path_to_data
 ## Test
 
 ```bash
-# Run PADLOC on test data
+# Try running PADLOC on the test data provided
 padloc --faa test/GCF_001688665.2.faa --gff test/GCF_001688665.2.gff --outdir test --force --cpu 2
 padloc --fna test/GCF_004358345.1.fna --outdir test --force --cpu 2
 # Compare checksums (use `md5sum` for Linux or `md5` for macos)
@@ -60,30 +69,31 @@ md5sum test/GCF_001688665.2_padloc.csv # f3b293d5be21224d9ab226c5f22252f2
 md5sum test/GCF_004358345.1_padloc.csv # 98b60aa785ba47bf3ae8d352fabf81e1
 ```
 
-If checksums don't match, try reinstalling PADLOC. If reinstallation doesn't fix problems, submit an issue (see [Sample bug report](/../../issues/6)).
+If the checksums don't match, try reinstalling PADLOC. If reinstallation doesn't fix the problem, submit an issue (see [Sample bug report](/../../issues/6)).
 
 ## Options
 
 ```
 General:
-    --help        Print this help message
-    --version     Print version information
-    --citation    Print citation information
-    --debug       Run with debug messages
-Setup:
-    --setup       Set up a fresh padloc install
-    --bootstrap   Install dependencies (called by --setup)
-    --updatedb    Install latest database (called by --setup)
+    --help            Print this help message
+    --version         Print version information
+    --citation        Print citation information
+    --debug           Run with debug messages
+Database:
+    --db-list         List all PADLOC-DB releases
+    --db-install [n]  Install specific PADLOC-DB release [n]
+    --db-update       Install latest PADLOC-DB release
+    --db-version      Print database version information
 Input:
-    --faa [f]     Amino acid FASTA file
-    --gff [f]     GFF file (only valid with [--faa])
-    --fna [f]     Nucleic acid FASTA file
+    --faa [f]         Amino acid FASTA file (only valid with [--gff])
+    --gff [f]         GFF file (only valid with [--faa])
+    --fna [f]         Nucleic acid FASTA file
 Output:
-    --outdir [d]  Output directory
+    --outdir [d]      Output directory
 Optional:
-    --data [d]    Data directory
-    --cpu [n]     Use [n] CPUs (default '1')
-    --raw-out     Include a summarised raw output file
+    --data [d]        Data directory
+    --cpu [n]         Use [n] CPUs (default '1')
+    --raw-out         Include a summarised raw output file
 ```
 
 ## Output
@@ -98,7 +108,7 @@ Optional:
 
 ## PADLOC-DB
 
-The HMMs and defence system models used by PADLOC are available from the repository [PADLOC-DB](https://github.com/leightonpayne/padloc-db). This data is downloaded and compiled automatically when `padloc --setup` or `padloc --updatedb` is run. Alternatively, a custom database can be specified with `--data [d]`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
+The HMMs and defence system models used by PADLOC are available from the repository [PADLOC-DB](https://github.com/leightonpayne/padloc-db). This data is downloaded and compiled automatically when installing via conda. If installing from GitHub, the database will be downloaded when  `padloc --db-update` is run. Alternatively, a custom database can be specified with `--data [d]`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
 
 ## FAQ
 
@@ -152,7 +162,7 @@ Bugs and feature requests can be submitted to the [Issues tab](https://github.co
 
 ## Dependencies
 
-These dependencies are installed automatically during setup.
+These dependencies are installed automatically when using conda.
 
 ### Mandatory
 
