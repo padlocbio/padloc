@@ -12,6 +12,8 @@ Manuscript in preparation
 
 ## Installation
 
+INSTALL SCRIPT DOESN'T ALWAYS WORK AS EXPECTED (WE'RE PREPARING ON A CONDA PACKAGE INSTEAD)
+
 PADLOC can be installed by cloning or downloading this github repository and running the setup script.
 
 ```bash
