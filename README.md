@@ -14,7 +14,7 @@ Manuscript in preparation.
 
 ### Conda (recommended)
 
-PADLOC can be installed by cloning or downloading this github repository and running the setup script.
+It is recommended that PADLOC be installed via conda.
 
 ```bash
 # Install PADLOC into a new conda environment
@@ -40,7 +40,7 @@ padloc --db-update
 
 ```bash
 # BASIC: Search an amino acid fasta file with accompanying GFF annotations
-padloc --faa genome.faa --gff features.faa
+padloc --faa genome.faa --gff features.gff
 ```
 
 ```bash
@@ -50,26 +50,21 @@ padloc --fna genome.fna
 
 ```bash
 # INTERMEDIATE: Use multiple cpus and save output to a different directory
-padloc --faa genome.faa --gff features.faa --outdir path_to_output --cpu 4
+padloc --faa genome.faa --gff features.gff --outdir path_to_output --cpu 4
 ```
 
 ```bash
 # ADVANCED: Use your own HMMs and system models
-padloc --faa genome.faa --gff genome.gff --data path_to_data
+padloc --faa genome.faa --gff features.gff --data path_to_database
 ```
 
 ## Test
 
 ```bash
 # Try running PADLOC on the test data provided
-padloc --faa test/GCF_001688665.2.faa --gff test/GCF_001688665.2.gff --outdir test --force --cpu 2
-padloc --fna test/GCF_004358345.1.fna --outdir test --force --cpu 2
-# Compare checksums (use `md5sum` for Linux or `md5` for macos)
-md5sum test/GCF_001688665.2_padloc.csv # f3b293d5be21224d9ab226c5f22252f2
-md5sum test/GCF_004358345.1_padloc.csv # 98b60aa785ba47bf3ae8d352fabf81e1
+padloc --faa padloc/test/GCF_001688665.2.faa --gff padloc/test/GCF_001688665.2.gff
+padloc --fna padloc/test/GCF_004358345.1.fna
 ```
-
-If the checksums don't match, try reinstalling PADLOC. If reinstallation doesn't fix the problem, submit an issue (see [Sample bug report](/../../issues/6)).
 
 ## Options
 
