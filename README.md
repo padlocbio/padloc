@@ -8,7 +8,7 @@ PADLOC is a software tool for identifying antiviral defence systems in prokaryot
 
 ## Citation
 
-Manuscript in preparation
+Manuscript in preparation.
 
 ## Installation
 
