@@ -110,7 +110,8 @@ db_install() {
     printf "\nFor example:\n  $ padloc --db-install ${LATEST_VER}\n"
     exit 1
   else 
-    [[ -d ${DATA} ]] && rm -drf ${DATA} && mkdir ${DATA}
+    [[ -d ${DATA} ]] && rm -drf ${DATA}
+    mkdir ${DATA}
     echo "Downloading database version ${version}..."
     curl -sL "${DBREPO}/archive/refs/tags/${version}.tar.gz" --output ${DATA}/data.tar.gz
     echo "Unpacking database..."
