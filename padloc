@@ -7,6 +7,7 @@
 VERSION="1.0.0"
 ME="${0}"
 SRC_DIR="$(dirname ${ME})"
+DBREPO="https://github.com/padlocbio/padloc-db"
 
 # BASH STRICT MODE ------------------------------------------------------------
 
@@ -56,54 +57,86 @@ Usage:
     padloc [options] --faa <genome.faa> --gff <features.gff>
     padloc [options] --fna <genome.fna>
 General:
-    --help        Print this help message
-    --version     Print version information
-    --citation    Print citation information
-    --debug       Run with debug messages
-Setup:
-    --setup       Set up a fresh padloc install
-    --bootstrap   Install dependencies (called by --setup)
-    --updatedb    Install latest database (called by --setup)
+    --help            Print this help message
+    --version         Print version information
+    --citation        Print citation information
+    --debug           Run with debug messages
+Database:
+    --db-list         List all PADLOC-DB releases
+    --db-install [n]  Install specific PADLOC-DB release [n]
+    --db-update       Install latest PADLOC-DB release
+    --db-version      Print database version information
 Input:
-    --faa [f]     Amino acid FASTA file (only valid with [--gff])
-    --gff [f]     GFF file (only valid with [--faa])
-    --fna [f]     Nucleic acid FASTA file
+    --faa [f]         Amino acid FASTA file (only valid with [--gff])
+    --gff [f]         GFF file (only valid with [--faa])
+    --fna [f]         Nucleic acid FASTA file
 Output:
-    --outdir [d]  Output directory
+    --outdir [d]      Output directory
 Optional:
-    --data [d]    Data directory (default '${DATA}')
-    --cpu [n]     Use [n] CPUs (default '1')
-    --raw-out     Include a summarised raw output file for each genome searched
-	--pro-mode	  Skip the R package checks
+    --data [d]        Data directory (default '${DATA}')
+    --cpu [n]         Use [n] CPUs (default '1')
+    --raw-out         Include a summarised raw output file
 EOF
 }
 
 # version; Print version information.
-version() { printf "padloc %s" "${VERSION}"; }
+version() { printf "padloc %s\n" "${VERSION}"; }
 
 # citation; Print citation information.
-citation() { printf "Citation pending..."; }
+citation() { printf "Citation pending...\n"; }
 
 # UTILITITES ------------------------------------------------------------------
-
-# setup; Run setup script.
-setup() {
-  "${SRC_DIR}/bin/setup.sh"
-}
-
-# bootstrap; Install mandatory dependencies.
-bootstrap() {
-  "${SRC_DIR}/bin/bootstrap.sh"
-}
-
-# updatedb; Install the latest version of PADLOC-DB.
-updatedb() {
-  "${SRC_DIR}/bin/updatedb.sh"
-}
 
 # abspath <directory>; Get the absolute path to a directory.
 abspath() {
     [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"
+}
+
+# DATABASE TOOLS --------------------------------------------------------------
+
+db_list() {
+  RELEASES=($(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP '[0-9].*(?=")'))
+  for i in ${RELEASES[@]}; do
+    echo "${i} :: ${DBREPO}/releases/${i}"
+  done
+}
+
+db_install() {
+  local version="${1:-}"
+  if [[ $(curl -sL "${DBREPO}/releases/${version}") == "Not Found" ]]; then
+    printf "ERROR: database version \"${version}\" does not exist, try install one of these instead:\n\n"
+    db_list
+    LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP '[0-9].*(?=")' | grep -m1 "")
+    printf "\nFor example:\n  $ padloc --db-install ${LATEST_VER}\n"
+    exit 1
+  else 
+    echo "Downloading database version ${version}..."
+    curl -sL "${DBREPO}/archive/refs/tags/${version}.tar.gz" --output data.tar.gz
+    echo "Unpacking database..."
+    [[ -d data ]] && rm -dr data
+    mkdir data
+    tar -xzf data.tar.gz --directory data --strip-components 1 && rm data.tar.gz
+  fi
+}
+
+db_update() {
+  LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP '[0-9].*(?=")' | grep -m1 "")
+  install_database "${LATEST_VER}"
+}
+
+db_compile() {
+  echo "Compiling database..."
+  find data/hmm/ -name "*.hmm" -exec cat {} > padlocdb.hmm \;
+  find data/hmm/ -name "*.hmm" -delete
+  mv padlocdb.hmm data/hmm/ 
+}
+
+db_version() {
+  if DBVER=$(grep "# PADLOC-DB release v" data/RELEASE.md); then 
+    printf "padloc-db %s\n" "${DBVER#'# PADLOC-DB release v'}"
+  else 
+    echo "ERROR: Database version information not found" && exit 1
+  fi
 }
 
 # OPTIONS ---------------------------------------------------------------------
@@ -146,10 +179,11 @@ while [[ "${#}" -gt 0 ]]; do
   case "${option}" in
     -h|--help) help; exit 0 ;;
     -v|--version) version; exit 0 ;;
+    --db-list) db_list; exit 0 ;;
+    --db-install) require_argument "${option}" "${parameter}"; db_install "${parameter}" && db_compile; exit 0 ;;
+    --db-update) db_update && db_compile; exit 0 ;;
+    --db-version) db_version; exit 0 ;;
     --citation) citation; exit 0 ;;
-    --setup) setup; exit 0 ;;
-    --bootstrap) bootstrap; exit 0 ;;
-    --updatedb) updatedb; exit 0 ;;
     -d|--debug) USE_DEBUG=1 ;;
     -q|--quiet) QUIET=1 ;;
     --faa) require_argument "${option}" "${parameter}"
