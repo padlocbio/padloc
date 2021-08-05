@@ -626,10 +626,10 @@ if ( nrow(padloc_out) > 0 ) {
   msg(paste0("Writing output to '", OUTPUT_DIR, "/", assembly_name, "_padloc.csv'"))
   
   padloc_out %>%
-    write_csv(path = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.csv"))
+    write_csv(file = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.csv"))
   
   gff <- generate_gff(padloc_out)
-  gff %>% write_delim(path = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.gff"),
+  gff %>% write_delim(file = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.gff"),
                       delim = "\t", col_names = FALSE)
   
 } else {
