@@ -121,7 +121,7 @@ db_install() {
 
 db_update() {
   LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP '[0-9].*(?=")' | grep -m1 "")
-  install_database "${LATEST_VER}"
+  db_install "${LATEST_VER}"
 }
 
 db_compile() {
