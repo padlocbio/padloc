@@ -60,6 +60,7 @@ General:
     --help            Print this help message
     --version         Print version information
     --citation        Print citation information
+    --check-deps      Check that dependencies are installed
     --debug           Run with debug messages
 Database:
     --db-list         List all PADLOC-DB releases
@@ -89,8 +90,53 @@ citation() { printf "Citation pending...\n"; }
 
 # abspath <directory>; Get the absolute path to a directory.
 abspath() {
-    [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"
+  [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"
 }
+
+# check_command <command>; Check whether command is in $PATH
+check_command() {
+  command -v "$1" > /dev/null 2>&1
+}
+
+# check_rpkg <R package>; Check whether R package is installed
+check_rpkg() {
+  R --slave -e "packageVersion('$1')" > /dev/null 2>&1
+}
+
+# check_deps; Check that all dependencies are installed
+check_deps() {
+  if check_command R; then 
+    info "R installed (%s)\n" $(R --version | grep "R version" | cut -d ' ' -f 3)
+  else
+    info "WARNING: R not installed\n"
+  fi
+  if check_command hmmsearch; then 
+    info "HMMER installed (%s)\n" $(hmmsearch -h | grep HMMER | cut -d ' ' -f 3)
+  else
+    info "WARNING: HMMER not installed\n"
+  fi
+  if check_command prodigal; then 
+    info "Prodigal installed (%s)\n" $(prodigal -v 2>&1 >/dev/null | grep -o '[0-9]*\.[0-9]*\.[0-9]*') 
+  else
+    info "WARNING: Prodigal not installed\n"
+  fi
+  if check_rpkg tidyverse; then
+    info "R package 'tidyverse' installed (%s)\n" $(R --slave -e "packageVersion('tidyverse')" | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+  else
+    info "WARNING: R package 'tidyverse' not installed\n"
+  fi
+  if check_rpkg yaml; then
+    info "R package 'yaml' installed (%s)\n" $(R --slave -e "packageVersion('yaml')" | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+  else
+    info "WARNING: R package 'yaml' not installed\n"
+  fi
+  if check_rpkg getopt; then
+    info "R package 'getopt' installed (%s)\n" $(R --slave -e "packageVersion('getopt')" | grep -o '[0-9]*\.[0-9]*\.[0-9]*')
+  else
+    info "WARNING: R package 'getopt' not installed\n"
+  fi
+}
+
 
 # DATABASE TOOLS --------------------------------------------------------------
 
@@ -184,6 +230,7 @@ while [[ "${#}" -gt 0 ]]; do
     --db-update) db_update && db_compile; exit 0 ;;
     --db-version) db_version; exit 0 ;;
     --citation) citation; exit 0 ;;
+    --check-deps) check_deps; exit 0 ;;
     -d|--debug) USE_DEBUG=1 ;;
     -q|--quiet) QUIET=1 ;;
     --faa) require_argument "${option}" "${parameter}"

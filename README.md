@@ -75,6 +75,7 @@ General:
     --help            Print this help message
     --version         Print version information
     --citation        Print citation information
+    --check-deps      Check that dependencies are installed
     --debug           Run with debug messages
 Database:
     --db-list         List all PADLOC-DB releases
