@@ -21,6 +21,8 @@ It is recommended that PADLOC be installed via conda.
 conda create -n padloc -c conda-forge -c bioconda -c padlocbio padloc
 # Activate the environment
 conda activate padloc
+# Download the latest database
+padloc --db-update
 ```
 
 ### GitHub
@@ -32,7 +34,7 @@ PADLOC can also be installed by cloning or downloading this GitHub repository an
 git clone https://github.com/padlocbio/padloc $HOME/padloc
 # Add to $PATH
 export PATH="$HOME/padloc/bin:$PATH"
-# Download database
+# Download the latest database
 padloc --db-update
 ```
 
@@ -103,7 +105,7 @@ Optional:
 
 ## PADLOC-DB
 
-The HMMs and defence system models used by PADLOC are available from the repository [PADLOC-DB](https://github.com/leightonpayne/padloc-db). This data is downloaded and compiled automatically when installing via conda. If installing from GitHub, the database will be downloaded when  `padloc --db-update` is run. Alternatively, a custom database can be specified with `--data [d]`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
+The HMMs and defence system models used by PADLOC are available from the repository [PADLOC-DB](https://github.com/leightonpayne/padloc-db). The latest version of the database can be downloaded by running `padloc --db-update`. Alternatively, a custom database can be specified with `--data [d]`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
 
 ## FAQ
 
@@ -161,20 +163,20 @@ These dependencies are installed automatically when using conda.
 
 ### Mandatory
 
-- **R**  
+- **R >= 4.1.0**  
   *R Core Team (2018). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/.*
-  - **tidyverse**  
+  - **tidyverse >= 1.3.1**  
     *Wickham et al. (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686.*
-  - **yaml**  
+  - **yaml >= 2.2.1**  
     *Stephens, J., et al. (2020). yaml: Methods to Convert R Data to YAML and Back. https://CRAN.R-project.org/package=yaml.*
-  - **getopt**  
+  - **getopt >= 1.20.3**  
     *Davis, T., et al. (2019). getopt: C-Like 'getopt' Behavior. https://CRAN.R-project.org/package=getopt.*
-- **HMMER3**  
+- **HMMER >= 3.3.2**  
 *Finn, R.D., Clements, J., and Eddy, S.R. (2011). HMMER web server: interactive sequence similarity searching. Nucleic Acids Res 39, W29–W37.*
 
 ### Optional
 
-- **Prodigal**  
+- **Prodigal >= 2.6.3**  
   *Hyatt, D., Chen, GL., Locascio, P.F., Land, M.L., Larimer, F.W., and Hauser, L.J. (2010) Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics 11, 119.*
 
 ## License
