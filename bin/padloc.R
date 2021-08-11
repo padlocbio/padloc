@@ -313,7 +313,10 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
     mutate(
       hmm.coverage = round(hmm.coverage, 3),
       target.coverage = round(target.coverage, 3)
-    )
+    ) %>%
+    # remove the system.definition.shortcut
+    select(-system.definition.shortcut) %>%
+    distinct()
   
 }
 
