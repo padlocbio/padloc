@@ -617,7 +617,7 @@ format_output<-function(to_format){
     ungroup() %>%
     select(-c(cluster, system.class, is.other, remove)) %>%
     select(system.number, everything()) %>%
-    arrange(system.number, relative.position)
+    arrange(seqid, relative.position)
 
   return(formatted)
 
