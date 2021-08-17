@@ -194,10 +194,6 @@ CPU=1
 RAW_OUT=0
 QUIET=0
 DATA="${SRC_DIR}/../data"
-HMM_DATABASE="${DATA}/hmm/padlocdb.hmm"
-YAML_DIR="${DATA}/sys/"
-HMM_META="${DATA}/hmm_meta.txt"
-SYS_META="${DATA}/sys_meta.txt"
 FAA_FILE=""
 FNA_FILE=""
 FASTA_NAME=""
@@ -255,6 +251,12 @@ while [[ "${#}" -gt 0 ]]; do
   esac
   shift
 done
+
+# Set database paths.
+HMM_DATABASE="${DATA}/hmm/padlocdb.hmm"
+YAML_DIR="${DATA}/sys/"
+HMM_META="${DATA}/hmm_meta.txt"
+SYS_META="${DATA}/sys_meta.txt"
 
 # CORE FUNCTIONS --------------------------------------------------------------
 
