@@ -93,6 +93,11 @@ abspath() {
   [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"
 }
 
+# normpath <directory>; Get the normalised path to a directory.
+normpath() {
+  printf $(unset CDPATH && cd "${1}" && pwd)
+}
+
 # check_command <command>; Check whether command is in $PATH
 check_command() {
   command -v "$1" > /dev/null 2>&1
@@ -193,9 +198,10 @@ PRO_MODE=0
 CPU=1
 RAW_OUT=0
 QUIET=0
-DATA="${SRC_DIR}/../data"
+DATA=$(normpath "${SRC_DIR}/../data")
 FAA_FILE=""
 FNA_FILE=""
+FNA_COLLAPSED=""
 FASTA_NAME=""
 GFF_FILE=""
 OUT_DIR="."
@@ -276,6 +282,12 @@ check_opt() {
     [[ -z "${GFF_FILE}" ]] || die "[--gff] can't be used with [--fna]"
   else
     die "Valid FASTA file required [--fna|--faa]"
+  fi
+
+  # Check length of FNA sequence.
+  if [[ ! -z "${FNA_FILE}" ]]; then
+    FNA_COLLAPSED=$(sed '/^>/d' "${FNA_FILE}" | tr -d '\n')
+    [[ "${#FNA_COLLAPSED}" -ge 100000 ]] || die "Prodigal works best with sequences > 100kbp, consider carrying out gene prediction with another tool before using PADLOC"
   fi
 
   # Check that output directory exists.
