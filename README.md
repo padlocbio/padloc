@@ -154,6 +154,12 @@ The HMMs and defence system models used by PADLOC are available from the reposit
   sed '/^##FASTA/Q' prokka.gff > nosequence.gff
   ```
 
+- **Why can't I use a nucleotide FASTA file with < 100 kbp?**
+
+  According to [Prodigal's own documentation](https://github.com/hyattpd/prodigal/wiki/Advice-by-Input-Type#plasmids-phages-viruses-and-other-short-sequences), sequences < 100 kbp are *"too short to gather enough statistics to predict genes well"*. To avoid issues arising from this, PADLOC won't try to run prodigal over anything < 100 kbp. 
+
+  If you know what you're doing then you can use Prodigal or another gene prediction program to generate your own FAA and GFF files to then use with PADLOC.
+
 ## Issues
 
 Bugs and feature requests can be submitted to the [Issues tab](https://github.com/leightonpayne/padloc/issues) (see [Sample bug report](/../../issues/6)).
