@@ -4,17 +4,21 @@
 
 ## About
 
-PADLOC is a software tool for identifying antiviral defence systems in prokaryotic genomes. PADLOC screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture. PADLOC can be installed and used via the command line or via our [web app](https://padloc.otago.ac.nz).
+[PADLOC](https://github.com/padlocbio/padloc) is a software tool for identifying antiviral defence systems in prokaryotic genomes. [PADLOC](https://github.com/padlocbio/padloc) screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture. [PADLOC](https://github.com/padlocbio/padloc) can be installed and used via the command line or via our [web app](https://padloc.otago.ac.nz).
 
 ## Citation
 
-Manuscript in preparation.
+If you use [PADLOC](https://github.com/padlocbio/padloc) or [PADLOC-DB](https://github.com/padlocbio/padloc-db) please cite:
+
+> Payne, L.J., Todeschini, T.C., Wu, Y., Perry, B.J., Ronson, C.W., Fineran, P.C., Nobrega, F.L., Jackson, S.A. Identification and classification of antiviral defence systems in bacteria and archaea with PADLOC reveals new system types. *Unpublished*, **X**, XXXX-XXXX. doi: XX/XXXXXX
+
+The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curated using data from various sources, we encourage you to also give credit to these groups by [citing them too](#References).
 
 ## Installation
 
 ### Conda (recommended)
 
-It is recommended that PADLOC be installed via conda.
+It is recommended that [PADLOC](https://github.com/padlocbio/padloc) be installed via conda.
 
 ```bash
 # Install PADLOC into a new conda environment
@@ -27,7 +31,7 @@ padloc --db-update
 
 ### GitHub
 
-PADLOC can also be installed by cloning or downloading this GitHub repository and installing the dependencies manually.
+[PADLOC](https://github.com/padlocbio/padloc) can also be installed by cloning or downloading this GitHub repository and installing the dependencies manually.
 
 ```bash
 # Clone repo to $HOME
@@ -106,7 +110,7 @@ Optional:
 
 ## PADLOC-DB
 
-The HMMs and defence system models used by PADLOC are available from the repository [PADLOC-DB](https://github.com/leightonpayne/padloc-db). The latest version of the database can be downloaded by running `padloc --db-update`. Alternatively, a custom database can be specified with `--data [d]`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
+The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio/padloc) are available from the repository [PADLOC-DB](https://github.com/leightonpayne/padloc-db). The latest version of the database can be downloaded by running `padloc --db-update`. Alternatively, a custom database can be specified with `--data [d]`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
 
 ## FAQ
 
@@ -186,6 +190,19 @@ These dependencies are installed automatically when using conda.
 - **Prodigal >= 2.6.3**  
   *Hyatt, D., Chen, GL., Locascio, P.F., Land, M.L., Larimer, F.W., and Hauser, L.J. (2010) Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics 11, 119.*
 
+## References
+
+The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curated using data from various sources, we encourage you to also give credit to these groups by citing them too:
+
+> Doron, S., Melamed, S., Ofir, G., Leavitt, A., Lopatina, A., Keren, M., Amitai, G. and Sorek, R. (2018) Systematic discovery of antiphage defense systems in the microbial pangenome. *Science*, **359**, eaar4120. doi: [10/ggqhzm](https://doi.org/10/ggqhzm)
+
+> Millman, A., Melamed, S., Amitai, G. and Sorek, R. (2020) Diversity and classification of cyclic-oligonucleotide-based anti-phage signalling systems. *Nature Microbiology*, **5**, 1608–1615. doi: [10/gg84nk](https://doi.org/10/gg84nk)
+
+The relevant refences for individual HMMs can be found by inspecting the `hmm_meta.txt` file provided with [PADLOC-DB](https://github.com/padlocbio/padloc-db).
+
 ## License
 
 This software and data is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+
+
+

@@ -84,7 +84,19 @@ EOF
 version() { printf "padloc %s\n" "${VERSION}"; }
 
 # citation; Print citation information.
-citation() { printf "Citation pending...\n"; }
+citation() { printf "
+If you use PADLOC or PADLOC-DB please cite:
+
+  Payne, L.J., Todeschini, T.C., Wu, Y., Perry, B.J., Ronson, C.W., 
+  Fineran, P.C., Nobrega, F.L., Jackson, S.A. Identification and 
+  classification of antiviral defence systems in bacteria and archaea 
+  with PADLOC reveals new system types. Unpublished, X, XXXX-XXXX. 
+  doi: https://doi.org/XX/XXXXXX
+
+The HMMs in PADLOC-DB were built/curated using data from various sources, 
+we encourage you to also give credit to these groups by citing the literature
+listed here: https://github.com/padlocbio/padloc#References
+  "; }
 
 # UTILITITES ------------------------------------------------------------------
 
