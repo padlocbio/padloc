@@ -1,10 +1,13 @@
-<a href="https://github.com/padlocbio/padloc/LICENSE" alt="License"><img src="https://img.shields.io/github/license/padlocbio/padloc" /></a> <a href="https://github.com/padlocbio/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/padlocbio/padloc?label=last%20update" /></a> <a href="https://github.com/padlocbio/padloc/releases" alt="Release"><img src="https://img.shields.io/github/v/release/padlocbio/padloc" /></a> 
+<a href="https://github.com/padlocbio/padloc/blob/master/LICENSE" alt="License"><img src="https://img.shields.io/github/license/padlocbio/padloc" /></a><a href="https://anaconda.org/padlocbio/padloc" alt="Conda release"><img src="https://img.shields.io/conda/vn/padlocbio/padloc?color=yellow&label=conda%20release"></a><a href="https://github.com/padlocbio/padloc/releases" alt="Github release"><img src="https://img.shields.io/github/v/release/padlocbio/padloc?label=github%20release" /></a><a href="https://github.com/padlocbio/padloc/commits/master" alt="GitHub commits since latest release"><img src="https://img.shields.io/github/commits-since/padlocbio/padloc/latest?sort=semver"></a><a href="https://github.com/padlocbio/padloc/" alt="Last update"><img src="https://img.shields.io/github/last-commit/padlocbio/padloc?label=last%20update" /></a> 
+
 
 # PADLOC: Prokaryotic Antiviral Defence LOCator
 
 ## About
 
-[PADLOC](https://github.com/padlocbio/padloc) is a software tool for identifying antiviral defence systems in prokaryotic genomes. [PADLOC](https://github.com/padlocbio/padloc) screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture. [PADLOC](https://github.com/padlocbio/padloc) can be installed and used via the command line or via our [web app](https://padloc.otago.ac.nz).
+[PADLOC](https://github.com/padlocbio/padloc) is a software tool for identifying antiviral defence systems in prokaryotic genomes. [PADLOC](https://github.com/padlocbio/padloc) screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture.
+
+[PADLOC](https://github.com/padlocbio/padloc) can be installed and used via the command line or via our [web server](https://padloc.otago.ac.nz).
 
 ## Citation
 
@@ -31,7 +34,7 @@ padloc --db-update
 
 ### GitHub
 
-[PADLOC](https://github.com/padlocbio/padloc) can also be installed by cloning or downloading this GitHub repository and installing the dependencies manually.
+The latest development version of [PADLOC](https://github.com/padlocbio/padloc) can be installed by cloning this GitHub repository and installing the dependencies manually.
 
 ```bash
 # Clone repo to $HOME
