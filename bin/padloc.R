@@ -272,7 +272,7 @@ read_domtbl <- function(domtbl_path) {
     # collapse everything to a single line
     paste0(collapse = "\n") %>%
     # re-parse the table as tsv
-    read_tsv(col_names = c('temp', 'target.description'), comment = '#', na = '-') %>%
+    read_tsv(col_names = c('temp', 'target.description'), show_col_types = FALSE, comment = '#', na = '-') %>%
     # separate the temp column into actual columns
     separate(.data$temp, head(names(cols$cols), -1), sep = ' +') %>%
     # apply colum types
