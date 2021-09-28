@@ -4,7 +4,7 @@
 # https://github.com/leightonpayne/padloc
 # Copyright (c) 2020 Leighton Payne
 
-VERSION="1.0.0"
+VERSION="v1.0.1"
 ME="${0}"
 SRC_DIR="$(dirname ${ME})"
 DBREPO="https://github.com/padlocbio/padloc-db"
@@ -169,7 +169,7 @@ db_install() {
   if [[ $(curl -sL "${DBREPO}/releases/${version}") == "Not Found" ]]; then
     printf "ERROR: database version \"${version}\" does not exist, try install one of these instead:\n\n"
     db_list
-    LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP '[0-9].*(?=")' | grep -m1 "")
+    LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].*(?=")' | grep -m1 "")
     printf "\nFor example:\n  $ padloc --db-install ${LATEST_VER}\n"
     exit 1
   else 
@@ -183,7 +183,7 @@ db_install() {
 }
 
 db_update() {
-  LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP '[0-9].*(?=")' | grep -m1 "")
+  LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].*(?=")' | grep -m1 "")
   db_install "${LATEST_VER}"
 }
 
@@ -196,7 +196,7 @@ db_compile() {
 
 db_version() {
   if DBVER=$(grep "# PADLOC-DB release v" ${DATA}/RELEASE.md); then 
-    printf "padloc-db %s\n" "${DBVER#'# PADLOC-DB release v'}"
+    printf "padloc-db v%s\n" "${DBVER#'# PADLOC-DB release v'}"
   else 
     echo "ERROR: Database version information not found" && exit 1
   fi
@@ -210,6 +210,7 @@ PRO_MODE=0
 CPU=1
 RAW_OUT=0
 QUIET=0
+mkdir -p "${SRC_DIR}/../data"
 DATA=$(normpath "${SRC_DIR}/../data")
 FAA_FILE=""
 FNA_FILE=""
