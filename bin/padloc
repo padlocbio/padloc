@@ -189,8 +189,8 @@ db_update() {
 
 db_compile() {
   echo "Compiling database..."
-  find ${DATA}/hmm/ -name "*.hmm" -exec cat {} > ${DATA}/padlocdb.hmm \;
-  find ${DATA}/hmm/ -name "*.hmm" -delete
+  find ${DATA}/hmm/ -maxdepth 1 -name "*.hmm" -exec cat {} > ${DATA}/padlocdb.hmm \;
+  find ${DATA}/hmm/ -maxdepth 1 -name "*.hmm" -delete
   mv ${DATA}/padlocdb.hmm ${DATA}/hmm/ 
 }
 
