@@ -213,6 +213,8 @@ The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curat
 
 > Gao, L., Altae-Tran, H., Böhning, F., Makarova, K. S., Segel, M., Schmid-Burgk, J. L., Koob, J., Wolf, Y. I., Koonin, E. V. and Zhang, F. (2020) Diverse enzymatic activities mediate antiviral immunity in prokaryotes. *Science*, **369**, 1077–1084. doi: [10/gpsx](https://doi.org/10/gpsx)
 
+> Makarova, K. S., Timinskas, A., Wolf, Y. I., Gussow, A. B., Siksnys, V., Venclovas, Č. and Koonin, E. V. (2020) Evolutionary and functional classification of the CARF domain superfamily, key sensors in prokaryotic antivirus defense. *Nucleic Acids Res*, **48**, 8828–8847. doi: [10/gg7qx6](https://doi.org/10/gg7qx6)
+
 The relevant refences for individual HMMs can be found by inspecting the `hmm_meta.txt` file provided with [PADLOC-DB](https://github.com/padlocbio/padloc-db).
 
 ## License
