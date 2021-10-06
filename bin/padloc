@@ -88,10 +88,10 @@ citation() { printf "
 If you use PADLOC or PADLOC-DB please cite:
 
   Payne, L.J., Todeschini, T.C., Wu, Y., Perry, B.J., Ronson, C.W., 
-  Fineran, P.C., Nobrega, F.L., Jackson, S.A. Identification and 
+  Fineran, P.C., Nobrega, F.L., Jackson, S.A. (2021) Identification and 
   classification of antiviral defence systems in bacteria and archaea 
   with PADLOC reveals new system types. Unpublished, X, XXXX-XXXX. 
-  doi: https://doi.org/XX/XXXXXX
+  doi: https://doi.org/10/gzgh
 
 The HMMs in PADLOC-DB were built/curated using data from various sources, 
 we encourage you to also give credit to these groups by citing the literature
