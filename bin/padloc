@@ -158,7 +158,7 @@ check_deps() {
 # DATABASE TOOLS --------------------------------------------------------------
 
 db_list() {
-  RELEASES=($(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].*(?=")'))
+  RELEASES=($(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].[0-9].[0.9](?=")'))
   for i in ${RELEASES[@]}; do
     echo "${i} :: ${DBREPO}/releases/${i}"
   done
@@ -169,7 +169,7 @@ db_install() {
   if [[ $(curl -sL "${DBREPO}/releases/${version}") == "Not Found" ]]; then
     printf "ERROR: database version \"${version}\" does not exist, try install one of these instead:\n\n"
     db_list
-    LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].*(?=")' | grep -m1 "")
+    LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].[0-9].[0.9](?=")' | grep -m1 "")
     printf "\nFor example:\n  $ padloc --db-install ${LATEST_VER}\n"
     exit 1
   else 
@@ -183,7 +183,7 @@ db_install() {
 }
 
 db_update() {
-  LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].*(?=")' | grep -m1 "")
+  LATEST_VER=$(curl -s "${DBREPO}/releases" | grep "${DBREPO#https://github.com/}/releases/tag/" | grep -oP 'v[0-9].[0-9].[0.9](?=")' | grep -m1 "")
   db_install "${LATEST_VER}"
 }
 
