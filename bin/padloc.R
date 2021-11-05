@@ -123,17 +123,15 @@ read_hmm_meta <- function(file) {
   if(nrow(fail) > 0) {
     warning_msg("Some rows of hmm_meta.txt are missing values in required columns (hmm.accession, hmm.name, protein.name)\n")
     print.data.frame(fail)
-    die("hmm_meta.tsv - Failed to read")
+    die("Failed to read hmm_meta.txt")
   }
   
   warn <- raw %>%
     filter(is.na(e.value.threshold) | is.na(hmm.coverage.threshold) | is.na(target.coverage.threshold))
   
   if(nrow(warn) > 0 & QUIET == 0) {
-    warning_msg("Some rows of hmm_meta.txt are missing values in required columns (e.val.threshold, hmm.coverage.threshold, target.coverage.threshold")
-    message()
+    warning_msg("Some rows of hmm_meta.txt are missing values in required columns (e.val.threshold, hmm.coverage.threshold, target.coverage.threshold)\n")
     print.data.frame(warn)
-    message()
     warning_msg("These columns will be filled with default values, respectively: 1E-05, 0.3, 0.3")
   }
   
