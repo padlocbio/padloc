@@ -99,8 +99,8 @@ Optional:
     --data [d]        Data directory
     --cpu [n]         Use [n] CPUs (default '1')
     --raw-out         Include a summarised raw output file
-    --fix-prodigal    Set this flag when providing a GFF file generated
-                      with prodigal to force fixing of sequence IDs
+    --fix-prodigal    Set this flag when providing an FAA and GFF file 
+                      generated with prodigal to force fixing of sequence IDs
 ```
 
 ## Output
