@@ -203,8 +203,9 @@ separate_attributes <- function(gff) {
     separate_rows(attributes, sep = ";") %>%
     filter(attributes != "") %>%
     separate(attributes, into = c("key", "value"), sep = "=") %>% 
-    spread(key = key, value = value, fill = NA)
-  
+    filter(key == "ID") %>%
+    select(-source, -phase, -key) %>%
+    rename(ID = value)  
 }
 
 # gather_attributes(gff)
