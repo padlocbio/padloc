@@ -4,7 +4,7 @@
 # https://github.com/leightonpayne/padloc
 # Copyright (c) 2020 Leighton Payne
 
-VERSION="v1.0.2"
+VERSION="v1.0.3"
 ME="${0}"
 SRC_DIR="$(dirname ${ME})"
 DBREPO="https://github.com/padlocbio/padloc-db"
@@ -20,7 +20,7 @@ set -o pipefail   # Use the last non-zero exit code in a pipeline.
 IFS=$'\n\t'       # Set wordsplitting to newline and tab.
 
 # Trap on errexit
-trap 'echo "$(date "+(%H:%M:%S)") ERROR  >>  errexit on line $LINENO" >&2' ERR
+trap 'echo "$(date "+[%H:%M:%S)"] ERROR >>  errexit on line $LINENO" >&2' ERR
 
 # MESSAGING -------------------------------------------------------------------
 
@@ -30,12 +30,12 @@ die() { printf "\nERROR: \t %s\n" "$@" >&2 ; exit 1; }
 # debug <message>; Print message when using debug.
 debug() {
   if [[ "${USE_DEBUG:-"0"}" -eq 1 ]] ; then 
-    printf "$(date "+(%H:%M:%S)") DEBUG  >>  ${@}"
+    printf "$(date "+[%H:%M:%S]") DEBUG >> ${@}"
   fi
 }
 
 # info <message>; Print info message.
-info() { printf "$(date "+(%H:%M:%S)") >> ${@}"; }
+info() { printf "$(date "+[%H:%M:%S]") >> ${@}"; }
 
 # HELP ------------------------------------------------------------------------
 
@@ -77,6 +77,8 @@ Optional:
     --data [d]        Data directory (default '${DATA}')
     --cpu [n]         Use [n] CPUs (default '1')
     --raw-out         Include a summarised raw output file
+    --fix-prodigal    Set this flag when providing a GFF file generated
+                      with prodigal to force fixing of sequence IDs
 EOF
 }
 
@@ -206,7 +208,6 @@ db_version() {
 
 # Set defaults.
 USE_DEBUG=0
-PRO_MODE=0
 CPU=1
 RAW_OUT=0
 QUIET=0
@@ -263,8 +264,8 @@ while [[ "${#}" -gt 0 ]]; do
     -c|--cpu) require_argument "${option}" "${parameter}"
       CPU="${parameter}" ; shift ;;
     --force) FORCE=1;;
-    --pro-mode) PRO_MODE=1;;
     -r|--raw-out) RAW_OUT=1 ;;
+    --fix-prodigal) PRODIGAL=1 ;;
     --endopts) break ;;
     *) die "Unexpected option: [${option}]" ;;
   esac
@@ -381,8 +382,8 @@ padloc_wrapper() {
     info "${FASTA_NAME}_padloc.csv already exists; use --force to overwrite\n"
   else
     # Print command.
-    debug "Rscript ${SRC_DIR}/bin/padloc.R -d ${DOMTBL_PATH} -f ${GFF_FILE} -h ${HMM_META} -s ${SYS_META} -y ${YAML_DIR} -o ${OUT_DIR} -b ${USE_DEBUG} -q ${QUIET} -p ${PRODIGAL}"
-    # Run hmmer.
+    debug "Rscript ${SRC_DIR}/bin/padloc.R -d ${DOMTBL_PATH} -f ${GFF_FILE} -h ${HMM_META} -s ${SYS_META} -y ${YAML_DIR} -o ${OUT_DIR} -b ${USE_DEBUG} -q ${QUIET} -p ${PRODIGAL}\n"
+    # Run padloc.
     Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \
     -f "${GFF_FILE}" \
