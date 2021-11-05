@@ -19,33 +19,31 @@ options(dplyr.summarise.inform = FALSE)
 
 # SCRIPT UTILITIES -------------------------------------------------------------
 
+# Print message.
 msg <- function(msg) {
   if ( QUIET < 1 ) {
-    write(paste0("(", format(Sys.time(), "%X"), ") >> ", msg), stdout())
+    write(paste0("[", format(Sys.time(), "%X"), "] >> ", msg), stdout())
   }
 }
 
-# debug_msg(message)
 # Print message when using debug.
 debug_msg <- function(msg) {
   if ( DEBUG_COUNTER > 0 ) {
-    write(paste0("(", format(Sys.time(), "%X"), ") DEBUG >> ", msg), stdout())
+    write(paste0("[", format(Sys.time(), "%X"), "] DEBUG >> ", msg), stdout())
   }
 }
 
-# warning_msg(message)
-# Print warning message.
+# Print warning message and issue warning.
 warning_msg <- function(msg) {
   if ( QUIET < 1 ) {
-    write(paste0("(", format(Sys.time(), "%X"), ") WARNING >> ", msg), stdout())
+    write(paste0("[", format(Sys.time(), "%X"), "] WARNING >> ", msg), stdout())
   }
 }
 
-# die(message)
-# Print error message and quit.
+# Print message and exit.
 die <- function(msg) {
-  write(paste0("\n(", format(Sys.time(), "%X"), ") ERROR >> ", msg, "\n"), stdout())
-  stop("Fatal error encountered, stopping PADLOC ...\n\n", call. = FALSE)
+  write(paste0("[", format(Sys.time(), "%X"), "] ERROR >> ", msg), stdout())
+  invokeRestart("abort")
 }
 
 # ARGUMENT PARSING -------------------------------------------------------------
@@ -123,7 +121,7 @@ read_hmm_meta <- function(file) {
     filter(is.na(hmm.acc) | is.na(hmm.name) | is.na(protein.name))
   
   if(nrow(fail) > 0) {
-    warning_msg("hmm_meta.tsv - Missing values (<NA>) in required columns - AC (hmm.accession), ID (hmm.name), PN (protein.name) - see below")
+    warning_msg("Some rows of hmm_meta.txt are missing values in required columns (hmm.accession, hmm.name, protein.name)\n")
     print.data.frame(fail)
     die("hmm_meta.tsv - Failed to read")
   }
@@ -132,11 +130,11 @@ read_hmm_meta <- function(file) {
     filter(is.na(e.value.threshold) | is.na(hmm.coverage.threshold) | is.na(target.coverage.threshold))
   
   if(nrow(warn) > 0 & QUIET == 0) {
-    warning_msg("hmm_meta.tsv - Missing values (<NA>) in required columns - ET (e.value.threshold), HC (hmm.coverage.threshold), TC (target.coverage.threshold) - see below")
+    warning_msg("Some rows of hmm_meta.txt are missing values in required columns (e.val.threshold, hmm.coverage.threshold, target.coverage.threshold")
     message()
     print.data.frame(warn)
     message()
-    warning_msg("hmm_meta.tsv - Filling with defaults (1E-05, 0.3, 0.3)")
+    warning_msg("These columns will be filled with default values, respectively: 1E-05, 0.3, 0.3")
   }
   
   out <- raw %>%
@@ -269,10 +267,12 @@ read_domtbl <- function(domtbl_path) {
     # substitute the whitespace between the 'acc' and 'description' 
     # columns with '\t'
     sub(pattern = sprintf("(%s) *(.*)", paste0(rep('\\S+', 22), collapse = " +")), replacement = '\\1\t\\2') %>%
+    # remove '#'s that aren't comments, stops breaking w/ subsequent read_tsv()
+    str_remove_all(pattern = '(?<!^)#') %>%
     # collapse everything to a single line
     paste0(collapse = "\n") %>%
     # re-parse the table as tsv
-    read_tsv(col_names = c('temp', 'target.description'), show_col_types = FALSE, comment = '#', na = '-') %>%
+    read_tsv(col_names = c('temp', 'target.description'), comment = "#", show_col_types = FALSE, na = '-') %>%
     # separate the temp column into actual columns
     separate(.data$temp, head(names(cols$cols), -1), sep = ' +') %>%
     # apply colum types
@@ -579,7 +579,6 @@ unknown_protein_count <- nrow(merged %>%
                                )
 
 if (unknown_protein_count > 0) {
-  warning_msg(paste0(unknown_protein_count, " protein sequence IDs are missing from GFF file. Terminating."))
   die(paste0(unknown_protein_count, " protein sequence IDs are missing from GFF file"))
 }
 
