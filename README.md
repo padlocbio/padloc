@@ -13,7 +13,7 @@
 
 If you use [PADLOC](https://github.com/padlocbio/padloc) or [PADLOC-DB](https://github.com/padlocbio/padloc-db) please cite:
 
-> Payne, L.J., Todeschini, T.C., Wu, Y., Perry, B.J., Ronson, C.W., Fineran, P.C., Nobrega, F.L., Jackson, S.A. (2021) Identification and classification of antiviral defence systems in bacteria and archaea with PADLOC reveals new system types. *Nucleic Acids Res*, **X**, XXXX-XXXX. doi: [10/gzgh](https://doi.org/10/gzgh)
+> Payne, L.J., Todeschini, T.C., Wu, Y., Perry, B.J., Ronson, C.W., Fineran, P.C., Nobrega, F.L., Jackson, S.A. (2021) Identification and classification of antiviral defence systems in bacteria and archaea with PADLOC reveals new system types. *Nucleic Acids Research*, **49**, 10868-10878. doi: https://doi.org/10/gzgh
 
 The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curated using data from various sources, we encourage you to also give credit to these groups by [citing them too](#References).
 
@@ -99,6 +99,8 @@ Optional:
     --data [d]        Data directory
     --cpu [n]         Use [n] CPUs (default '1')
     --raw-out         Include a summarised raw output file
+    --fix-prodigal    Set this flag when providing a GFF file generated
+                      with prodigal to force fixing of sequence IDs
 ```
 
 ## Output
@@ -131,7 +133,7 @@ The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio
 
   The corresponding entry in the GFF file should contain an ID attribute of the form:
 
-  `ID=WP_000000001.1 ` *or* ``ID=cds-WP_000000001.1 ``
+  `ID=WP_000000001.1` *or* ``ID=cds-WP_000000001.1 ``
 
   FAA/GFF combinations that are known to work 'out-of-the-box' are from genomes annotated with:
 
