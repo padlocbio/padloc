@@ -275,6 +275,8 @@ The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curat
 
 > Dinsmore, P. K. and Klaenhammer, T. R. (1994) Phenotypic Consequences of Altering the Copy Number of abiA, a Gene Responsible for Aborting Bacteriophage Infections in Lactococcus lactis. *Applied and Environmental Microbiology*, **60**, 1129–1136. doi: [10/gndc3s](https://doi.org/10/gndc3s)
 
+> Owen, S. V., Wenner, N., Dulberger, C. L., Rodwell, E. V., Bowers-Barnard, A., Quinones-Olvera, N., Rigden, D. J., Rubin, E. J., Garner, E. C., Baym, M., et al. (2021) Prophages encode phage-defense systems with cognate self-immunity. *Cell Host & Microbe*, **29**, 1620-1633 doi: [10/g29b](https://doi.org/10/g29b)
+
 The relevant refences for individual HMMs can be found by inspecting the `hmm_meta.txt` file provided with [PADLOC-DB](https://github.com/padlocbio/padloc-db).
 
 ## License
