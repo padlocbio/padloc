@@ -136,6 +136,9 @@ read_hmm_meta <- function(file) {
   }
   
   out <- raw %>%
+    # remove space characters from ambiguous protein assignments (e.g. AbcD | EfgH should be AbcD|EfgH)
+    mutate(protein.name = str_remove_all(protein.name," "),
+           system.definition.shortcut = str_remove_all(system.definition.shortcut," "))%>%
     # allow ambiguous protein name assignments
     separate_rows(protein.name, sep = "\\|") %>%
     separate_rows(system.definition.shortcut, sep = "\\|") %>%
@@ -270,7 +273,7 @@ read_domtbl <- function(domtbl_path) {
     # collapse everything to a single line
     paste0(collapse = "\n") %>%
     # re-parse the table as tsv
-    read_tsv(col_names = c('temp', 'target.description'), comment = "#", show_col_types = FALSE, na = '-') %>%
+    read_tsv(col_names = c('temp', 'target.description'), comment = "#", na = '-') %>%
     # separate the temp column into actual columns
     separate(.data$temp, head(names(cols$cols), -1), sep = ' +') %>%
     # apply colum types
