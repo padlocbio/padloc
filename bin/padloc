@@ -71,6 +71,7 @@ Input:
     --faa [f]         Amino acid FASTA file (only valid with [--gff])
     --gff [f]         GFF file (only valid with [--faa])
     --fna [f]         Nucleic acid FASTA file
+	--crispr [f]      CRISPR array input file (.gff from CRISPRDetect is preferred)
 Output:
     --outdir [d]      Output directory
 Optional:
@@ -218,6 +219,7 @@ FNA_FILE=""
 FNA_COLLAPSED=""
 FASTA_NAME=""
 GFF_FILE=""
+CRISPR_FILE=""
 OUT_DIR="."
 PRODIGAL=0
 FORCE=0
@@ -257,6 +259,8 @@ while [[ "${#}" -gt 0 ]]; do
     --fna) require_argument "${option}" "${parameter}"
       FNA_FILE=$(abspath "${parameter}") 
       FASTA_NAME=$(basename ${FNA_FILE%.fna}) ; shift ;;
+    --crispr) require_argument "${option}" "${parameter}"
+      CRISPR_FILE=$(abspath "${parameter}") ; shift ;;	  
     --data) require_argument "${option}" "${parameter}"
       DATA=$(abspath "${parameter}") ; shift ;;
     -o|--outdir) require_argument "${option}" "${parameter}"
@@ -304,6 +308,12 @@ check_opt() {
     [[ "${#FNA_COLLAPSED}" -ge 100000 ]] || die "Prodigal works best with sequences > 100kbp, consider carrying out gene prediction with another tool before using PADLOC"
   fi
 
+
+  # Check that the specified CRISPR input exists.
+   if [[ ! -z "${CRISPR_FILE}" ]]; then
+    [[ -f "${CRISPR_FILE}" ]] || die "The CRISPR array input file, '${CRISPR_FILE}' does not exist"
+  fi
+  
   # Check that output directory exists.
   [[ -d "${OUT_DIR}" ]] || die "Valid output directory required"
 
@@ -387,7 +397,8 @@ padloc_wrapper() {
     Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \
     -f "${GFF_FILE}" \
-    -h "${HMM_META}" \
+	-c "${CRISPR_FILE}" \
+	-h "${HMM_META}" \
     -s "${SYS_META}" \
     -y "${YAML_DIR}" \
     -o "${OUT_DIR}" \

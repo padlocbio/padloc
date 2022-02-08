@@ -52,6 +52,7 @@ die <- function(msg) {
 spec = matrix(c(
   'domtbl_path'  , 'd', 1, "character", "path to domain table",
   'gff_file_path', 'f', 1, "character", "path to feature table",
+  'crispr_file_path', 'c', 1, "character", "optional path to crispr input",
   'hmm_meta_path', 'h', 1, "character", "path to hmm_meta table",
   'sys_meta_path', 's', 1, "character", "path to system summary table",
   'yaml_dir'     , 'y', 1, "character", "path to yaml directory",
@@ -66,6 +67,7 @@ opt = getopt::getopt(spec)
 
 DOMTBL_PATH   <- opt$domtbl_path
 GFF_PATH      <- opt$gff_file_path
+CRISPR_PATH   <- opt$crispr_file_path
 HMM_META_PATH <- opt$hmm_meta_path
 SYS_META_PATH <- opt$sys_meta_path
 YAML_DIR      <- opt$yaml_dir
@@ -84,6 +86,19 @@ PRODIGAL      <- opt$prodigal
 # DEBUG_COUNTER <- 1
 # QUIET         <- 0
 # PRODIGAL      <- 0
+# 
+# DOMTBL_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931.domtblout"
+# GFF_PATH      <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_prodigal.gff"
+# CRISPR_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_crispr.txt.gff"
+# HMM_META_PATH <- "D:/git_clone/padloc/data/hmm_meta.txt"
+# SYS_META_PATH <- "D:/git_clone/padloc/data/sys_meta.txt"
+# YAML_DIR      <- "D:/git_clone/padloc/data/sys/"
+# OUTPUT_DIR    <- "D:/git_clone/padloc/test/"
+# DEBUG_COUNTER <- 1
+# QUIET         <- 0
+# PRODIGAL      <- 0
+
+
 
 # FUNCTIONS --------------------------------------------------------------------
 
@@ -281,6 +296,61 @@ read_domtbl <- function(domtbl_path) {
   
 }
 
+# Read and process CRISPRDetect.gff outputs to add CRISPR arrays. Requires pre-loading the protein-coding gene table.
+process_crisprdetect_gff<-function(CRISPR_PATH,gff.genes){
+  
+  crispr.in <- read_gff(CRISPR_PATH)
+  
+  if(nrow(crispr.in) == 0) {
+    return(tibble(NULL))
+  }
+  
+  crispr <- crispr.in %>%
+                    filter(type=="repeat_region") %>%
+                    # CRISPRDetect doesn't continue CRISPR numbering across contigs... 
+                    arrange(seqid,start) %>%
+                    mutate(array.id = paste0("CRISPR",sprintf("%03d",row_number()))) %>%
+                    group_by(array.id) %>%
+                    separate_attributes() %>%
+                    mutate(type = "CRISPR_array",
+                           target.name = array.id,
+                           crispr.repeat = Note,
+                           domain.iE.value=as.numeric(Array_quality_score),
+                           target.description = paste0(array.id,"; repeat=",crispr.repeat,"; score=",Array_quality_score)) %>%
+                    # reformat seqid for CRISPRDetect output
+                    mutate(seqid = str_remove_all(seqid,"-.*")) %>%
+                    # assing temp relative.position in genome
+                    group_by(seqid) %>%
+                    arrange(seqid,start)%>%
+                    mutate(relative.position.offset = row_number()/100,  # assign CRISPR array positions as decimals (note, edge case if n>=100)
+                           relative.position = 0)
+  
+  # need to update relative.position
+  crispr.processed <- gff.genes %>% mutate(relative.position.offset = 0) %>%
+            bind_rows(crispr) %>%
+            arrange(seqid,start) %>%
+            group_by(seqid) %>%
+            mutate(contig.end = max(relative.position)) %>%
+            mutate(relative.position = cummax(relative.position)) %>%
+            mutate(relative.position = relative.position + relative.position.offset) %>%
+            mutate(protein.name = "CRISPR_array") %>%
+            ungroup() %>%
+            filter(type == "CRISPR_array") %>%
+            select(seqid,
+                   type,
+                   protein.name,
+                   start,
+                   end,
+                   strand,
+                   domain.iE.value, # gets converted to 'score' later
+                   relative.position,
+                   contig.end,
+                   target.name,
+                   target.description)
+    
+  return(crispr.processed)
+}
+
 # merge_tbls(domtbl, GFF, hmm_meta)
 # Merge the domtbl, GFF, and hmm_meta
 merge_tbls <- function(domtbl, gff, hmm_meta) {
@@ -325,6 +395,10 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
 # Main system identification logic.
 search_system <- function(system_type, merged_tbls) {
   
+  # system_type<-"cas_type_arrays"
+  # system_type<-"septu_other"
+  # merged_tbls <- merged
+  
   # generate path to YAML file
   yaml_path <- paste0(YAML_DIR, system_type, ".yaml")
   
@@ -342,6 +416,9 @@ search_system <- function(system_type, merged_tbls) {
   core_genes       <- system_param$core_genes
   optional_genes   <- system_param$optional_genes
   prohibited_genes <- system_param$prohibited_genes
+  
+  # check boolean parameters
+  force_strand<-ifelse("force_strand" %in% names(system_param),system_param$force_strand,F)
   
   expand_secondary_gene_assignments<-function(primary_gene_list){
   
@@ -361,6 +438,12 @@ search_system <- function(system_type, merged_tbls) {
   # remove any genes from 'prohibited' that are also listed as 'core'
   prohibited_genes <- unlist(prohibited_genes %>% setdiff(core_genes))
   core_genes <- unlist(core_genes)
+  
+  # check whether to add CRISPR arrays
+  if (include.crispr.arrays==T & "CRISPR_array" %in% c(core_genes,optional_genes,prohibited_genes)){
+    crispr.add <- T} else {
+    crispr.add <- F}
+
   
   # filter for relevant genes
   relevance_check <- merged_tbls %>%
@@ -439,14 +522,44 @@ search_system <- function(system_type, merged_tbls) {
   
   # filter for top ranked hits for each target
   top_hits <- ranked_hits %>%
-    filter(rank == 1)
+    filter(rank == 1) %>% 
+    # avoid type incompatibility when binding CRISPR arrays and systems later
+    mutate(target.description=as.character(target.description))
+  
+  # add CRISPR array data (if required)
+  
+  if(crispr.add == T){
+    to.add <- crispr.arrays %>%
+      mutate(
+      is.core = ifelse("CRISPR_array" %in% core_genes, TRUE, FALSE),
+      is.accessory = ifelse("CRISPR_array" %in% optional_genes, TRUE, FALSE),
+      is.prohibited = ifelse("CRISPR_array" %in% prohibited_genes, TRUE, FALSE)
+      )
+    top_hits <- top_hits %>% bind_rows(to.add)
+  }
   
   # add a column that groups hits into clusters
-  clusters <- top_hits %>% 
-    arrange(seqid,relative.position) %>%
-    group_by(seqid) %>%
-    dplyr::mutate(cluster = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
-    ungroup()
+    # first, set grouping by strand if force_strand == T
+    # also make sure every cluster id is unique
+      if (force_strand == T) {
+        clusters <- top_hits %>% 
+          arrange(seqid,strand,relative.position) %>% 
+          group_by(seqid,strand) %>% 
+          dplyr::mutate(cluster.tmp = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
+          group_by(seqid,strand,cluster.tmp) %>% 
+          mutate(cluster = cur_group_id()) %>%
+          ungroup() %>%
+          select(-cluster.tmp)
+      } else {
+        clusters <- top_hits %>% 
+          arrange(seqid,relative.position) %>% 
+          group_by(seqid) %>% 
+          dplyr::mutate(cluster.tmp = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
+          group_by(seqid,cluster.tmp) %>% 
+          mutate(cluster = cur_group_id()) %>%
+          ungroup() %>%
+          select(-cluster.tmp)
+      }
   
   # count the number of unique hits in each cluster
   clusters_unique <- clusters %>%
@@ -486,7 +599,7 @@ search_system <- function(system_type, merged_tbls) {
            hmm.name, protein.name, full.seq.E.value, domain.iE.value, 
            target.coverage, hmm.coverage, start, end, strand, 
            target.description, relative.position, contig.end, all.domains, best.hits)
-  
+
 }
 
 # generate_gff(PADLOC output dataframe)
@@ -535,9 +648,10 @@ assembly_name <- DOMTBL_PATH %>%
 debug_msg(paste0("Reading ", basename(DOMTBL_PATH)))
 domtbl <- read_domtbl(DOMTBL_PATH)
 
-# Read in GFF.
+# Read in GFF that specifies protein-coding genes.
 debug_msg(paste0("Reading ", basename(GFF_PATH)))
 gff <- read_gff(GFF_PATH)
+
 # Process GFF
 gff <- gff %>%
   filter(type == "CDS") %>%
@@ -583,6 +697,19 @@ if (unknown_protein_count > 0) {
   die(paste0(unknown_protein_count, " protein sequence IDs are missing from GFF file"))
 }
 
+# Read in the optional CRISPR file (if present)
+
+if(CRISPR_PATH != ""){
+    debug_msg(paste0("Include CRISPR arrays from ", basename(CRISPR_PATH)))
+    crispr.arrays <- process_crisprdetect_gff(CRISPR_PATH,gff)
+
+    if(nrow(crispr.arrays) == 0){      
+      debug_msg("CRISPR array file is empty, arrays will not be included in output")
+      include.crispr.arrays <- F
+    } else {include.crispr.arrays <- T}
+} else {include.crispr.arrays <- F}
+
+
 # Search for systems.
 debug_msg("Searching for defence systems")
 systems <- lapply(X = system_names, FUN = search_system, merged_tbls = merged)
@@ -602,6 +729,18 @@ format_output<-function(to_format){
       target.description = ifelse(is.na(target.description) == T, target.name, target.description)
     ) %>%
     mutate(target.description = str_remove(target.description, "MULTISPECIES: "))
+  
+    # if checking for CRISPR_arrays, remove the system type (to prevent users misinterpreting array types)
+  
+  if(include.crispr.arrays == T){
+    formatted <- formatted %>% 
+      mutate(
+        system = ifelse(protein.name == "CRISPR_array", "CRISPR_array", system),
+        cluster = ifelse(protein.name == "CRISPR_array", 0, cluster)
+      ) %>% #TODO: depreciate system.number? (requires updating operon display script and webserver)
+    distinct()
+  }
+  
 
   # Remove "other" systems that overlap canonical systems
   formatted <- formatted %>% 
@@ -612,7 +751,7 @@ format_output<-function(to_format){
     group_by(seqid, target.name, system.class) %>% 
     mutate(remove = ifelse(is.other == 1 & min(is.other) == 0, 1, 0)) %>%
     filter(remove == 0) %>%
-    group_by(seqid, system, cluster) %>%
+    group_by(seqid, system, cluster) %>% #TODO: depreciate system.number? (requires updating operon display script and webserver)
     mutate(system.number = cur_group_id()) %>%
     ungroup() %>%
     select(-c(cluster, system.class, is.other, remove)) %>%
@@ -644,3 +783,6 @@ end_time <- Sys.time()
 debug_msg(paste0("End time: ", end_time))
 run_time <- end_time - start_time
 debug_msg(paste0("Run time: ", run_time))
+
+
+
