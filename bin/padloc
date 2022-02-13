@@ -71,7 +71,7 @@ Input:
     --faa [f]         Amino acid FASTA file (only valid with [--gff])
     --gff [f]         GFF file (only valid with [--faa])
     --fna [f]         Nucleic acid FASTA file
-	--crispr [f]      CRISPR array input file (.gff from CRISPRDetect is preferred)
+    --crispr [f]      CRISPR array input file (.gff from CRISPRDetect)
 Output:
     --outdir [d]      Output directory
 Optional:
