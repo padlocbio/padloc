@@ -293,29 +293,29 @@ The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curat
 
 > Zeng, Z., Chen, Y., Pinilla-Redondo, R., Shah, S. A., Zhao, F., Wang, C., Hu, Z., Zhang, C., Whitaker, R. J., She, Q., et al. (2021). A short prokaryotic argonaute cooperates with membrane effector to confer antiviral defense. *bioRxiv*. doi: [10//hgr9](https://doi.org//hgr9)
 
-> Mestre, M. R., González-Delgado, A., Gutiérrez-Rus, L. I., Martínez-Abarca, F., and Toro, N. (2020). Systematic prediction of genes functionally associated with bacterial retrons and classification of the encoded tripartite systems. *Nucleic Acids Research*, **48**, 12632–12647. doi: [10/fzk3](https://doi.org/10/fzk3).
+> Mestre, M. R., González-Delgado, A., Gutiérrez-Rus, L. I., Martínez-Abarca, F., and Toro, N. (2020). Systematic prediction of genes functionally associated with bacterial retrons and classification of the encoded tripartite systems. *Nucleic Acids Research*, **48**, 12632–12647. doi: [10/fzk3](https://doi.org/10/fzk3)
 
-> Millman, A., Bernheim, A., Stokar-Avihail, A., Fedorenko, T., Voichek, M., Leavitt, A., Oppenheimer-Shaanan, Y., and Sorek, R. (2020). Bacterial Retrons Function In Anti-Phage Defense. *Cell*, **183**, 1551-1561.e12. doi: [10/ghjct3](https://doi.org/10/ghjct3).
+> Millman, A., Bernheim, A., Stokar-Avihail, A., Fedorenko, T., Voichek, M., Leavitt, A., Oppenheimer-Shaanan, Y., and Sorek, R. (2020). Bacterial Retrons Function In Anti-Phage Defense. *Cell*, **183**, 1551-1561.e12. doi: [10/ghjct3](https://doi.org/10/ghjct3)
 
-> Bernheim, A., Millman, A., Ofir, G., Meitav, G., Avraham, C., Shomar, H., Rosenberg, M. M., Tal, N., Melamed, S., Amitai, G., et al. (2021). Prokaryotic viperins produce diverse antiviral molecules. *Nature*, **589**, 120–124. doi: [10/d9ss](https://doi.org/10/d9ss).
+> Bernheim, A., Millman, A., Ofir, G., Meitav, G., Avraham, C., Shomar, H., Rosenberg, M. M., Tal, N., Melamed, S., Amitai, G., et al. (2021). Prokaryotic viperins produce diverse antiviral molecules. *Nature*, **589**, 120–124. doi: [10/d9ss](https://doi.org/10/d9ss)
 
-> Goldfarb, T., Sberro, H., Weinstock, E., Cohen, O., Doron, S., Charpak‐Amikam, Y., Afik, S., Ofir, G., and Sorek, R. (2015). BREX is a novel phage resistance system widespread in microbial genomes. *EMBO J*, **34**, 169–183. doi: [10/f2wkj3](https://doi.org/10/f2wkj3).
+> Goldfarb, T., Sberro, H., Weinstock, E., Cohen, O., Doron, S., Charpak‐Amikam, Y., Afik, S., Ofir, G., and Sorek, R. (2015). BREX is a novel phage resistance system widespread in microbial genomes. *EMBO J*, **34**, 169–183. doi: [10/f2wkj3](https://doi.org/10/f2wkj3)
 
-> Ofir, G., Melamed, S., Sberro, H., Mukamel, Z., Silverman, S., Yaakov, G., Doron, S., and Sorek, R. (2018). DISARM is a widespread bacterial defence system with broad anti-phage activities. *Nat Microbiol*, **3**, 90–98. doi: [10/ggnszb](https://doi.org/10/ggnszb).
+> Ofir, G., Melamed, S., Sberro, H., Mukamel, Z., Silverman, S., Yaakov, G., Doron, S., and Sorek, R. (2018). DISARM is a widespread bacterial defence system with broad anti-phage activities. *Nat Microbiol*, **3**, 90–98. doi: [10/ggnszb](https://doi.org/10/ggnszb)
 
-> Yuan, Y., Hutinet, G., Valera, J. G., Hu, J., Hillebrand, R., Gustafson, A., Iwata-Reuyl, D., Dedon, P. C., and de Crécy-Lagard, V. (2018). Identification of the minimal bacterial 2′-deoxy-7-amido-7-deazaguanine synthesis machinery. *Molecular Microbiology*, **110**, 469–483. doi: [10/gfft6b](https://doi.org/10/gfft6b).
+> Yuan, Y., Hutinet, G., Valera, J. G., Hu, J., Hillebrand, R., Gustafson, A., Iwata-Reuyl, D., Dedon, P. C., and de Crécy-Lagard, V. (2018). Identification of the minimal bacterial 2′-deoxy-7-amido-7-deazaguanine synthesis machinery. *Molecular Microbiology*, **110**, 469–483. doi: [10/gfft6b](https://doi.org/10/gfft6b)
 
-> Thiaville, J. J., Kellner, S. M., Yuan, Y., Hutinet, G., Thiaville, P. C., Jumpathong, W., Mohapatra, S., Brochier-Armanet, C., Letarov, A. V., Hillebrand, R., et al. (2016). Novel genomic island modifies DNA with 7-deazaguanine derivatives. *Proc Natl Acad Sci USA*, **113**, E1452–E1459. doi: [10/ggr4f7](https://doi.org/10/ggr4f7).
+> Thiaville, J. J., Kellner, S. M., Yuan, Y., Hutinet, G., Thiaville, P. C., Jumpathong, W., Mohapatra, S., Brochier-Armanet, C., Letarov, A. V., Hillebrand, R., et al. (2016). Novel genomic island modifies DNA with 7-deazaguanine derivatives. *Proc Natl Acad Sci USA*, **113**, E1452–E1459. doi: [10/ggr4f7](https://doi.org/10/ggr4f7)
 
-> Tong, T., Chen, S., Wang, L., Tang, Y., Ryu, J. Y., Jiang, S., Wu, X., Chen, C., Luo, J., Deng, Z., et al. (2018). Occurrence, evolution, and functions of DNA phosphorothioate epigenetics in bacteria. *Proc Natl Acad Sci USA*, **115**, E2988–E2996. doi: [10/gdbj2n](https://doi.org/10/gdbj2n).
+> Tong, T., Chen, S., Wang, L., Tang, Y., Ryu, J. Y., Jiang, S., Wu, X., Chen, C., Luo, J., Deng, Z., et al. (2018). Occurrence, evolution, and functions of DNA phosphorothioate epigenetics in bacteria. *Proc Natl Acad Sci USA*, **115**, E2988–E2996. doi: [10/gdbj2n](https://doi.org/10/gdbj2n)
 
-> Xu, T., Yao, F., Zhou, X., Deng, Z., and You, D. (2010). A novel host-specific restriction system associated with DNA backbone S-modification in Salmonella. *Nucleic Acids Research*, **38**, 7133–7141. doi: [10/d5zqcp](https://doi.org/10/d5zqcp).
+> Xu, T., Yao, F., Zhou, X., Deng, Z., and You, D. (2010). A novel host-specific restriction system associated with DNA backbone S-modification in Salmonella. *Nucleic Acids Research*, **38**, 7133–7141. doi: [10/d5zqcp](https://doi.org/10/d5zqcp)
 
-> Xiong, L., Liu, S., Chen, S., Xiao, Y., Zhu, B., Gao, Y., Zhang, Y., Chen, B., Luo, J., Deng, Z., et al. (2019). A new type of DNA phosphorothioation-based antiviral system in archaea. *Nat Commun*, **10**, 1688. [10/ggctjz](https://doi.org/10/ggctjz).
+> Xiong, L., Liu, S., Chen, S., Xiao, Y., Zhu, B., Gao, Y., Zhang, Y., Chen, B., Luo, J., Deng, Z., et al. (2019). A new type of DNA phosphorothioation-based antiviral system in archaea. *Nat Commun*, **10**, 1688. [10/ggctjz](https://doi.org/10/ggctjz)
 
-> Xiong, X., Wu, G., Wei, Y., Liu, L., Zhang, Y., Su, R., Jiang, X., Li, M., Gao, H., Tian, X., et al. (2020). SspABCD–SspE is a phosphorothioation-sensing bacterial defence system with broad anti-phage activities. *Nat Microbiol*, **5**, 917–928. [10/ggq8nb](https://doi.org/10/ggq8nb).
+> Xiong, X., Wu, G., Wei, Y., Liu, L., Zhang, Y., Su, R., Jiang, X., Li, M., Gao, H., Tian, X., et al. (2020). SspABCD–SspE is a phosphorothioation-sensing bacterial defence system with broad anti-phage activities. *Nat Microbiol*, **5**, 917–928. [10/ggq8nb](https://doi.org/10/ggq8nb)
 
-> Wang, S., Wan, M., Huang, R., Zhang, Y., Xie, Y., Wei, Y., Ahmad, M., Wu, D., Hong, Y., Deng, Z., et al. (2021). SspABCD-SspFGH Constitutes a New Type of DNA Phosphorothioate-Based Bacterial Defense System. *MBio*, **12**, e00613-21. [10/gbsw](https://doi.org/10/gbsw).
+> Wang, S., Wan, M., Huang, R., Zhang, Y., Xie, Y., Wei, Y., Ahmad, M., Wu, D., Hong, Y., Deng, Z., et al. (2021). SspABCD-SspFGH Constitutes a New Type of DNA Phosphorothioate-Based Bacterial Defense System. *MBio*, **12**, e00613-21. [10/gbsw](https://doi.org/10/gbsw)
 
 The relevant refences for individual HMMs can be found by inspecting the `hmm_meta.txt` file provided with [PADLOC-DB](https://github.com/padlocbio/padloc-db).
 
