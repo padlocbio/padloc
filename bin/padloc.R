@@ -77,15 +77,15 @@ QUIET         <- opt$quiet
 PRODIGAL      <- opt$prodigal
 
 ### DEBUG ###
-DOMTBL_PATH   <- "~/tools/padloc/test/output/GCF_003182315.1_faa.domtblout"
-GFF_PATH      <- "~/tools/padloc/test/input/GCF_003182315.1_faa.gff"
-HMM_META_PATH <- "~/tools/padloc/data/hmm_meta.txt"
-SYS_META_PATH <- "~/tools/padloc/data/sys_meta.txt"
-YAML_DIR      <- "~/tools/padloc/data/sys/"
-OUTPUT_DIR    <- "~/tools/padloc/debug"
-DEBUG_COUNTER <- 1
-QUIET         <- 0
-PRODIGAL      <- 0
+# DOMTBL_PATH   <- "~/tools/padloc/test/output/GCF_003182315.1_faa.domtblout"
+# GFF_PATH      <- "~/tools/padloc/test/input/GCF_003182315.1_faa.gff"
+# HMM_META_PATH <- "~/tools/padloc/data/hmm_meta.txt"
+# SYS_META_PATH <- "~/tools/padloc/data/sys_meta.txt"
+# YAML_DIR      <- "~/tools/padloc/data/sys/"
+# OUTPUT_DIR    <- "~/tools/padloc/debug"
+# DEBUG_COUNTER <- 1
+# QUIET         <- 0
+# PRODIGAL      <- 0
 # 
 # DOMTBL_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931.domtblout"
 # GFF_PATH      <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_prodigal.gff"
