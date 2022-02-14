@@ -77,15 +77,15 @@ QUIET         <- opt$quiet
 PRODIGAL      <- opt$prodigal
 
 ### DEBUG ###
-# DOMTBL_PATH   <- "~/tools/padloc/test/output/domtblout/GCF_003182315.1_faa.domtblout"
-# GFF_PATH      <- "~/tools/padloc/test/input/GCF_003182315.1_faa.gff"
-# HMM_META_PATH <- "~/tools/padloc/data/hmm_meta.txt"
-# SYS_META_PATH <- "~/tools/padloc/data/sys_meta.txt"
-# YAML_DIR      <- "~/tools/padloc/data/sys/"
-# OUTPUT_DIR    <- "~/tools/padloc/debug"
-# DEBUG_COUNTER <- 1
-# QUIET         <- 0
-# PRODIGAL      <- 0
+DOMTBL_PATH   <- "~/tools/padloc/test/output/GCF_003182315.1_faa.domtblout"
+GFF_PATH      <- "~/tools/padloc/test/input/GCF_003182315.1_faa.gff"
+HMM_META_PATH <- "~/tools/padloc/data/hmm_meta.txt"
+SYS_META_PATH <- "~/tools/padloc/data/sys_meta.txt"
+YAML_DIR      <- "~/tools/padloc/data/sys/"
+OUTPUT_DIR    <- "~/tools/padloc/debug"
+DEBUG_COUNTER <- 1
+QUIET         <- 0
+PRODIGAL      <- 0
 # 
 # DOMTBL_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931.domtblout"
 # GFF_PATH      <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_prodigal.gff"
@@ -288,7 +288,7 @@ read_domtbl <- function(domtbl_path) {
     # collapse everything to a single line
     paste0(collapse = "\n") %>%
     # re-parse the table as tsv
-    read_tsv(col_names = c('temp', 'target.description'), comment = "#", na = '-') %>%
+    read_tsv(col_names = c('temp', 'target.description'), comment = "#", na = '-', show_col_types = FALSE) %>%
     # separate the temp column into actual columns
     separate(.data$temp, head(names(cols$cols), -1), sep = ' +') %>%
     # apply colum types

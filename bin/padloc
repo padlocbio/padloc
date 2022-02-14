@@ -397,8 +397,8 @@ padloc_wrapper() {
     Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \
     -f "${GFF_FILE}" \
-	-c "${CRISPR_FILE}" \
-	-h "${HMM_META}" \
+	  -c "${CRISPR_FILE}" \
+	  -h "${HMM_META}" \
     -s "${SYS_META}" \
     -y "${YAML_DIR}" \
     -o "${OUT_DIR}" \
