@@ -72,6 +72,7 @@ Input:
     --gff [f]         GFF file (only valid with [--faa])
     --fna [f]         Nucleic acid FASTA file
     --crispr [f]      CRISPR array input file (.gff from CRISPRDetect)
+	--ncrna [f]		  Formatted Infernal output file containing retron ncRNA hits (.ncrna)
 Output:
     --outdir [d]      Output directory
 Optional:
@@ -220,6 +221,7 @@ FNA_COLLAPSED=""
 FASTA_NAME=""
 GFF_FILE=""
 CRISPR_FILE=""
+NCRNA_FILE=""
 OUT_DIR="."
 PRODIGAL=0
 FORCE=0
@@ -260,7 +262,9 @@ while [[ "${#}" -gt 0 ]]; do
       FNA_FILE=$(abspath "${parameter}") 
       FASTA_NAME=$(basename ${FNA_FILE%.fna}) ; shift ;;
     --crispr) require_argument "${option}" "${parameter}"
-      CRISPR_FILE=$(abspath "${parameter}") ; shift ;;	  
+      CRISPR_FILE=$(abspath "${parameter}") ; shift ;;
+    --ncrna) require_argument "${option}" "${parameter}"
+      NCRNA_FILE=$(abspath "${parameter}") ; shift ;;
     --data) require_argument "${option}" "${parameter}"
       DATA=$(abspath "${parameter}") ; shift ;;
     -o|--outdir) require_argument "${option}" "${parameter}"
@@ -312,6 +316,11 @@ check_opt() {
   # Check that the specified CRISPR input exists.
    if [[ ! -z "${CRISPR_FILE}" ]]; then
     [[ -f "${CRISPR_FILE}" ]] || die "The CRISPR array input file, '${CRISPR_FILE}' does not exist"
+  fi
+  
+  # Check that the specified retron ncRNA input exists.
+   if [[ ! -z "${NCRNA_FILE}" ]]; then
+    [[ -f "${NCRNA_FILE}" ]] || die "The retron ncRNA input file, '${NCRNA_FILE}' does not exist"
   fi
   
   # Check that output directory exists.
@@ -397,8 +406,9 @@ padloc_wrapper() {
     Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \
     -f "${GFF_FILE}" \
-	  -c "${CRISPR_FILE}" \
-	  -h "${HMM_META}" \
+	-c "${CRISPR_FILE}" \
+	-r "${NCRNA_FILE}" \
+	-h "${HMM_META}" \
     -s "${SYS_META}" \
     -y "${YAML_DIR}" \
     -o "${OUT_DIR}" \

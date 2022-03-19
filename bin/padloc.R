@@ -53,6 +53,7 @@ spec = matrix(c(
   'domtbl_path'  , 'd', 1, "character", "path to domain table",
   'gff_file_path', 'f', 1, "character", "path to feature table",
   'crispr_file_path', 'c', 1, "character", "optional path to crispr input",
+  'ncrna_file_path', 'r', 1, "character", "optional path to retron ncrna input",
   'hmm_meta_path', 'h', 1, "character", "path to hmm_meta table",
   'sys_meta_path', 's', 1, "character", "path to system summary table",
   'yaml_dir'     , 'y', 1, "character", "path to yaml directory",
@@ -68,6 +69,7 @@ opt = getopt::getopt(spec)
 DOMTBL_PATH   <- opt$domtbl_path
 GFF_PATH      <- opt$gff_file_path
 CRISPR_PATH   <- opt$crispr_file_path
+NCRNA_PATH    <- opt$ncrna_file_path
 HMM_META_PATH <- opt$hmm_meta_path
 SYS_META_PATH <- opt$sys_meta_path
 YAML_DIR      <- opt$yaml_dir
@@ -87,9 +89,10 @@ PRODIGAL      <- opt$prodigal
 # QUIET         <- 0
 # PRODIGAL      <- 0
 # 
-# DOMTBL_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931.domtblout"
-# GFF_PATH      <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_prodigal.gff"
-# CRISPR_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_crispr.txt.gff"
+# DOMTBL_PATH   <- "D:/git_clone/padloc/test/GCF_001265675.1_102598_protein.domtblout"
+# GFF_PATH      <- "D:/git_clone/padloc/test/GCF_001265675.1_102598_genomic.gff"
+# #CRISPR_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_crispr.txt.gff"
+# NCRNA_PATH    <- "D:/git_clone/padloc/test/GCF_001265675.1_102598.ncrna"
 # HMM_META_PATH <- "D:/git_clone/padloc/data/hmm_meta.txt"
 # SYS_META_PATH <- "D:/git_clone/padloc/data/sys_meta.txt"
 # YAML_DIR      <- "D:/git_clone/padloc/data/sys/"
@@ -175,7 +178,8 @@ read_sys_meta <- function(file) {
     type = col_character(),
     yaml.name = col_character(),
     search = col_logical(),
-    notes = col_character()
+    notes = col_character(),
+    group = col_character()
   )
   
   # read in sys_meta
@@ -351,6 +355,82 @@ process_crisprdetect_gff<-function(CRISPR_PATH,gff.genes){
   return(crispr.processed)
 }
 
+
+
+# Read and process retron ncrna Infernal output to add ncrnas. Requires pre-loading the protein-coding gene table.
+process_ncrna_gff<-function(CRISPR_PATH,gff.genes){
+  
+  #gff.genes<-gff
+   
+  cols <- cols(
+    seqid = col_character(), 
+    target.accession = col_character(),
+    hmm.name = col_character(),
+    hmm.accession = col_character(), 
+    mdl.type = col_character(), 
+    cm.coord.from = col_double(),
+    cm.coord.to = col_double(), 
+    seq.from = col_double(),
+    seq.to = col_double(), 
+    strand = col_character(),
+    trunc = col_character(),
+    pass = col_double(),
+    qc = col_double(),
+    bias = col_double(),
+    score = col_double(),
+    full.seq.E.value = col_double(),
+    include = col_character(),
+    target.description = col_character())
+
+  ncrna.in <- read_delim(NCRNA_PATH, delim="\t",
+                      col_names=names(cols$cols),
+                      col_types = cols)
+  
+  if(nrow(ncrna.in) == 0) {
+    return(tibble(NULL))
+  }
+  
+  ncrna <- ncrna.in %>%  
+                select(-mdl.type,-include,-target.accession,-pass) %>%
+                    mutate(type = "msr-msd",source="padloc",
+                           start=ifelse(strand=="+",seq.from,seq.to),
+                           end=ifelse(strand=="+",seq.to,seq.from)) %>%
+                    # assigning temp relative.position in genome
+                    group_by(seqid) %>%
+                    arrange(seqid, start) %>%
+                    mutate(relative.position.offset = (row_number()/100 + 0.001),  # assign ncRNA positions as decimals (note, edge case if n>=100), add 0.001 to offset from CRISPRs
+                           relative.position = 0)
+  
+  # need to update relative.position
+  ncrna.processed <- gff.genes %>% mutate(relative.position.offset = 0) %>%
+            select(seqid,type,start,end,relative.position,contig.end,relative.position.offset) %>%
+            bind_rows(ncrna) %>%
+            arrange(seqid,start) %>%
+            group_by(seqid) %>%
+            mutate(contig.end = max(relative.position)) %>%
+            mutate(relative.position = cummax(relative.position)) %>%
+            mutate(relative.position = relative.position + relative.position.offset) %>%
+            mutate(protein.name = "msr-msd") %>%
+            ungroup() %>%
+            filter(type == "msr-msd") %>%
+    mutate(target.description=paste0("msr-msd identified by match to covariance model: ", hmm.name)) %>%
+            select(seqid,
+                   type,
+                   protein.name,
+                   start,
+                   end,
+                   strand,
+                   full.seq.E.value, # gets converted to 'score' later
+                   relative.position,
+                   contig.end,
+                   target.description,
+                   hmm.name,
+                   hmm.accession)
+    
+  return(ncrna.processed)
+}
+
+
 # merge_tbls(domtbl, GFF, hmm_meta)
 # Merge the domtbl, GFF, and hmm_meta
 merge_tbls <- function(domtbl, gff, hmm_meta) {
@@ -396,7 +476,7 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
 search_system <- function(system_type, merged_tbls) {
   
   # system_type<-"cas_type_arrays"
-  # system_type<-"septu_other"
+  # system_type<-"retron_I-A"
   # merged_tbls <- merged
   
   # generate path to YAML file
@@ -444,6 +524,10 @@ search_system <- function(system_type, merged_tbls) {
     crispr.add <- T} else {
     crispr.add <- F}
 
+if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibited_genes)){
+    ncrna.add <- T} else {
+    ncrna.add <- F}
+  
   
   # filter for relevant genes
   relevance_check <- merged_tbls %>%
@@ -527,7 +611,6 @@ search_system <- function(system_type, merged_tbls) {
     mutate(target.description=as.character(target.description))
   
   # add CRISPR array data (if required)
-  
   if(crispr.add == T){
     to.add <- crispr.arrays %>%
       mutate(
@@ -537,6 +620,20 @@ search_system <- function(system_type, merged_tbls) {
       )
     top_hits <- top_hits %>% bind_rows(to.add)
   }
+  
+  # add retron ncrna data (if required)
+  if(ncrna.add == T){
+    to.add <- retron.ncrnas %>%
+      mutate(
+      is.core = ifelse("ncRNA" %in% core_genes, TRUE, FALSE),
+      is.accessory = ifelse("ncRNA" %in% optional_genes, TRUE, FALSE),
+      is.prohibited = ifelse("ncRNA" %in% prohibited_genes, TRUE, FALSE)
+      )
+    top_hits <- top_hits %>% bind_rows(to.add)
+  }
+  
+  
+  
   
   # add a column that groups hits into clusters
     # first, set grouping by strand if force_strand == T
@@ -698,7 +795,6 @@ if (unknown_protein_count > 0) {
 }
 
 # Read in the optional CRISPR file (if present)
-
 if(CRISPR_PATH != ""){
     debug_msg(paste0("Include CRISPR arrays from ", basename(CRISPR_PATH)))
     crispr.arrays <- process_crisprdetect_gff(CRISPR_PATH,gff)
@@ -708,6 +804,19 @@ if(CRISPR_PATH != ""){
       include.crispr.arrays <- F
     } else {include.crispr.arrays <- T}
 } else {include.crispr.arrays <- F}
+
+# Read in the optional retron ncRNA file (if present)
+if(NCRNA_PATH != ""){
+    debug_msg(paste0("Include retron ncRNA detection from ", basename(NCRNA_PATH)))
+    retron.ncrnas <- process_ncrna_gff(NCRNA_PATH,gff)
+
+    if(nrow(retron.ncrnas) == 0){      
+      debug_msg("Retron ncRNA file is empty, ncRNAs will not be included in output")
+      include.retron.ncrnas <- F
+    } else {include.retron.ncrnas <- T}
+} else {include.retron.ncrnas <- F}
+
+
 
 
 # Search for systems.
@@ -730,7 +839,7 @@ format_output<-function(to_format){
     ) %>%
     mutate(target.description = str_remove(target.description, "MULTISPECIES: "))
   
-    # if checking for CRISPR_arrays, remove the system type (to prevent users misinterpreting array types)
+  # if checking for CRISPR_arrays, remove the system type (to prevent users misinterpreting array types)
   
   if(include.crispr.arrays == T){
     formatted <- formatted %>% 
