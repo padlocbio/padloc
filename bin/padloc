@@ -401,7 +401,7 @@ padloc_wrapper() {
     info "${FASTA_NAME}_padloc.csv already exists; use --force to overwrite\n"
   else
     # Print command.
-    debug "Rscript ${SRC_DIR}/bin/padloc.R -d ${DOMTBL_PATH} -f ${GFF_FILE} -h ${HMM_META} -s ${SYS_META} -y ${YAML_DIR} -o ${OUT_DIR} -b ${USE_DEBUG} -q ${QUIET} -p ${PRODIGAL}\n"
+    debug "Rscript ${SRC_DIR}/bin/padloc.R -d ${DOMTBL_PATH} -f ${GFF_FILE} -c ${CRISPR_FILE} -r ${NCRNA_FILE} -h ${HMM_META} -s ${SYS_META} -y ${YAML_DIR} -o ${OUT_DIR} -b ${USE_DEBUG} -q ${QUIET} -p ${PRODIGAL}\n"
     # Run padloc.
     Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \

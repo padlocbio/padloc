@@ -857,7 +857,8 @@ format_output<-function(to_format){
       system.class = gsub("_.*", "", system),
       is.other = ifelse(grepl("_other", system) == T, 1, 0)
     ) %>%
-    group_by(seqid, target.name, system.class) %>% 
+    #group_by(seqid, target.name, system.class) %>% 
+    group_by(seqid, relative.position) %>% 
     mutate(remove = ifelse(is.other == 1 & min(is.other) == 0, 1, 0)) %>%
     filter(remove == 0) %>%
     group_by(seqid, system, cluster) %>% #TODO: depreciate system.number? (requires updating operon display script and webserver)
