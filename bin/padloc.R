@@ -253,50 +253,43 @@ gather_attributes <- function(gff) {
 # read_domtbl(path to domtbl)
 # Read in domtbl.
 read_domtbl <- function(domtbl_path) {
-
-  # adapted from: 
-  # Zebulun Arendsee (2017). rhmmer: Utilities Parsing 'HMMER' Results. 
-  # R package version 0.1.0. https://CRAN.R-project.org/package=rhmmer
   
   cols <- cols(
-    target.name = col_character(), 
+    target.name = col_character(),
     target.accession = col_character(),
-    target.length = col_integer(), 
+    target.length = col_integer(),
     hmm.name = col_character(),
-    hmm.accession = col_character(), 
+    hmm.accession = col_character(),
     hmm.length = col_integer(),
-    full.seq.E.value = col_double(), 
+    full.seq.E.value = col_double(),
     full.seq.score = col_double(),
-    full.seq_bias = col_double(), 
+    full.seq_bias = col_double(),
     domain.number = col_integer(),
-    total.domains = col_integer(), 
+    total.domains = col_integer(),
     domain.cE.value = col_double(),
-    domain.iE.value = col_double(), 
+    domain.iE.value = col_double(),
     domain.score = col_double(),
-    domain.bias = col_double(), 
+    domain.bias = col_double(),
     hmm.coord.from = col_double(),
-    hmm.coord.to = col_double(), 
+    hmm.coord.to = col_double(),
     alignment.coord.from = col_double(),
-    alignment.coord.to = col_double(), 
+    alignment.coord.to = col_double(),
     envelope.coord.from = col_double(),
-    envelope.coord.to = col_double(), 
+    envelope.coord.to = col_double(),
     accuracy = col_double(),
     target.description = col_character())
   
-  out <- read_lines(domtbl_path) %>%
-    # substitute the whitespace between the 'acc' and 'description' 
-    # columns with '\t'
-    sub(pattern = sprintf("(%s) *(.*)", paste0(rep('\\S+', 22), collapse = " +")), replacement = '\\1\t\\2') %>%
-    # remove '#'s that aren't comments, stops breaking w/ subsequent read_tsv()
-    str_remove_all(pattern = '(?<!^)#') %>%
-    # collapse everything to a single line
-    paste0(collapse = "\n") %>%
-    # re-parse the table as tsv
-    read_tsv(col_names = c('temp', 'target.description'), comment = "#", na = '-') %>%
-    # separate the temp column into actual columns
-    separate(.data$temp, head(names(cols$cols), -1), sep = ' +') %>%
-    # apply colum types
-    type_convert(col_types = cols)
+  lines <- read_lines(domtbl_path)
+  df <- data.frame(line = lines)
+  filt <- filter(df, !grepl("^#", line))
+  # None of the columns should contain spaces (except for the last column),
+  # so we can just split each line on every one-or-more spaces, merging the
+  # last column
+  sep <- separate(filt, line, into = names(cols$cols), sep = " +", extra = "merge", convert = F)
+  tib <- as_tibble(sep)
+  out <- type_convert(tib, col_types = cols)
+  
+  out
   
 }
 
