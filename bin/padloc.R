@@ -79,12 +79,12 @@ QUIET         <- opt$quiet
 PRODIGAL      <- opt$prodigal
 
 ### DEBUG ###
-# DOMTBL_PATH   <- "~/tools/padloc/test/output/GCF_003182315.1_faa.domtblout"
-# GFF_PATH      <- "~/tools/padloc/test/input/GCF_003182315.1_faa.gff"
-# HMM_META_PATH <- "~/tools/padloc/data/hmm_meta.txt"
-# SYS_META_PATH <- "~/tools/padloc/data/sys_meta.txt"
-# YAML_DIR      <- "~/tools/padloc/data/sys/"
-# OUTPUT_DIR    <- "~/tools/padloc/debug"
+# DOMTBL_PATH   <- "~/Developer/active/padloc/test-data/GCF_001688665.2.domtblout"
+# GFF_PATH      <- "~/Developer/active/padloc/test/GCF_001688665.2.gff"
+# HMM_META_PATH <- "~/Developer/active/padloc/test-data/new/hmm_meta.txt"
+# SYS_META_PATH <- "~/Developer/active/padloc/test-data/new/sys_meta.txt"
+# YAML_DIR      <- "~/Developer/active/padloc/test-data/new/sys/"
+# OUTPUT_DIR    <- "~/Developer/active/padloc/test-data/"
 # DEBUG_COUNTER <- 1
 # QUIET         <- 0
 # PRODIGAL      <- 0
@@ -116,12 +116,9 @@ read_hmm_meta <- function(file) {
     protein.name = col_character(),
     system.definition.shortcut = col_character(),
     author = col_character(),
-    number.seq = col_double(),
-    length.hmm = col_double(),
     e.value.threshold = col_double(),
     hmm.coverage.threshold = col_double(),
     target.coverage.threshold = col_double(),
-    system = col_character(),
     literature.ref = col_character(),
     database.ref = col_character(),
     comments = col_character()
@@ -175,11 +172,13 @@ read_sys_meta <- function(file) {
   
   cols <- cols(
     system = col_character(),
-    type = col_character(),
     yaml.name = col_character(),
     search = col_logical(),
     notes = col_character(),
-    group = col_character()
+    references = col_character(),
+    group = col_character(),
+    fill = col_character(),
+    stroke = col_character()
   )
   
   # read in sys_meta
@@ -468,7 +467,7 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
 # Main system identification logic.
 search_system <- function(system_type, merged_tbls) {
   
-  # system_type<-"cas_type_arrays"
+  # system_type<-"Aditi"
   # system_type<-"retron_I-A"
   # merged_tbls <- merged
   
