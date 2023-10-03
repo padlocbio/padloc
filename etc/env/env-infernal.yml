@@ -1,0 +1,7 @@
+name: infernal
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - infernal=1.1.4
+  - sed=4.7

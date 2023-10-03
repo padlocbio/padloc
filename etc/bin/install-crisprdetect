@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+ME="${0}"
+
+# BASH STRICT MODE
+set -euo pipefail; IFS=$'\n\t'
+trap 'echo "$(date "+[%H:%M:%S]") ERROR >> errexit on line $LINENO" >&2' ERR
+
+# UTILS ------------------------------------------------------------------------
+
+# info <message>; Print info message.
+info() { printf "$(date "+[%H:%M:%S]") ${@}"; }
+
+# abspath <directory>; Get the absolute path to a directory.
+abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
+
+SRC_DIR="$(dirname ${ME})"
+CONDA_SPEC=$(abspath "${SRC_DIR%/bin}/env/env-crisprdetect.yml")
+TMP_DIR="${CONDA_PREFIX}/envs/crisprdetect/tmp"
+CD_SRC_DIR="${CONDA_PREFIX}/envs/crisprdetect/CRISPRDetect_2.4"
+# PADLOC_DIR="${CONDA_PREFIX}/envs/padloc/"
+PADLOC_DIR="~/Developer/active/padloc"
+PATCH_MAIN="${PADLOC_DIR}/etc/patch/CRISPRDetect.patch"
+PATCH_SUBS="${PADLOC_DIR}/etc/patch/CRISPRDETECT_SUBS_1.patch"
+
+rm -drf "${TMP_DIR}" "${CD_SRC_DIR}"
+
+info "Creating conda environment\n"
+CMD_CONDA="conda env create -f ${CONDA_SPEC}"
+info "$ ${CMD_CONDA}\n"
+# eval "${CMD_CONDA}"
+
+info "Downloading CRISPRDetect from GitHub\n"
+CMD_GIT="git clone https://github.com/davidchyou/CRISPRDetect_2.4 ${CONDA_PREFIX}/envs/crisprdetect/tmp"
+info "$ ${CMD_GIT}\n"
+eval "${CMD_GIT}"
+
+info "Extracting CRISPRDetect_2.4.zip\n"
+CMD_UNZIP="unzip -o -q ${TMP_DIR}/CRISPRDetect_2.4.zip -d ${TMP_DIR} && mv ${TMP_DIR}/CRISPRDetect_2.4 ${CONDA_PREFIX}/envs/crisprdetect && rm -drf ${TMP_DIR}"
+info "$ ${CMD_UNZIP}\n"
+eval ${CMD_UNZIP}
+
+info "Installing perl module 'Parallel::ForkManager'\n"
+CMD_CPANM="conda run --live-stream -n crisprdetect cpanm Parallel::ForkManager"
+info "$ ${CMD_CPANM}\n"
+eval "${CMD_CPANM}"
+
+info "Applying patches\n"
+CMD_PATCH="patch ${CD_SRC_DIR}/CRISPRDetect.pl ${PATCH_MAIN}"
+info "$ ${CMD_PATCH}\n"
+eval "${CMD_PATCH}"
+CMD_PATCH="patch ${CD_SRC_DIR}/CD_MODULES/CRISPRDETECT_SUBS_1.pm ${PATCH_SUBS}"
+info "$ ${CMD_PATCH}\n"
+eval "${CMD_PATCH}"
+
+info "Testing CRISRDetect\n"
+CMD_CD="conda run --live-stream -n crisprdetect perl ${CD_SRC_DIR}/CRISPRDetect.pl > /dev/null"
+info "$ ${CMD_CD}\n"
+eval "${CMD_CD}"
+
+info "CRISPRDetect installed successfully\n"

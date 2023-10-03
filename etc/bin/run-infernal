@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+ME="${0}"
+VERSION="1.0.0"
+
+# BASH STRICT MODE
+set -euo pipefail; IFS=$'\n\t'
+trap 'echo "$(date "+[%H:%M:%S]") ERROR >> errexit on line $LINENO" >&2' ERR
+
+# UTILITIES --------------------------------------------------------------------
+
+# die <message>; Print error message and exit.
+die() { printf "\nERROR: \t %s\n" "$@" >&2 ; exit 1; }
+
+# abspath <directory>; Get the absolute path to a directory.
+abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
+
+# HELP -------------------------------------------------------------------------
+
+# help; Print usage information.
+help() {
+cat << EOF
+run-infernal :: A simple wrapper for running Infernal's cmsearch with the same
+parameters as the PADLOC web server.
+
+Usage:
+  run-cmsearch --input <genome_sequence.fna> --output <genome_ncrna.tblout>
+
+Required:
+  --input [f]   The file to be used as input
+  --output [f]  The name of the output file
+EOF
+}
+
+# version; Print version information.
+version() { printf "run-infernal %s\n" "${VERSION}"; }
+
+# If no options given, print help.
+[[ "${#}" = 0 ]] && help && exit 0
+
+# require_argument <option> <argument>; Die when <argument> is blank or another option.
+require_argument() {
+  local option="${1:-}"
+  local argument="${2:-}"
+  if [[ -z "${argument}" ]] || [[ "${argument}" =~ ^- ]]; then
+    die "Option [${option}] requires an argument"
+  fi
+}
+
+# Init vars.
+INPUT=""
+OUTPUT=""
+PATH_ME=$(abspath "${ME%/etc/bin/run-infernal}")
+PATH_PADLOC="${PATH_ME%/etc/bin/run-infernal}"
+PATH_DB="${PATH_PADLOC}/data/cm/TypeIX.cm"
+
+# Read options.
+while [[ "${#}" -gt 0 ]]; do
+  option="${1:-}"
+  parameter="${2:-}"
+  case "${option}" in
+    -h|--help) help; exit 0 ;;
+    -v|--version) version; exit 0 ;;
+    --input) require_argument "${option}" "${parameter}"
+      INPUT=$(abspath "${parameter}") ; shift ;;
+    --output) require_argument "${option}" "${parameter}"
+      OUTPUT=$(abspath "${parameter}") ; shift ;;
+    --endopts) break ;;
+    *) die "Unexpected option: [${option}]" ;;
+  esac
+  shift
+done
+
+# check_opt; Check whether options are valid.
+check_opt() {
+
+  # Check for valid input.
+  if [[ ! -z "${INPUT}" ]]; then
+    [[ -f "${INPUT}" ]] || die "'${INPUT}' does not exist"
+  else
+    die "Valid input file required [--input]"
+  fi
+
+  # Check for valid output file.
+  if [[ ! -z "${OUTPUT}" ]]; then
+    [[ ! -f "${OUTPUT}" ]] || die "'${OUTPUT}' already exists"
+    mkdir -p $(dirname "${OUTPUT}")
+  else
+    die "Valid output file required [--output]"
+  fi
+
+}
+
+cmsearch_wrapper() {
+  conda run --live-stream -n infernal cmsearch \
+  -Z 10 \
+  --FZ 500 \
+  --acc \
+  --noali \
+  --tblout "${OUTPUT}" \
+  "${PATH_DB}" \
+  "${INPUT}"
+}
+
+format_tblout() {
+  # /!/p       => filter for lines containing '!'
+  # s/  */ /g    => replace '  *' with ' '
+  # s/ /\t/g   => replace ' ' with '\t'
+  # s/\t/ /18g => replace the first 18 '\t' with ' '
+  # All patterns should work for GNU and BSD sed, except the last so run gnu sed
+  sed -n '/!/p' "${OUTPUT}" \
+  | sed 's/  */ /g' \
+  | sed 's/ /\t/g' \
+  | conda run --live-stream -n infernal sed 's/\t/ /18g' \
+  > "${OUTPUT}.formatted"
+}
+
+main() {
+  check_opt
+  cmsearch_wrapper
+  format_tblout
+}
+
+main

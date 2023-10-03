@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+ME="${0}"
+
+# BASH STRICT MODE
+set -euo pipefail; IFS=$'\n\t'
+trap 'echo "$(date "+[%H:%M:%S]") ERROR >> errexit on line $LINENO" >&2' ERR
+
+# UTILS ------------------------------------------------------------------------
+
+# info <message>; Print info message.
+info() { printf "$(date "+[%H:%M:%S]") ${@}"; }
+
+# abspath <directory>; Get the absolute path to a directory.
+abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
+
+# MAIN -------------------------------------------------------------------------
+
+SRC_DIR="$(dirname ${ME})"
+CONDA_SPEC=$(abspath "${SRC_DIR%/bin}/env/env-infernal.yml")
+
+info "Creating conda environment\n"
+CMD_CONDA="conda env create -f ${CONDA_SPEC}"
+info "$ ${CMD_CONDA}\n"
+eval "${CMD_CONDA}"
+
+info "Testing Infernal\n"
+CMD_CD="conda run --live-stream -n infernal cmsearch -h > /dev/null"
+info "$ ${CMD_CD}\n"
+eval "${CMD_CD}"
+
+info "Infernal installed successfully\n"

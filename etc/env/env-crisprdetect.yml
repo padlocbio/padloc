@@ -1,0 +1,15 @@
+name: crisprdetect
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - blast=2.14.1
+  - cd-hit=4.8.1
+  - clustalw=2.1
+  - emboss=6.6.0
+  - viennarna=2.6.4
+  - perl=5.32.1
+  - perl-app-cpanminus=1.7047
+  - patch
+  - git
+  - unzip

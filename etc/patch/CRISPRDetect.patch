@@ -1,0 +1,396 @@
+--- /Users/leightonpayne/.miniconda/envs/crisprdetect/CRISPRDetect_2.4/CRISPRDetect.pl	2019-07-18 03:06:57.000000000 +1200
++++ /Users/leightonpayne/Developer/active/padloc-original/bin/dev/crisprdetect/CRISPRDetect_patched.pl	2023-09-18 18:28:55.104130323 +1200
+@@ -829,27 +829,29 @@
+ #print "$tmp_dir\/$combined_hotspots_file\n\n";
+ 
+ 
+-my $wgs_or_metagenomic_contigs=0;
++my $wgs_or_metagenomic_contigs=0; #SJ was 0
+ my %hash_of_seqID_with_crispr_hotspots;
+-if($#arr_sequence_files+1 >100 and $no_of_threads >1 and $#arr_sequence_files+1 > $no_of_threads*2)
+-	{
++# if($#arr_sequence_files+1 >100 and $no_of_threads >1 and $#arr_sequence_files+1 > $no_of_threads*2)
++	# {
+ 		
+-		if($quiet !=1)
+-			{
+-				print "\tChecking $remaining_sequences sequences for CRISPR like sequence repeats.\n";
+-			}
+-		
+-		$wgs_or_metagenomic_contigs=1;
+-		my $minimum_seq_length=100;
+-		my($nof_identified_ids)=&identify_read_or_contigIDs_with_crispr_hotspots($pm,$no_of_threads,$minimum_seq_length,$minimum_repeat_length,$remaining_sequences,\%hash_of_seqID_with_crispr_hotspots);
++		# print "\tChecking $remaining_sequences sequences for CRISPR like sequence repeats.\n";
++
++		# $wgs_or_metagenomic_contigs=1;
++		# my $minimum_seq_length=100;
++		# my($nof_identified_ids)=&identify_read_or_contigIDs_with_crispr_hotspots($pm,$no_of_threads,$minimum_seq_length,$minimum_repeat_length,$remaining_sequences,\%hash_of_seqID_with_crispr_hotspots);
+ 		
+-		$remaining_sequences=$nof_identified_ids;
++		# $remaining_sequences=$nof_identified_ids;
+ 		
+-		if($quiet !=1)
+-			{
+-				print "\tTotal $nof_identified_ids sequences identified to have CRISPR like sequence repeats.\n";
+-			}
+-	}
++
++				# print "\tTotal $nof_identified_ids sequences identified to have CRISPR like sequence repeats.\n";
++
++	# }
++
++
++# foreach my $seq_id(keys %hash_of_seqID_with_crispr_hotspots)
++	# {		
++	# print "Found crispr hotspot in: $seq_id\n";
++	# }
+ 
+ 
+ foreach my $seq_id(keys %hash_of_seq_id_and_seq)
+@@ -857,44 +859,50 @@
+ 			#print "$seq_id\n";
+ 			
+ 			#--------- check if metagenomic sequence was inputted and the current seq_id identified to have CRISPRs like repeat-----
+-			if($wgs_or_metagenomic_contigs==1)
+-				{
+-					if(not $hash_of_seqID_with_crispr_hotspots{$seq_id}){next;}
+-				}				
++			# if($wgs_or_metagenomic_contigs==1)
++				# {
++					# if(not $hash_of_seqID_with_crispr_hotspots{$seq_id}){next;}
++				# }				
+ 			#----------
++			
++			
++			print "Processing: $seq_id\n";
++			
+ 			$remaining_sequences--;
+ 			
+-			if($quiet !=1 and $remaining_sequences >1000)
+-				{
+-					my $remainder=$remaining_sequences % 1000;
+-					if($remainder == 0)
+-						{
+-							$pm->start and next;
++			# if($quiet !=1 and $remaining_sequences >1000)
++				# {
++					# print "found 1";
++					# my $remainder=$remaining_sequences % 1000;
++					# if($remainder == 0)
++						# {
++							# $pm->start and next;
+ 							
+-							if(-e "$tmp_dir\/$combined_hotspots_file")
+-								{
+-									my $hotspots_identified=`grep '>' $tmp_dir\/$combined_hotspots_file | wc -l >&1`;
+-									$hotspots_identified=int($hotspots_identified);
++							# if(-e "$tmp_dir\/$combined_hotspots_file")
++								# {
++									# my $hotspots_identified=`grep '>' $tmp_dir\/$combined_hotspots_file | wc -l >&1`;
++									# $hotspots_identified=int($hotspots_identified);
+ 									
+-									if($hotspots_identified>0)
+-										{							
+-											print "\r$hotspots_identified putative CRISPRs identified [Remaining sequences to be checked: $remaining_sequences]              \t";									
+-										}					
+-								}
+-							$pm->finish;	
+-						}
+-				}
++									# if($hotspots_identified>0)
++										# {							
++											# print "\r$hotspots_identified putative CRISPRs identified [Remaining sequences to be checked: $remaining_sequences]              \t";									
++										# }					
++								# }
++							# $pm->finish;	
++						# }
++				# }
+ 			#------ check if the sequence already been processed b4, if continue is set
+-			if(-e "$tmp_dir\/$continue_from_last_process_file" and $continue_from_last_process==1)
+-				{
+-					#print "grep -w '$seq_file' tmp/$continue_from_last_process_file\n";
+-					my $is_already_processed=`grep -w '$seq_id' $tmp_dir\/$continue_from_last_process_file >&1`;
+-					if($is_already_processed=~/$seq_id/)
+-						{
+-							print "$seq_id already processed. Continuing..\n";
+-							next;
+-						}	
+-				}	
++			# if(-e "$tmp_dir\/$continue_from_last_process_file" and $continue_from_last_process==1)
++				# {
++					# print "found 2";
++					# #print "grep -w '$seq_file' tmp/$continue_from_last_process_file\n";
++					# my $is_already_processed=`grep -w '$seq_id' $tmp_dir\/$continue_from_last_process_file >&1`;
++					# if($is_already_processed=~/$seq_id/)
++						# {
++							# print "$seq_id already processed. Continuing..\n";
++							# next;
++						# }	
++				# }	
+ 			
+ 					#print "$seq_file\n";
+ 			#select(undef, undef, undef, 0.01); #--- will sleep for 1/4 seconds
+@@ -921,73 +929,66 @@
+ #exit;
+ 
+ 
+-my $skip_old=1;
+-if($skip_old==0)
+-{
+-foreach my $seq_file(@arr_sequence_files)
+-	{		
+-			$remaining_sequences--;
+-			$file_index++;
+-			#print "\n$remaining_sequences\t sequences remaining for finding putative arrays\n ";
+-			
+-			if(-e "$tmp_dir\/$combined_hotspots_file")
+-				{
+-					my $hotspots_identified=`grep '>' $tmp_dir\/$combined_hotspots_file | wc -l >&1`;
+-					$hotspots_identified=int($hotspots_identified);
++# my $skip_old=1;
++# if($skip_old==0)
++# {
++# foreach my $seq_file(@arr_sequence_files)
++	# {		
++			# $remaining_sequences--;
++			# $file_index++;
++			# #print "\n$remaining_sequences\t sequences remaining for finding putative arrays\n ";
++			
++			# if(-e "$tmp_dir\/$combined_hotspots_file")
++				# {
++					# my $hotspots_identified=`grep '>' $tmp_dir\/$combined_hotspots_file | wc -l >&1`;
++					# $hotspots_identified=int($hotspots_identified);
+ 					
+-					if($hotspots_identified>0)
+-						{
+-							if($quiet !=1)
+-								{
+-									print "\r$hotspots_identified putative CRISPRs identified";
+-								}	
+-						}					
+-				}
++					# if($hotspots_identified>0)
++						# {
++							# if($quiet !=1)
++								# {
++									# print "\r$hotspots_identified putative CRISPRs identified";
++								# }	
++						# }					
++				# }
++			
++			# #------ check if the sequence already been processed b4, if continue is set
++			# if(-e "$tmp_dir\/$continue_from_last_process_file" and $continue_from_last_process==1)
++				# {
++					# #print "grep -w '$seq_file' $tmp_dir\/$continue_from_last_process_file\n";
++					# my $is_already_processed=`grep -w '$seq_file' $tmp_dir\/$continue_from_last_process_file >&1`;
++					# if($is_already_processed=~/$seq_file/)
++						# {
++							# print "$seq_file already processed. Continuing..\n";
++							# next;
++						# }	
++				# }	
++			
++			# #print "$seq_file\n";
++			# select(undef, undef, undef, 0.25); #--- will sleep for 1/4 seconds
++			# $pm->start and next;
++			
++			# $seq_file=$seq_file."\.fna";
+ 			
+-			#------ check if the sequence already been processed b4, if continue is set
+-			if(-e "$tmp_dir\/$continue_from_last_process_file" and $continue_from_last_process==1)
+-				{
+-					#print "grep -w '$seq_file' $tmp_dir\/$continue_from_last_process_file\n";
+-					my $is_already_processed=`grep -w '$seq_file' $tmp_dir\/$continue_from_last_process_file >&1`;
+-					if($is_already_processed=~/$seq_file/)
+-						{
+-							print "$seq_file already processed. Continuing..\n";
+-							next;
+-						}	
+-				}	
+-			
+-			#print "$seq_file\n";
+-			select(undef, undef, undef, 0.25); #--- will sleep for 1/4 seconds
+-			$pm->start and next;
++			# #&predict_crispr_hotspots($seq_file,$combined_hotspots_file);	
+ 			
+-			$seq_file=$seq_file."\.fna";
++			# my ($total_hotspots,$potential_crisprs)=&get_crisprdetect_hotspots($word_length,$minimum_word_repeatation,$minimum_spacer_gap,$maximum_spacer_gap,$seq_file,$combined_hotspots_file,\%hash_id_lookup_table);	
+ 			
+-			#&predict_crispr_hotspots($seq_file,$combined_hotspots_file);	
++			# #print "Total $potential_crisprs potential CRISPR hotspots identified out of $total_hotspots hotspots\n";
+ 			
+-			my ($total_hotspots,$potential_crisprs)=&get_crisprdetect_hotspots($word_length,$minimum_word_repeatation,$minimum_spacer_gap,$maximum_spacer_gap,$seq_file,$combined_hotspots_file,\%hash_id_lookup_table);	
+-			
+-			#print "Total $potential_crisprs potential CRISPR hotspots identified out of $total_hotspots hotspots\n";
+-			
+-			$pm->finish;
+-	}
++			# $pm->finish;
++	# }
+ 	
+-	$pm->wait_all_children;
+-
+-}
+-
+-
+-
+-
+-
+-
++	# $pm->wait_all_children;
+ 
++# }
+ 
+ 
+ 
+ 
+ 
+ #----- step 3: Process the CRISPR arrays to get the longest one and load up %hash_of_all_crispr_hotspots -----------
+-#print "\nGoing to load up the CRISPR hotspots ...";
++print "\nGoing to load up the CRISPR hotspots ...";
+ my %hash_of_all_crispr_hotspots;
+ &load_crispr_hotspots("$tmp_dir\/$combined_hotspots_file",\%hash_of_all_crispr_hotspots);
+ unlink("$tmp_dir\/$combined_hotspots_file");
+@@ -995,13 +996,6 @@
+ #-------------------------------------------------------------------------------------------------------------------
+ 
+ 
+-
+-#exit;		
+-		
+-	
+-
+-				
+-
+ ############################################################################################ process the putative CRISPRs
+ #------- create sequence files and also get the total CRISPR hotspots to be processed
+ my $mode="multiFASTA";
+@@ -1011,7 +1005,7 @@
+ foreach my $accession(sort keys %hash_of_all_crispr_hotspots)
+ 	{
+ 		#--- write the sequences to the tmp_dir so that down stream analysis can be performed ---
+-				#print "$accession\n";
++				print "$accession\n";
+ 		open(WR,">$tmp_dir\/$accession\.fna");
+ 		print WR ">$accession|\n$hash_of_seq_id_and_seq{$accession}\n";
+ 		close(WR);
+@@ -1025,25 +1019,25 @@
+ 			}	
+ 	}
+ 	
+-#--- set the mode accordingly by checking the no. of hotspots Vs. no. of sequences to be processed--
+-my $average_hotspots_per_sequence=1;
+-if($total_hotspots >0 and $nof_seq_to_be_processed >0)
+-	{
+-		$average_hotspots_per_sequence=int($total_hotspots/$nof_seq_to_be_processed);
+-		
+-		#print "\$average_hotspots_per_sequence= $average_hotspots_per_sequence\n";
+-	}
+-if($nof_seq_to_be_processed==1)
+-	{
+-		$mode="FASTA";
+-	}
+-elsif($nof_seq_to_be_processed < 5 and $average_hotspots_per_sequence >5)
+-	{
+-		$mode="FASTA";
+-	}
++# #--- set the mode accordingly by checking the no. of hotspots Vs. no. of sequences to be processed--
++# my $average_hotspots_per_sequence=1;
++# if($total_hotspots >0 and $nof_seq_to_be_processed >0)
++	# {
++		# $average_hotspots_per_sequence=int($total_hotspots/$nof_seq_to_be_processed);
++		
++		# #print "\$average_hotspots_per_sequence= $average_hotspots_per_sequence\n";
++	# }
++# if($nof_seq_to_be_processed==1)
++	# {
++		# $mode="FASTA";
++	# }
++# elsif($nof_seq_to_be_processed < 5 and $average_hotspots_per_sequence >5)
++	# {
++		# $mode="FASTA";
++	# }
+ 		
+-#-------------------------------
+-#$mode="FASTA";
++# #-------------------------------
++$mode="multiFASTA";
+ 
+ 
+ if($quiet !=1)
+@@ -1060,15 +1054,15 @@
+ 	
+ 		$sequences_processed++;
+ 		#------ check if the sequence already been processed b4, if continue is set -----------------------------
+-		if(-e "$tmp_dir\/$continue_from_last_process_file" and $continue_from_last_process==1)
+-			{
+-				#print "grep -w '$accession' $tmp_dir\/$continue_from_last_process_file\n";
+-				my $is_already_processed=`grep -w '$accession' $tmp_dir\/$continue_from_last_process_file >&1`;
+-				if($is_already_processed=~/$accession/)
+-					{
+-						next;
+-					}
+-			}
++		# if(-e "$tmp_dir\/$continue_from_last_process_file" and $continue_from_last_process==1)
++			# {
++				# #print "grep -w '$accession' $tmp_dir\/$continue_from_last_process_file\n";
++				# my $is_already_processed=`grep -w '$accession' $tmp_dir\/$continue_from_last_process_file >&1`;
++				# if($is_already_processed=~/$accession/)
++					# {
++						# next;
++					# }
++			# }
+ 		
+ 		#---------- create a temp file, and start writting the arrays in tab delimited order ----- 
+ 		 my $tmp_output_file=$accession.&get_unique_id()."temp_output.txt";
+@@ -1129,24 +1123,24 @@
+ 		my $not_a_crispr=0;  
+ 		
+ 		#-----------------
+-		if($mode eq "FASTA")
+-			{
+-				$remaining_hotspots--;
+-				if($quiet !=1)
+-					{
+-						if($hash_id_lookup_table{$accession})
+-							{
+-								print "\t$hash_id_lookup_table{$accession} - $range\t Remaining: $remaining_hotspots\n";
+-							}
+-						else{
+-								print "\t$accession\t - $range\t Remaining: $remaining_hotspots\n";
+-							}	
+-					}	
+-				#---------------				
++		# if($mode eq "FASTA")
++			# {
++				# $remaining_hotspots--;
++				# if($quiet !=1)
++					# {
++						# if($hash_id_lookup_table{$accession})
++							# {
++								# print "\t$hash_id_lookup_table{$accession} - $range\t Remaining: $remaining_hotspots\n";
++							# }
++						# else{
++								# print "\t$accession\t - $range\t Remaining: $remaining_hotspots\n";
++							# }	
++					# }	
++				# #---------------				
+ 				
+-				select(undef, undef, undef, 0.05); #--- will sleep for 1/4 seconds		 
+-				$pm->start and next; # do the fork 
+-			}
++				# select(undef, undef, undef, 0.05); #--- will sleep for 1/4 seconds		 
++				# $pm->start and next; # do the fork 
++			# }
+ 		 
+ 
+ 		
+@@ -1173,7 +1167,7 @@
+ 			{
+ 				if($quiet !=1)
+ 					{
+-						#print "\t\tAlready part of previously processed CRISPR. $range Skipping...\n";
++						print "\t\tAlready part of previously processed CRISPR. $range Skipping...\n";
+ 					}	
+ 				
+ 				if($mode eq "FASTA")

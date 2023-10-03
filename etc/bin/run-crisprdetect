@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+ME="${0}"
+VERSION="1.0.0"
+SRC_CD="${CONDA_PREFIX}/envs/crisprdetect/CRISPRDetect_2.4/CRISPRDetect.pl"
+
+# BASH STRICT MODE
+set -euo pipefail; IFS=$'\n\t'
+trap 'echo "$(date "+[%H:%M:%S]") ERROR >> errexit on line $LINENO" >&2' ERR
+
+# UTILITIES --------------------------------------------------------------------
+
+# die <message>; Print error message and exit.
+die() { printf "\nERROR: \t %s\n" "$@" >&2 ; exit 1; }
+
+# abspath <directory>; Get the absolute path to a directory.
+abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
+
+# HELP -------------------------------------------------------------------------
+
+# help; Print usage information.
+help() {
+cat << EOF
+run-crisprdetect :: A simple wrapper for running CRISPRDetect with the same
+parameters as the PADLOC web server
+
+Usage:
+  run-crisprdetect --input <genome_sequence.fna> --output <genome_crispr>
+
+Required:
+  --input [f]   The file to be used as input
+  --output [f]  The name of the output file(s)
+EOF
+}
+
+# version; Print version information.
+version() { printf "run-crisprdetect %s\n" "${VERSION}"; }
+
+# If no options given, print help.
+[[ "${#}" = 0 ]] && help && exit 0
+
+# require_argument <option> <argument>; Die when <argument> is blank or another option.
+require_argument() {
+  local option="${1:-}"
+  local argument="${2:-}"
+  if [[ -z "${argument}" ]] || [[ "${argument}" =~ ^- ]]; then
+    die "Option [${option}] requires an argument"
+  fi
+}
+
+# Init vars.
+INPUT=""
+OUTPUT=""
+
+# Read options.
+while [[ "${#}" -gt 0 ]]; do
+  option="${1:-}"
+  parameter="${2:-}"
+  case "${option}" in
+    -h|--help) help; exit 0 ;;
+    -v|--version) version; exit 0 ;;
+    --input) require_argument "${option}" "${parameter}"
+      INPUT=$(abspath "${parameter}") ; shift ;;
+    --output) require_argument "${option}" "${parameter}"
+      OUTPUT=$(abspath "${parameter}") ; shift ;;
+    --endopts) break ;;
+    *) die "Unexpected option: [${option}]" ;;
+  esac
+  shift
+done
+
+# check_opt; Check whether options are valid.
+check_opt() {
+
+  # Check for valid input.
+  if [[ ! -z "${INPUT}" ]]; then
+    [[ -f "${INPUT}" ]] || die "'${INPUT}' does not exist"
+  else
+    die "Valid input file required [--input]"
+  fi
+
+  # Check for valid output file.
+  if [[ ! -z "${OUTPUT}" ]]; then
+    [[ ! -f "${OUTPUT}" ]] || die "'${OUTPUT}' already exists"
+    mkdir -p $(dirname "${OUTPUT}")
+  else
+    die "Valid output file required [--output]"
+  fi
+
+}
+
+cd_wrapper() {
+  conda run --live-stream -n crisprdetect perl "${SRC_CD}" \
+  -array_quality_score_cutoff 2.5 \
+  -minimum_word_repeatation 3 \
+  -word_length 11 \
+  -minimum_no_of_repeats 3 \
+  -repeat_length_cutoff 11 \
+  -max_gap_between_crisprs 125 \
+  -f "${INPUT}" \
+  -o "${OUTPUT}"
+}
+
+main() {
+  check_opt
+  cd_wrapper
+}
+
+main

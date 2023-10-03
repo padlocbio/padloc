@@ -1,0 +1,141 @@
+--- /Users/leightonpayne/Developer/active/padloc-original/bin/dev/CRISPRDetect_2.4/CD_MODULES/CRISPRDETECT_SUBS_1.pm	2019-07-18 14:41:18.000000000 +1200
++++ /Users/leightonpayne/Developer/active/padloc-original/bin/dev/crisprdetect/CRISPRDETECT_SUBS_1_patched.pm	2023-09-18 17:55:15.514552895 +1200
+@@ -120,7 +120,7 @@
+ 		
+ 		#---- split the file
+ 		my $small_file_with_suffix="$tmp_dir\/".$tmp_seq_file.".splitted.";
+-		#print qq~split -l $nof_lines_per_file -d $tmp_dir\/$tmp_file $small_file_with_suffix\n~;
++		print qq~split -l $nof_lines_per_file -d $tmp_dir\/$tmp_file $small_file_with_suffix\n~;
+ 		system("split -l $nof_lines_per_file -d $tmp_dir\/$tmp_seq_file $small_file_with_suffix");
+ 		
+ 		my @arr_smaller_files=`ls -1 $small_file_with_suffix\* >&1`;
+@@ -142,7 +142,7 @@
+ 		foreach my $small_file(@arr_smaller_files)
+ 			{
+ 				chomp $small_file; $small_file=~s/\r//g;
+-				#print "$small_file\n";
++				print "p1$small_file\n";
+ 				
+ 				$pm->start and next;
+ 				
+@@ -178,10 +178,10 @@
+ 										#my %hash_of_initial_words;
+ 										
+ 		
+-										my $method="SLOW";    # note: for metagenomes, the SLOW mode is ideal [21-Sept-2015]
+-										#my $method="FAST";
++										#my $method="SLOW";    # note: for metagenomes, the SLOW mode is ideal [21-Sept-2015]
++										my $method="FAST";
+ 										
+-										if(length($seq)>=32765){$method="FAST";} #perl's limit is 32766 in regex
++										#if(length($seq)>=32765){$method="FAST";} #perl's limit is 32766 in regex
+ 										
+ 										if($method eq "FAST")
+ 											{
+@@ -190,9 +190,9 @@
+ 														my $match_position=$-[0];
+ 														
+ 														my $seq1=substr($seq,$-[0],1500);
+-														if($seq1=~/^($1)\w{21,190}?$1/)
++														if($seq1=~/^($1)\w{21,130}?$1/) #@SJ change 190 to 130??
+ 															{
+-																#print "$1\t$match_position\n";
++																print "$1\t$match_position\n";
+ 																#$hash_of_crispr_hotspots{$match_position}=$1;
+ 																$putative_crispr_found++;
+ 																last;
+@@ -1216,10 +1216,10 @@
+ 		#---- get the CRISPR hotspots
+ 		my %hash_of_crispr_hotspots;
+ 		
+-		my $method="SLOW";    # note: for metagenomes, the SLOW mode is ideal [21-Sept-2015]
+-		#my $method="FAST";
++		#my $method="SLOW";    # note: for metagenomes, the SLOW mode is ideal [21-Sept-2015]
++		my $method="FAST";
+ 		
+-		if(length($seq)>=32765){$method="FAST";} #perl's limit is 32766 in regex
++		# if(length($seq)>=32765){$method="FAST";} #perl's limit is 32766 in regex
+ 		
+ 		if($method eq "FAST")
+ 			{
+@@ -1235,31 +1235,31 @@
+ 						}
+ 					}	
+ 			}
+-		else{		
+-				#print "$seq\n";
+-				my $z=0;
+-				while($seq=~/\w{$z}(\w{$minimum_repeat_length})/)				
+-					{
+-							my $match_position=$z+$-[0];							
+-							#print "$match_position\t$1\n";
+-							my $seq1=substr($seq,$-[0],1500);
+-							if($seq1=~/^\w{$z}($1)\w{21,190}?$1/)							
+-								{
+-									#print "$1\t$match_position\n";
+-									$hash_of_crispr_hotspots{$match_position}=$1;
+-								}	
+-						$z=$z+int($minimum_repeat_length/4);
+-						if($z>=length($seq)){last;}		
+-					}
+-			}	
++		# else{		
++				# #print "$seq\n";
++				# my $z=0;
++				# while($seq=~/\w{$z}(\w{$minimum_repeat_length})/)				
++					# {
++							# my $match_position=$z+$-[0];							
++							# #print "$match_position\t$1\n";
++							# my $seq1=substr($seq,$-[0],1500);
++							# if($seq1=~/^\w{$z}($1)\w{21,190}?$1/)							
++								# {
++									# #print "$1\t$match_position\n";
++									# $hash_of_crispr_hotspots{$match_position}=$1;
++								# }	
++						# $z=$z+int($minimum_repeat_length/4);
++						# if($z>=length($seq)){last;}		
++					# }
++			# }	
+ 			
+ 		my $total_hotspots=keys %hash_of_crispr_hotspots;
+ 		
+-		if($quiet !=1)
+-			{	
+-				#print "Total number of putative arrays identified= $total_hotspots\n";
+-			}	
+-			#exit;
++		# if($quiet !=1)
++			# {	
++				# #print "Total number of putative arrays identified= $total_hotspots\n";
++			# }	
++			# #exit;
+ 		
+ 		
+ 			
+@@ -11036,7 +11036,7 @@
+ 		flock(APP,2);
+ 		
+ 		my $crispr_stop_position_1 = $crispr_stop_position - 1;
+-		print APP "$accession\tCRISPRDetect\trepeat_region\t$crispr_start_position\t$crispr_stop_position_1\t$crispr_length\t$strand\t.\tID=CRISPR$crispr_index\_$crispr_start_position\_$crispr_stop_position;Note=$model_repeat;Dbxref=SO:0001459;Ontology_term=CRISPR;ArrayQualityScore=$score\n";
++		print APP "$accession\tCRISPRDetect\trepeat_region\t$crispr_start_position\t$crispr_stop_position_1\t$crispr_length\t$strand\t.\tID=CRISPR$crispr_index\_$crispr_start_position\_$crispr_stop_position;Note=$model_repeat;Dbxref=SO:0001459;Ontology_term=CRISPR;Array_quality_score=$score\n";
+ 			
+ 		my $repeat_index=1;	
+ 		for(my $k1=4;$k1<=$#{$current_array}-1;$k1++)
+@@ -11115,7 +11115,7 @@
+ 				($repeat_start,$repeat_stop)=&sort_two_numbers($r_start,$r_start+length($repeat_string1)+$no_of_insertions);
+ 	
+ 				my $repeat_stop_1 = $repeat_stop - 1;
+-				print APP "$accession\tCRISPRDetect\tdirect_repeat\t$repeat_start\t$repeat_stop_1\t$repeat_length\t$strand\t.\tID=CRISPR$crispr_index\_REPEAT$repeat_index\_$repeat_start\_$repeat_stop;Name=CRISPR$crispr_index\_REPEAT$repeat_index\_$repeat_start\_$repeat_stop;Parent=CRISPR$crispr_index\_$crispr_start_position\_$crispr_stop_position;Note=$repeat_string;Dbxref=SO:0001459;Ontology_term=CRISPR;ArrayQualityScore=$score\n";
++				print APP "$accession\tCRISPRDetect\tdirect_repeat\t$repeat_start\t$repeat_stop_1\t$repeat_length\t$strand\t.\tID=CRISPR$crispr_index\_REPEAT$repeat_index\_$repeat_start\_$repeat_stop;Name=CRISPR$crispr_index\_REPEAT$repeat_index\_$repeat_start\_$repeat_stop;Parent=CRISPR$crispr_index\_$crispr_start_position\_$crispr_stop_position;Note=$repeat_string;Dbxref=SO:0001459;Ontology_term=CRISPR;Array_quality_score=$score\n";
+ 				
+ 				#------- spacer --------------------------------------------------------------------------------------------
+ 				if($k1<$#{$current_array}-1 and length($s_seq1)>0)
+@@ -11128,7 +11128,7 @@
+ 						($spacer_start,$spacer_stop)=&sort_two_numbers($spacer_start,$spacer_stop);
+ 						
+ 						my $spacer_stop_1 = $spacer_stop - 1;
+-						print APP "$accession\tCRISPRDetect\tbinding_site\t$spacer_start\t$spacer_stop_1\t$spacer_length\t$strand\t.\tID=CRISPR$crispr_index\_SPACER$repeat_index\_$spacer_start\_$spacer_stop;Name=CRISPR$crispr_index\_SPACER$repeat_index\_$spacer_start\_$spacer_stop;Parent=CRISPR$crispr_index\_$crispr_start_position\_$crispr_stop_position;Note=$s_seq;Dbxref=SO:0001459;Ontology_term=CRISPR;ArrayQualityScore=$score\n";	
++						print APP "$accession\tCRISPRDetect\tbinding_site\t$spacer_start\t$spacer_stop_1\t$spacer_length\t$strand\t.\tID=CRISPR$crispr_index\_SPACER$repeat_index\_$spacer_start\_$spacer_stop;Name=CRISPR$crispr_index\_SPACER$repeat_index\_$spacer_start\_$spacer_stop;Parent=CRISPR$crispr_index\_$crispr_start_position\_$crispr_stop_position;Note=$s_seq;Dbxref=SO:0001459;Ontology_term=CRISPR;Array_quality_score=$score\n";	
+ 					}
+ 				#---------------------------------------------------------------------------------------------------------
+ 					
