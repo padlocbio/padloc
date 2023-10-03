@@ -2,9 +2,9 @@
 
 # PADLOC :: Locate antiviral defence systems in prokaryotic genomes
 # https://github.com/leightonpayne/padloc
-# Copyright (c) 2020 Leighton Payne
+# Copyright (c) 2020-2023 Leighton Payne
 
-VERSION="v1.1.0"
+VERSION="v2.0.0"
 ME="${0}"
 SRC_DIR="$(dirname ${ME})"
 DBREPO="https://github.com/padlocbio/padloc-db"
@@ -54,33 +54,41 @@ cat << EOF
 PADLOC :: Locate antiviral defence systems in prokaryotic genomes
 
 Usage:
-    padloc [options] --faa <genome.faa> --gff <features.gff>
-    padloc [options] --fna <genome.fna>
+  padloc [options] --faa <genome.faa> --gff <features.gff>
+  padloc [options] --fna <genome.fna>
+
 General:
-    --help            Print this help message
-    --version         Print version information
-    --citation        Print citation information
-    --check-deps      Check that dependencies are installed
-    --debug           Run with debug messages
+  --help            Print this help message
+  --version         Print version information
+  --citation        Print citation information
+  --check-deps      Check that dependencies are installed
+  --debug           Run with debug messages
+
 Database:
-    --db-list         List all PADLOC-DB releases
-    --db-install [n]  Install specific PADLOC-DB release [n]
-    --db-update       Install latest PADLOC-DB release
-    --db-version      Print database version information
+  --db-list         List all PADLOC-DB releases
+  --db-install [n]  Install specific PADLOC-DB release [n]
+  --db-update       Install latest PADLOC-DB release
+  --db-version      Print database version information
+
 Input:
-    --faa [f]         Amino acid FASTA file (only valid with [--gff])
-    --gff [f]         GFF file (only valid with [--faa])
-    --fna [f]         Nucleic acid FASTA file
-    --crispr [f]      CRISPR array input file (.gff from CRISPRDetect)
-	--ncrna [f]		  Formatted Infernal output file containing retron ncRNA hits (.ncrna)
+  --faa [f]         Amino acid FASTA file (only valid with [--gff])
+  --gff [f]         GFF file (only valid with [--faa])
+  --fna [f]         Nucleic acid FASTA file
+  --crispr [f]      CRISPRDetect output file containing array data
+                    To pre-compute this file see instructions in:
+                    '${ETC}/README.md'
+  --ncrna [f]       Infernal output file containing ncRNA data
+                    To pre-compute this file see instructions in:
+                    '${ETC}/README.md'
+
 Output:
-    --outdir [d]      Output directory
+  --outdir [d]      Output directory
+
 Optional:
-    --data [d]        Data directory (default '${DATA}')
-    --cpu [n]         Use [n] CPUs (default '1')
-    --raw-out         Include a summarised raw output file
-    --fix-prodigal    Set this flag when providing an FAA and GFF file 
-                      generated with prodigal to force fixing of sequence IDs
+  --data [d]        Data directory (default '${DATA}')
+  --cpu [n]         Use [n] CPUs (default '1')
+  --fix-prodigal    Set this flag when providing an FAA and GFF file
+                    generated with prodigal to force fixing of sequence IDs
 EOF
 }
 
@@ -195,7 +203,10 @@ db_compile() {
   echo "Compiling database..."
   find ${DATA}/hmm/ -maxdepth 1 -name "*.hmm" -exec cat {} > ${DATA}/padlocdb.hmm \;
   find ${DATA}/hmm/ -maxdepth 1 -name "*.hmm" -delete
-  mv ${DATA}/padlocdb.hmm ${DATA}/hmm/ 
+  mv ${DATA}/padlocdb.hmm ${DATA}/hmm/
+  find ${DATA}/cm/ -maxdepth 1 -name "*.cm" -exec cat {} > ${DATA}/padlocdb.cm \;
+  find ${DATA}/cm/ -maxdepth 1 -name "*.cm" -delete
+  mv ${DATA}/padlocdb.cm ${DATA}/cm/
 }
 
 db_version() {
@@ -206,15 +217,22 @@ db_version() {
   fi
 }
 
+db_dev() {
+  echo "Downloading PADLOC-DB development version..."
+  curl -L "${DBREPO}/archive/master.tar.gz" --output ${DATA}/data.tar.gz
+  echo "Unpacking database..."
+  tar -xzf ${DATA}/data.tar.gz --directory ${DATA} --strip-components 1 && rm ${DATA}/data.tar.gz
+}
+
 # OPTIONS ---------------------------------------------------------------------
 
 # Set defaults.
 USE_DEBUG=0
 CPU=1
-RAW_OUT=0
 QUIET=0
 mkdir -p "${SRC_DIR}/../data"
 DATA=$(normpath "${SRC_DIR}/../data")
+ETC=$(normpath "${SRC_DIR}/../etc")
 FAA_FILE=""
 FNA_FILE=""
 FNA_COLLAPSED=""
@@ -248,6 +266,7 @@ while [[ "${#}" -gt 0 ]]; do
     --db-list) db_list; exit 0 ;;
     --db-install) require_argument "${option}" "${parameter}"; db_install "${parameter}" && db_compile; exit 0 ;;
     --db-update) db_update && db_compile; exit 0 ;;
+    --db-dev) db_dev && db_compile; exit 0 ;;
     --db-version) db_version; exit 0 ;;
     --citation) citation; exit 0 ;;
     --check-deps) check_deps; exit 0 ;;
@@ -272,7 +291,6 @@ while [[ "${#}" -gt 0 ]]; do
     -c|--cpu) require_argument "${option}" "${parameter}"
       CPU="${parameter}" ; shift ;;
     --force) FORCE=1;;
-    -r|--raw-out) RAW_OUT=1 ;;
     --fix-prodigal) PRODIGAL=1 ;;
     --endopts) break ;;
     *) die "Unexpected option: [${option}]" ;;
@@ -406,9 +424,9 @@ padloc_wrapper() {
     Rscript "${SRC_DIR}/padloc.R" \
     -d "${DOMTBL_PATH}" \
     -f "${GFF_FILE}" \
-	-c "${CRISPR_FILE}" \
-	-r "${NCRNA_FILE}" \
-	-h "${HMM_META}" \
+    -c "${CRISPR_FILE}" \
+    -r "${NCRNA_FILE}" \
+    -h "${HMM_META}" \
     -s "${SYS_META}" \
     -y "${YAML_DIR}" \
     -o "${OUT_DIR}" \
