@@ -63,13 +63,11 @@ General:
   --citation        Print citation information
   --check-deps      Check that dependencies are installed
   --debug           Run with debug messages
-
 Database:
   --db-list         List all PADLOC-DB releases
   --db-install [n]  Install specific PADLOC-DB release [n]
   --db-update       Install latest PADLOC-DB release
   --db-version      Print database version information
-
 Input:
   --faa [f]         Amino acid FASTA file (only valid with [--gff])
   --gff [f]         GFF file (only valid with [--faa])
@@ -80,10 +78,8 @@ Input:
   --ncrna [f]       Infernal output file containing ncRNA data
                     To pre-compute this file see instructions in:
                     '${ETC}/README.md'
-
 Output:
   --outdir [d]      Output directory
-
 Optional:
   --data [d]        Data directory (default '${DATA}')
   --cpu [n]         Use [n] CPUs (default '1')
