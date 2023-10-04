@@ -21,11 +21,8 @@
 
 # PADLOC: Prokaryotic Antiviral Defence LOCator
 
-> [!NOTE]
-> PADLOC >v2.0.0 is only compatible with PADLOC-DB >v2.0.0 and vice-versa. After you update PADLOC, make sure to update your database by running:
-> ```bash
-> padloc --db-update
-> ```
+> [!IMPORTANT]
+> [PADLOC](https://github.com/padlocbio/padloc) `>v2.0.0` is only compatible with [PADLOC-DB](https://github.com/padlocbio/padloc-db) `>v2.0.0` and vice-versa. After you update PADLOC, make sure to update your database by running: `padloc --db-update`.
 
 ## About
 
@@ -41,8 +38,7 @@ If you use the [PADLOC web server](https://padloc.otago.ac.nz/padloc/) please ad
 
 > Payne, L. J., Meaden S., Mestre M. R., Palmer C., Toro N., Fineran P. C. and Jackson S. A. (2022) PADLOC: a web server for the identification of antiviral defence systems in microbial genomes. *Nucleic Acids Research*, **50**, W541-W550. doi: https://doi.org/10.1093/nar/gkac400
 
-> [!IMPORTANT]
-> The HMMs and system models in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built and curated using the data and conclusions from many different sources, we encourage you to also give credit to these groups by reading their work and citing them where appropriate. References to relevant literature can be found at the [PADLOC-DB](https://github.com/padlocbio/padloc-db/blob/master/system_info.md) repository.
+The HMMs and system models in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built and curated using the data and conclusions from many different sources, we encourage you to also give credit to these groups by reading their work and citing them where appropriate. References to relevant literature can be found at the [PADLOC-DB](https://github.com/padlocbio/padloc-db/blob/master/system_info.md) repository.
 
 ## Installation
 
