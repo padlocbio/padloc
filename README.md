@@ -31,8 +31,6 @@
 
 [PADLOC](https://github.com/padlocbio/padloc) is a software tool for identifying antiviral defence systems in prokaryotic genomes. [PADLOC](https://github.com/padlocbio/padloc) screens genomes against a database of HMMs and system classifications to find and annotate defence systems based on sequence homology and genetic architecture.
 
-[PADLOC](https://github.com/padlocbio/padloc) can be installed and used via the command line or via our [web server](https://padloc.otago.ac.nz).
-
 ## Citation
 
 If you use [PADLOC](https://github.com/padlocbio/padloc) or [PADLOC-DB](https://github.com/padlocbio/padloc-db) please cite:
@@ -43,7 +41,8 @@ If you use the [PADLOC web server](https://padloc.otago.ac.nz/padloc/) please ad
 
 > Payne, L. J., Meaden S., Mestre M. R., Palmer C., Toro N., Fineran P. C. and Jackson S. A. (2022) PADLOC: a web server for the identification of antiviral defence systems in microbial genomes. *Nucleic Acids Research*, **50**, W541-W550. doi: https://doi.org/10.1093/nar/gkac400
 
-The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curated using data from various sources, we encourage you to also give credit to these groups by [citing them too](#References).
+> [!IMPORTANT]
+> The HMMs and system models in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built and curated using the data and conclusions from many different sources, we encourage you to also give credit to these groups by reading their work and citing them where appropriate. References to relevant literature can be found at the [PADLOC-DB](https://github.com/padlocbio/padloc-db/blob/master/system_info.md) repository.
 
 ## Installation
 
@@ -68,18 +67,8 @@ padloc --faa genome.faa --gff features.gff
 ```
 
 ```bash
-# BASIC: Search a nucleic acid fasta file, identifying CDS with prodigal
-padloc --fna genome.fna
-```
-
-```bash
 # INTERMEDIATE: Use multiple cpus and save output to a different directory
 padloc --faa genome.faa --gff features.gff --outdir path_to_output --cpu 4
-```
-
-```bash
-# ADVANCED: Use your own HMMs and system models
-padloc --faa genome.faa --gff features.gff --data path_to_database
 ```
 
 ```bash
@@ -87,7 +76,8 @@ padloc --faa genome.faa --gff features.gff --data path_to_database
 padloc --faa genome.faa --gff features.gff --ncrna genome.ncrna --crispr genome.crispr
 ```
 
-Refer to [`padloc/etc/README.md`](https://github.com/padlocbio/padloc/blob/master/etc/README.md) for instructions on pre-computing ncRNA and CRISPR array data.
+> [!NOTE]
+> Refer to [`padloc/etc/README.md`](https://github.com/padlocbio/padloc/blob/master/etc/README.md) for instructions on pre-computing ncRNA and CRISPR array data.
 
 ## Test
 
@@ -101,40 +91,40 @@ padloc --fna padloc/test/GCF_004358345.1.fna
 
 ```
 General:
-    --help            Print this help message
-    --version         Print version information
-    --citation        Print citation information
-    --check-deps      Check that dependencies are installed
-    --debug           Run with debug messages
+  --help            Print this help message
+  --version         Print version information
+  --citation        Print citation information
+  --check-deps      Check that dependencies are installed
+  --debug           Run with debug messages
 Database:
-    --db-list         List all PADLOC-DB releases
-    --db-install [n]  Install specific PADLOC-DB release [n]
-    --db-update       Install latest PADLOC-DB release
-    --db-version      Print database version information
+  --db-list         List all PADLOC-DB releases
+  --db-install [n]  Install specific PADLOC-DB release [n]
+  --db-update       Install latest PADLOC-DB release
+  --db-version      Print database version information
 Input:
-    --faa [f]         Amino acid FASTA file (only valid with [--gff])
-    --gff [f]         GFF file (only valid with [--faa])
-    --fna [f]         Nucleic acid FASTA file
-    --crispr [f]      CRISPR array input file (.gff from CRISPRDetect)
+  --faa [f]         Amino acid FASTA file (only valid with [--gff])
+  --gff [f]         GFF file (only valid with [--faa])
+  --fna [f]         Nucleic acid FASTA file
+  --crispr [f]      CRISPRDetect output file containing array data
+  --ncrna [f]       Infernal output file containing ncRNA data
 Output:
-    --outdir [d]      Output directory
+  --outdir [d]      Output directory
 Optional:
-    --data [d]        Data directory
-    --cpu [n]         Use [n] CPUs (default '1')
-    --raw-out         Include a summarised raw output file
-    --fix-prodigal    Set this flag when providing an FAA and GFF file 
-                      generated with prodigal to force fixing of sequence IDs
+  --data [d]        Data directory
+  --cpu [n]         Use [n] CPUs (default '1')
+  --fix-prodigal    Set this flag when providing an FAA and GFF file
+                    generated with prodigal to force fixing of sequence IDs
 ```
 
 ## Output
 
-| File           | Description                                         |
-| -------------- | --------------------------------------------------- |
-| *.domtblout    | Domain table file generated by HMMER.               |
-| *_prodigal.faa | Amino acid FASTA file generated by prodigal.        |
-| *_prodigal.gff | GFF annotation file generated by prodigal.          |
-| *_padloc.csv   | PADLOC output file for identified defence systems.  |
-| *_padloc.gff   | GFF annotation file for identified defence systems. |
+| Extension     | Description                                         |
+| ------------- | --------------------------------------------------- |
+| .domtblout    | Domain table file generated by HMMER.               |
+| _prodigal.faa | Amino acid FASTA file generated by prodigal.        |
+| _prodigal.gff | GFF annotation file generated by prodigal.          |
+| _padloc.csv   | PADLOC output file for identified defence systems.  |
+| _padloc.gff   | GFF annotation file for identified defence systems. |
 
 ## Interpreting Output
 
@@ -162,7 +152,7 @@ Optional:
 
 ## PADLOC-DB
 
-The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio/padloc) are available from the [PADLOC-DB](https://github.com/leightonpayne/padloc-db) repository. The latest version of the database can be downloaded by running `padloc --db-update`. Alternatively, a custom database can be specified with `--data`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about configuring a custom database.
+The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio/padloc) are available from the [PADLOC-DB](https://github.com/leightonpayne/padloc-db) repository. The latest version of the database can be downloaded by running `padloc --db-update`. Alternatively, a custom database can be specified with `--data`, refer to [PADLOC-DB](https://github.com/leightonpayne/padloc-db) for more information about the database.
 
 ## FAQ
 
@@ -220,7 +210,8 @@ The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio
 
   With `--ncrna` and `--crispr`, pre-computed files from Infernal and CRISPRDetect respectively can be supplied to PADLOC to be included in the detection of Retrons and CRISPR-Cas systems. Infernal and CRISPRDetect are run automatically when using the PADLOC [web server](https://padloc.otago.ac.nz), but can also be run and supplied to the command line version.
 
-  Refer to [`padloc/etc/README.md`]() for instructions for pre-computing ncRNA and CRISPR array data.
+  > [!NOTE]
+  > Refer to [`padloc/etc/README.md`](https://github.com/padlocbio/padloc/blob/master/etc/README.md) for instructions on pre-computing ncRNA and CRISPR array data.
 
 ## Issues
 
@@ -228,7 +219,7 @@ Bugs and feature requests can be submitted to the [Issues tab](https://github.co
 
 ## Dependencies
 
-These dependencies are installed automatically when using conda.
+These dependencies are automatically installed when installing PADLOC via `conda`.
 
 - **R == 4.3.1**
   *R Core Team (2018). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. https://www.R-project.org/.*
@@ -243,17 +234,6 @@ These dependencies are installed automatically when using conda.
 - **Prodigal == 2.6.3**
   *Hyatt, D., Chen, GL., Locascio, P.F., Land, M.L., Larimer, F.W., and Hauser, L.J. (2010) Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics 11, 119.*
 
-## References
-
-The HMMs in [PADLOC-DB](https://github.com/padlocbio/padloc-db) were built/curated using data from various sources, we encourage you to also give credit to these groups by citing them too, where applicable.
-
-Take a look in ... for the literature that guided model building/curation for each system.
-
-The relevant refences for individual HMMs can be found by inspecting the `hmm_meta.txt` file provided with [PADLOC-DB](https://github.com/padlocbio/padloc-db).
-
 ## License
 
 This software and data is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
-
-
