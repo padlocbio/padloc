@@ -18,8 +18,7 @@ SRC_DIR="$(dirname ${ME})"
 CONDA_SPEC=$(abspath "${SRC_DIR%/bin}/env/env-crisprdetect.yml")
 TMP_DIR="${CONDA_PREFIX}/envs/crisprdetect/tmp"
 CD_SRC_DIR="${CONDA_PREFIX}/envs/crisprdetect/CRISPRDetect_2.4"
-# PADLOC_DIR="${CONDA_PREFIX}/envs/padloc/"
-PADLOC_DIR="~/Developer/active/padloc"
+PADLOC_DIR="${CONDA_PREFIX}/envs/padloc/"
 PATCH_MAIN="${PADLOC_DIR}/etc/patch/CRISPRDetect.patch"
 PATCH_SUBS="${PADLOC_DIR}/etc/patch/CRISPRDETECT_SUBS_1.patch"
 
@@ -28,7 +27,7 @@ rm -drf "${TMP_DIR}" "${CD_SRC_DIR}"
 info "Creating conda environment\n"
 CMD_CONDA="conda env create -f ${CONDA_SPEC}"
 info "$ ${CMD_CONDA}\n"
-# eval "${CMD_CONDA}"
+eval "${CMD_CONDA}"
 
 info "Downloading CRISPRDetect from GitHub\n"
 CMD_GIT="git clone https://github.com/davidchyou/CRISPRDetect_2.4 ${CONDA_PREFIX}/envs/crisprdetect/tmp"
