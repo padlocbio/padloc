@@ -16,11 +16,13 @@ abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
 
 SRC_DIR="$(dirname ${ME})"
 CONDA_SPEC=$(abspath "${SRC_DIR%/bin}/env/env-crisprdetect.yml")
-TMP_DIR="${CONDA_PREFIX}/envs/crisprdetect/tmp"
-CD_SRC_DIR="${CONDA_PREFIX}/envs/crisprdetect/CRISPRDetect_2.4"
-PADLOC_DIR="${CONDA_PREFIX}/envs/padloc/"
-PATCH_MAIN="${PADLOC_DIR}/etc/patch/CRISPRDetect.patch"
-PATCH_SUBS="${PADLOC_DIR}/etc/patch/CRISPRDETECT_SUBS_1.patch"
+CONDA_BASE="$(conda run --live-stream -n base bash -c "echo \${CONDA_PREFIX}")"
+TMP_DIR="${CONDA_BASE}/envs/crisprdetect/tmp"
+CD_SRC_DIR="${CONDA_BASE}/envs/crisprdetect/CRISPRDetect_2.4"
+# TODO: Make padloc directory not hard-coded to allow installation flexibility
+PADLOC_DIR="${CONDA_BASE}/envs/padloc"
+PATCH_MAIN="${PADLOC_DIR}/patch/CRISPRDetect.patch"
+PATCH_SUBS="${PADLOC_DIR}/patch/CRISPRDETECT_SUBS_1.patch"
 
 rm -drf "${TMP_DIR}" "${CD_SRC_DIR}"
 
@@ -30,12 +32,12 @@ info "$ ${CMD_CONDA}\n"
 eval "${CMD_CONDA}"
 
 info "Downloading CRISPRDetect from GitHub\n"
-CMD_GIT="git clone https://github.com/davidchyou/CRISPRDetect_2.4 ${CONDA_PREFIX}/envs/crisprdetect/tmp"
+CMD_GIT="git clone https://github.com/davidchyou/CRISPRDetect_2.4 ${TMP_DIR}"
 info "$ ${CMD_GIT}\n"
 eval "${CMD_GIT}"
 
 info "Extracting CRISPRDetect_2.4.zip\n"
-CMD_UNZIP="unzip -o -q ${TMP_DIR}/CRISPRDetect_2.4.zip -d ${TMP_DIR} && mv ${TMP_DIR}/CRISPRDetect_2.4 ${CONDA_PREFIX}/envs/crisprdetect && rm -drf ${TMP_DIR}"
+CMD_UNZIP="unzip -o -q ${TMP_DIR}/CRISPRDetect_2.4.zip -d ${TMP_DIR} && mv ${TMP_DIR}/CRISPRDetect_2.4 ${CONDA_BASE}/envs/crisprdetect && rm -drf ${TMP_DIR}"
 info "$ ${CMD_UNZIP}\n"
 eval ${CMD_UNZIP}
 
