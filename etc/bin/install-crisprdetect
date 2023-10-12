@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
-ME="${0}"
-
-# BASH STRICT MODE
+# bash strict mode (http://redsymbol.net/articles/unofficial-bash-strict-mode)
 set -euo pipefail; IFS=$'\n\t'
 trap 'echo "$(date "+[%H:%M:%S]") ERROR >> errexit on line $LINENO" >&2' ERR
+
+ME="${0}"
+
+# Conda functions are actually shell functions that don't get exported to
+# subshells (by default), this is one way of re-sourcing those functions in the
+# subshell, there may be other ways, but this seems to work for now, and should
+# be portable? (https://github.com/conda/conda/issues/7980)
+source "${CONDA_PREFIX%/*/*}/etc/profile.d/conda.sh"
 
 # UTILS ------------------------------------------------------------------------
 
@@ -16,7 +22,7 @@ abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
 
 SRC_DIR="$(dirname ${ME})"
 CONDA_SPEC=$(abspath "${SRC_DIR%/bin}/env/env-crisprdetect.yml")
-CONDA_BASE="$(conda run --live-stream -n base bash -c "echo \${CONDA_PREFIX}")"
+CONDA_BASE="$(conda info --base)"
 TMP_DIR="${CONDA_BASE}/envs/crisprdetect/tmp"
 CD_SRC_DIR="${CONDA_BASE}/envs/crisprdetect/CRISPRDetect_2.4"
 # TODO: Make padloc directory not hard-coded to allow installation flexibility
