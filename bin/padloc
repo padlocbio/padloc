@@ -73,11 +73,11 @@ Input:
   --gff [f]         GFF file (only valid with [--faa])
   --fna [f]         Nucleic acid FASTA file
   --crispr [f]      CRISPRDetect output file containing array data
-                    To pre-compute this file see instructions in:
-                    '${ETC}/README.md'
+                    To pre-compute this file see instructions at:
+                    'https://github.com/padlocbio/padloc/tree/master/etc'
   --ncrna [f]       Infernal output file containing ncRNA data
                     To pre-compute this file see instructions in:
-                    '${ETC}/README.md'
+                    'https://github.com/padlocbio/padloc/tree/master/etc'
 Output:
   --outdir [d]      Output directory
 Optional:
@@ -85,6 +85,9 @@ Optional:
   --cpu [n]         Use [n] CPUs (default '1')
   --fix-prodigal    Set this flag when providing an FAA and GFF file
                     generated with prodigal to force fixing of sequence IDs
+
+Example input files can be found at:
+${TEST}
 EOF
 }
 
@@ -101,9 +104,11 @@ If you use PADLOC or PADLOC-DB please cite:
   PADLOC reveals new system types. Nucleic Acids Research, 49, 10868-10878.
   doi: https://doi.org/10/gzgh
 
-The HMMs in PADLOC-DB were built/curated using data from various sources, 
-we encourage you to also give credit to these groups by citing the literature
-listed here: https://github.com/padlocbio/padloc#References
+The HMMs and system models in PADLOC-DB were built and curated using the data
+and conclusions from many different sources, we encourage you to also give
+credit to these groups by reading their work and citing them where appropriate.
+References to relevant literature can be found at:
+https://github.com/padlocbio/padloc-db/blob/master/system_info.md#References
   "; }
 
 # UTILITITES ------------------------------------------------------------------
@@ -228,7 +233,7 @@ CPU=1
 QUIET=0
 mkdir -p "${SRC_DIR}/../data"
 DATA=$(normpath "${SRC_DIR}/../data")
-ETC=$(normpath "${SRC_DIR}/../etc")
+TEST=$(normpath "${SRC_DIR}/../test")
 FAA_FILE=""
 FNA_FILE=""
 FNA_COLLAPSED=""
