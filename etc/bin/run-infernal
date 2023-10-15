@@ -20,6 +20,9 @@ die() { printf "\nERROR: \t %s\n" "$@" >&2 ; exit 1; }
 # abspath <directory>; Get the absolute path to a directory.
 abspath() { [[ "${1}" = /* ]] && echo "${1}" || echo "$PWD/${1#./}"; }
 
+# normpath <directory>; Get the normalised path to a directory.
+normpath() { printf $(unset CDPATH && cd "${1}" && pwd); }
+
 # HELP -------------------------------------------------------------------------
 
 # help; Print usage information.
@@ -29,7 +32,7 @@ run-infernal :: A simple wrapper for running Infernal's cmsearch with the same
 parameters as the PADLOC web server.
 
 Usage:
-  run-cmsearch --input <genome_sequence.fna> --output <genome_ncrna.tblout>
+  run-infernal --input <genome_sequence.fna> --output <genome_ncrna.tblout>
 
 Required:
   --input [f]   The file to be used as input
@@ -55,9 +58,8 @@ require_argument() {
 # Init vars.
 INPUT=""
 OUTPUT=""
-PATH_ME=$(abspath "${ME%/etc/bin/run-infernal}")
-PATH_PADLOC="${PATH_ME%/etc/bin/run-infernal}"
-PATH_DB="${PATH_PADLOC}/data/cm/TypeIX.cm"
+SRC_DIR="$(dirname ${ME})"
+PATH_DB=$(normpath "${SRC_DIR}/../data/cm/")
 
 # Read options.
 while [[ "${#}" -gt 0 ]]; do
@@ -103,7 +105,7 @@ cmsearch_wrapper() {
   --acc \
   --noali \
   --tblout "${OUTPUT}" \
-  "${PATH_DB}" \
+  "${PATH_DB}/padlocdb.cm" \
   "${INPUT}"
 }
 
