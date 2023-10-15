@@ -467,7 +467,7 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
 # Main system identification logic.
 search_system <- function(system_type, merged_tbls) {
   
-  # system_type<-"Aditi"
+  # system_type<-"cas_type_arrays"
   # system_type<-"retron_I-A"
   # merged_tbls <- merged
   
@@ -486,45 +486,51 @@ search_system <- function(system_type, merged_tbls) {
   min_core         <- system_param$minimum_core
   min_total        <- system_param$minimum_total
   core_genes       <- system_param$core_genes
-  optional_genes   <- system_param$optional_genes
+  secondary_genes   <- system_param$secondary_genes
+  neutral_genes    <- system_param$neutral_genes
   prohibited_genes <- system_param$prohibited_genes
   
   # check boolean parameters
   force_strand<-ifelse("force_strand" %in% names(system_param),system_param$force_strand,F)
   
   expand_secondary_gene_assignments<-function(primary_gene_list){
-  
+    
     additional_genes<-hmm_meta %>% filter(system.definition.shortcut %in% primary_gene_list) %>% 
-                                    select(protein.name) %>%
-                                    distinct()
-                    
+      select(protein.name) %>%
+      distinct()
+    
     return(c(primary_gene_list,unlist(additional_genes,use.names = F)))
   }
   
   core_genes<-expand_secondary_gene_assignments(core_genes)
-  optional_genes<-expand_secondary_gene_assignments(optional_genes)
+  secondary_genes<-expand_secondary_gene_assignments(secondary_genes)
+  neutral_genes<-expand_secondary_gene_assignments(neutral_genes)
   prohibited_genes<-expand_secondary_gene_assignments(prohibited_genes)
   
-  # remove any genes from 'other' that are also listed as 'core' or 'prohibited'
-  optional_genes <- unlist(optional_genes %>% setdiff(c(core_genes, prohibited_genes)))
+  # remove any genes from 'secondary' that are also listed as 'core' or 'prohibited'
+  secondary_genes <- unlist(secondary_genes %>% setdiff(c(core_genes, prohibited_genes)))
+  
   # remove any genes from 'prohibited' that are also listed as 'core'
   prohibited_genes <- unlist(prohibited_genes %>% setdiff(core_genes))
   core_genes <- unlist(core_genes)
   
+  # remove any genes from 'neutral' that are also listed elsewhere
+  neutral_genes <- unlist(neutral_genes %>% setdiff(c(core_genes, secondary_genes, prohibited_genes)))
+  
   # check whether to add CRISPR arrays
-  if (include.crispr.arrays==T & "CRISPR_array" %in% c(core_genes,optional_genes,prohibited_genes)){
+  if (include.crispr.arrays==T & "CRISPR_array" %in% c(core_genes,secondary_genes,neutral_genes,prohibited_genes)){
     crispr.add <- T} else {
-    crispr.add <- F}
-
-if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibited_genes)){
+      crispr.add <- F}
+  
+  if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,secondary_genes,neutral_genes,prohibited_genes)){
     ncrna.add <- T} else {
-    ncrna.add <- F}
+      ncrna.add <- F}
   
   
   # filter for relevant genes
   relevance_check <- merged_tbls %>%
     dplyr::mutate(relevant = ifelse(
-      protein.name %in% c(core_genes, optional_genes, prohibited_genes), 
+      protein.name %in% c(core_genes, secondary_genes, neutral_genes, prohibited_genes), 
       TRUE, FALSE))
   
   relevance_checked <- relevance_check %>%
@@ -534,10 +540,11 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
   genes_classified <- relevance_checked %>% 
     dplyr::mutate(
       is.core = ifelse(protein.name %in% core_genes, TRUE, FALSE),
-      is.accessory = ifelse(protein.name %in% optional_genes, TRUE, FALSE),
+      is.secondary = ifelse(protein.name %in% secondary_genes, TRUE, FALSE),
+      is.neutral = ifelse(protein.name %in% neutral_genes, TRUE, FALSE),
       is.prohibited = ifelse(protein.name %in% prohibited_genes, TRUE, FALSE))
   
-  # add column listing all domains for a particular hmm hiting a particular 
+  # add column listing all domains for a particular hmm hitting a particular 
   # target
   collapsed_domains <- genes_classified %>%
     group_by(seqid, start, end) %>% 
@@ -588,7 +595,8 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
     group_by(seqid, start, end) %>% 
     dplyr::arrange(
       desc(is.core),
-      desc(is.accessory),
+      desc(is.secondary),
+      desc(is.neutral),
       desc(is.prohibited),
       domain.iE.value,
       desc(combined.coverage),
@@ -606,9 +614,10 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
   if(crispr.add == T){
     to.add <- crispr.arrays %>%
       mutate(
-      is.core = ifelse("CRISPR_array" %in% core_genes, TRUE, FALSE),
-      is.accessory = ifelse("CRISPR_array" %in% optional_genes, TRUE, FALSE),
-      is.prohibited = ifelse("CRISPR_array" %in% prohibited_genes, TRUE, FALSE)
+        is.core = ifelse("CRISPR_array" %in% core_genes, TRUE, FALSE),
+        is.secondary = ifelse("CRISPR_array" %in% secondary_genes, TRUE, FALSE),
+        is.neutral = ifelse("CRISPR_array" %in% neutral_genes, TRUE, FALSE),
+        is.prohibited = ifelse("CRISPR_array" %in% prohibited_genes, TRUE, FALSE)
       )
     top_hits <- top_hits %>% bind_rows(to.add)
   }
@@ -617,9 +626,10 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
   if(ncrna.add == T){
     to.add <- retron.ncrnas %>%
       mutate(
-      is.core = ifelse("ncRNA" %in% core_genes, TRUE, FALSE),
-      is.accessory = ifelse("ncRNA" %in% optional_genes, TRUE, FALSE),
-      is.prohibited = ifelse("ncRNA" %in% prohibited_genes, TRUE, FALSE)
+        is.core = ifelse("ncRNA" %in% core_genes, TRUE, FALSE),
+        is.secondary = ifelse("ncRNA" %in% secondary_genes, TRUE, FALSE),
+        is.neutral = ifelse("ncRNA" %in% neutral_genes, TRUE, FALSE),
+        is.prohibited = ifelse("ncRNA" %in% prohibited_genes, TRUE, FALSE)
       )
     top_hits <- top_hits %>% bind_rows(to.add)
   }
@@ -628,39 +638,40 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
   
   
   # add a column that groups hits into clusters
-    # first, set grouping by strand if force_strand == T
-    # also make sure every cluster id is unique
-      if (force_strand == T) {
-        clusters <- top_hits %>% 
-          arrange(seqid,strand,relative.position) %>% 
-          group_by(seqid,strand) %>% 
-          dplyr::mutate(cluster.tmp = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
-          group_by(seqid,strand,cluster.tmp) %>% 
-          mutate(cluster = cur_group_id()) %>%
-          ungroup() %>%
-          select(-cluster.tmp)
-      } else {
-        clusters <- top_hits %>% 
-          arrange(seqid,relative.position) %>% 
-          group_by(seqid) %>% 
-          dplyr::mutate(cluster.tmp = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
-          group_by(seqid,cluster.tmp) %>% 
-          mutate(cluster = cur_group_id()) %>%
-          ungroup() %>%
-          select(-cluster.tmp)
-      }
+  # first, set grouping by strand if force_strand == T
+  # also make sure every cluster id is unique
+  if (force_strand == T) {
+    clusters <- top_hits %>% 
+      arrange(seqid,strand,relative.position) %>% 
+      group_by(seqid,strand) %>% 
+      dplyr::mutate(cluster.tmp = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
+      group_by(seqid,strand,cluster.tmp) %>% 
+      mutate(cluster = cur_group_id()) %>%
+      ungroup() %>%
+      select(-cluster.tmp)
+  } else {
+    clusters <- top_hits %>% 
+      arrange(seqid,relative.position) %>% 
+      group_by(seqid) %>% 
+      dplyr::mutate(cluster.tmp = cumsum(c(1, abs(diff(relative.position)) > max_space + 1))) %>%
+      group_by(seqid,cluster.tmp) %>% 
+      mutate(cluster = cur_group_id()) %>%
+      ungroup() %>%
+      select(-cluster.tmp)
+  }
   
   # count the number of unique hits in each cluster
   clusters_unique <- clusters %>%
-    group_by(seqid, cluster, is.core, is.accessory, is.prohibited) %>%
+    group_by(seqid, cluster, is.core, is.secondary, is.neutral, is.prohibited) %>%
     dplyr::mutate(unq.counts = length(unique(protein.name))) %>%
     ungroup()
   
   # determine the actual number of hits per cluster
+  # neutral genes are not included in gene counts
   clusters_counts <- clusters_unique %>%
     dplyr::mutate(
       unq.core = is.core * unq.counts,
-      unq.accessory = is.accessory * unq.counts,
+      unq.accessory = is.secondary * unq.counts,
       unq.prohibited = is.prohibited * unq.counts) %>%
     group_by(seqid, cluster) %>%
     dplyr::mutate(
@@ -673,8 +684,8 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
   # identify candidate systems
   candidates_check <- clusters_counts %>% 
     dplyr::mutate(candidate = ifelse(
-      # all core genes, at least the minimum number of total genes, and no 
-      # prohibited genes must be present
+      # all core genes, at least the minimum number of total genes (excluding neutral genes),
+      # and no prohibited genes must be present
       unq.core >= min_core & unq.total >= min_total & 
         unq.prohibited == 0, TRUE, FALSE))
   
@@ -688,7 +699,7 @@ if (include.retron.ncrnas==T & "ncRNA" %in% c(core_genes,optional_genes,prohibit
            hmm.name, protein.name, full.seq.E.value, domain.iE.value, 
            target.coverage, hmm.coverage, start, end, strand, 
            target.description, relative.position, contig.end, all.domains, best.hits)
-
+  
 }
 
 # generate_gff(PADLOC output dataframe)
