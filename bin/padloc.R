@@ -429,7 +429,7 @@ merge_tbls <- function(domtbl, gff, hmm_meta) {
   
   # Join domtbl with GFF, then with hmm_meta
   merged <- domtbl %>% 
-    left_join(gff, by = "target.name") %>%
+    left_join(gff, by = "target.name", relationship = "many-to-many") %>%
     left_join(hmm_meta, by = "hmm.name", relationship = "many-to-many") %>%
     arrange(seqid,relative.position)
   
