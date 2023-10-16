@@ -221,10 +221,10 @@ read_gff <- function(gff_path) {
 separate_attributes <- function(gff) {
   
   out <- gff %>%
-    separate_rows(attributes, sep = ";") %>%
+    separate_longer_delim(attributes, delim = ";") %>%
     filter(attributes != "") %>%
-    separate(attributes, into = c("key", "value"), sep = "=") %>% 
-    spread(key = key, value = value, fill = NA)
+    separate_wider_delim(attributes, names = c("key", "value"), delim = "=") %>%
+    pivot_wider(names_from = "key", values_from = "value")
   
 }
 
