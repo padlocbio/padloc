@@ -79,29 +79,15 @@ QUIET         <- opt$quiet
 PRODIGAL      <- opt$prodigal
 
 ### DEBUG ###
-# DOMTBL_PATH   <- "~/Developer/active/padloc/test-data/GCF_001688665.2.domtblout"
-# GFF_PATH      <- "~/Developer/active/padloc/test/GCF_001688665.2.gff"
-# HMM_META_PATH <- "~/Developer/active/padloc/test-data/new/hmm_meta.txt"
-# SYS_META_PATH <- "~/Developer/active/padloc/test-data/new/sys_meta.txt"
-# YAML_DIR      <- "~/Developer/active/padloc/test-data/new/sys/"
-# OUTPUT_DIR    <- "~/Developer/active/padloc/test-data/"
+# DOMTBL_PATH   <- "~/.miniconda3/envs/padloc/test/GCF_004358345.1.domtblout"
+# GFF_PATH      <- "~/.miniconda3/envs/padloc/test/GCF_004358345.1_prodigal.gff"
+# HMM_META_PATH <- "~/.miniconda3/envs/padloc/data/hmm_meta.txt"
+# SYS_META_PATH <- "~/.miniconda3/envs/padloc/data/sys_meta.txt"
+# YAML_DIR      <- "~/.miniconda3/envs/padloc/data/sys/"
+# OUTPUT_DIR    <- "~/.miniconda3/envs/padloc/test/"
 # DEBUG_COUNTER <- 1
 # QUIET         <- 0
 # PRODIGAL      <- 0
-# 
-# DOMTBL_PATH   <- "D:/git_clone/padloc/test/GCF_001265675.1_102598_protein.domtblout"
-# GFF_PATH      <- "D:/git_clone/padloc/test/GCF_001265675.1_102598_genomic.gff"
-# #CRISPR_PATH   <- "D:/git_clone/padloc/test/0954a438-c024-455d-9e51-5d1f9133c931_crispr.txt.gff"
-# NCRNA_PATH    <- "D:/git_clone/padloc/test/GCF_001265675.1_102598.ncrna"
-# HMM_META_PATH <- "D:/git_clone/padloc/data/hmm_meta.txt"
-# SYS_META_PATH <- "D:/git_clone/padloc/data/sys_meta.txt"
-# YAML_DIR      <- "D:/git_clone/padloc/data/sys/"
-# OUTPUT_DIR    <- "D:/git_clone/padloc/test/"
-# DEBUG_COUNTER <- 1
-# QUIET         <- 0
-# PRODIGAL      <- 0
-
-
 
 # FUNCTIONS --------------------------------------------------------------------
 
@@ -224,6 +210,10 @@ separate_attributes <- function(gff) {
     separate_longer_delim(attributes, delim = ";") %>%
     filter(attributes != "") %>%
     separate_wider_delim(attributes, names = c("key", "value"), delim = "=") %>%
+    # prodigal-generated GFFs may have `score` attribute which clashes with
+    # score column in GFF when pivoting. To avoid this and any other potential
+    # clashed, drop them from attributes (they're not going to be used anyway)
+    filter(!key %in% names(gff)) %>%
     pivot_wider(names_from = "key", values_from = "value")
   
 }
