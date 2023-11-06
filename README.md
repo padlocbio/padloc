@@ -48,12 +48,14 @@ It is recommended that [PADLOC](https://github.com/padlocbio/padloc) be installe
 
 ```bash
 # Install PADLOC into a new conda environment
-conda create -n padloc -c conda-forge -c bioconda -c padlocbio padloc
+conda create -n padloc -c conda-forge -c bioconda -c padlocbio padloc=2.0.0
 # Activate the environment
 conda activate padloc
 # Download the latest database
 padloc --db-update
 ```
+
+If you're having installation issues, refer to [Issue #35](https://github.com/padlocbio/padloc/issues/35).
 
 ## Examples
 
