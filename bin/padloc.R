@@ -830,7 +830,8 @@ format_output<-function(to_format){
       domain.iE.value = signif(domain.iE.value, 3),
       target.description = ifelse(is.na(target.description) == T, target.name, target.description)
     ) %>%
-    mutate(target.description = str_remove(target.description, "MULTISPECIES: "))
+    mutate(target.description = str_remove(target.description, "MULTISPECIES: "))%>%
+    mutate(target.description = str_remove(target.description, ","))
   
   # if checking for CRISPR_arrays, remove the system type (to prevent users misinterpreting array types)
   
