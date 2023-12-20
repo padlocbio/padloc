@@ -89,6 +89,19 @@ PRODIGAL      <- opt$prodigal
 # QUIET         <- 0
 # PRODIGAL      <- 0
 
+# DOMTBL_PATH   <- "~/Bioinformatics/padloc/test/GCF_000212755.2_ASM21275v3_protein.domtblout"
+# GFF_PATH      <- "~/Bioinformatics/padloc/test/GCF_000212755.2_ASM21275v3_genomic.gff"
+# HMM_META_PATH <- "~/Bioinformatics/padloc/test/data/hmm_meta.txt"
+# SYS_META_PATH <- "~/Bioinformatics/padloc/test/data/sys_meta.txt"
+# YAML_DIR      <- "~/Bioinformatics/padloc/test/data/sys/"
+# OUTPUT_DIR    <- "~/Bioinformatics/padloc/test/"
+# DEBUG_COUNTER <- 1
+# QUIET         <- 0
+# PRODIGAL      <- 0
+
+
+
+
 # FUNCTIONS --------------------------------------------------------------------
 
 # read_hmm_meta(path to hmm_meta)
