@@ -882,7 +882,7 @@ format_output<-function(to_format){
 # Output table of defence systems and annotation file
 if ( nrow(padloc_out) > 0 ) {
   padloc_out <- format_output(padloc_out)
-  msg(paste0("Writing output to '", OUTPUT_DIR, "/", assembly_name, "_padloc.csv'"))
+  msg(paste0("Complete: Writing output to '", OUTPUT_DIR, "/", assembly_name, "_padloc.csv'"))
   
   padloc_out %>%
     write_csv(file = paste0(OUTPUT_DIR, "/", assembly_name, "_padloc.csv"))
@@ -892,7 +892,7 @@ if ( nrow(padloc_out) > 0 ) {
                       delim = "\t", col_names = FALSE)
   
 } else {
-  msg(paste0("Nothing found for ", assembly_name))
+  msg(paste0("Complete: Nothing found for ", assembly_name))
 }
 
 # Record end time.
