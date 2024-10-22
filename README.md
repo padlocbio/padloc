@@ -136,7 +136,7 @@ Optional:
 | `hmm.name`           | PADLOC HMM name.                                             |
 | `protein.name`       | Defence system protein name.                                 |
 | `full.seq.E.value`   | Full sequence E-value. From the HMMER Documentation: "The E-value is a measure of statistical signiﬁcance. The lower the E-value, the more signiﬁcant the hit." |
-| `domain.iE.value`    | Domain E-value. From the HMMER Documentation: "If the full sequence E-value is signiﬁcant but the single best domain E-value is not, the target sequence is probably a multidomain remote homolog". |
+| `domain.iE.value`    | Domain E-value. From the HMMER Documentation: "If the full sequence E-value is signiﬁcant but the single best domain E-value is not, the target sequence is probably a multidomain remote homolog". This is the primary value used to filter the HMMER output for putative hits. |
 | `target.coverage`    | Fraction of the target sequence aligning to the HMM.         |
 | `hmm.coverage`       | Fraction of the HMM aligning to the target sequence.         |
 | `start`              | Start position of the target sequence in the contig.         |
@@ -203,6 +203,10 @@ The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio
   According to [Prodigal's own documentation](https://github.com/hyattpd/prodigal/wiki/Advice-by-Input-Type#plasmids-phages-viruses-and-other-short-sequences), sequences < 100 kbp are *"too short to gather enough statistics to predict genes well"*. To avoid issues arising from this, PADLOC won't try to run prodigal over anything < 100 kbp. 
 
   If you know what you're doing then you can use Prodigal or another gene prediction program to generate your own FAA and GFF files to then use with PADLOC.
+
+- **Is the `full.seq.E.value` or `domain.iE.value` used to filter HMM hits?**
+
+  The primary method of filtering hits is via the domain iE-value, based on the thresholds specified in [`hmm_meta.txt`](https://github.com/padlocbio/padloc-db/blob/master/hmm_meta.txt), under the column `e.val.threshold`.
 
 - **How do I use `--ncrna` and `--crispr` to identify ncRNAs and CRISPR arrays?**
 
