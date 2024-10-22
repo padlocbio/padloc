@@ -208,8 +208,8 @@ The HMMs and defence system models used by [PADLOC](https://github.com/padlocbio
 
   With `--ncrna` and `--crispr`, pre-computed files from Infernal and CRISPRDetect respectively can be supplied to PADLOC to be included in the detection of Retrons and CRISPR-Cas systems. Infernal and CRISPRDetect are run automatically when using the PADLOC [web server](https://padloc.otago.ac.nz), but can also be run and supplied to the command line version.
 
-  > [!NOTE]
-  > Refer to [`padloc/etc/README.md`](https://github.com/padlocbio/padloc/blob/master/etc/README.md) for instructions on pre-computing ncRNA and CRISPR array data.
+> [!NOTE]
+> Refer to [`padloc/etc/README.md`](https://github.com/padlocbio/padloc/blob/master/etc/README.md) for instructions on pre-computing ncRNA and CRISPR array data.
 
 ## Issues
 
